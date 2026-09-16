@@ -31,11 +31,11 @@ export default function MonetizationSection({ onOpenPublishModal }) {
   ];
 
   return (
-    <section id="vender" className="py-16 bg-[#0D111A]">
+    <section id="vender" className="py-16 bg-[#F8FAFC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Title matching screenshot */}
-        <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-12">
+        {/* Title */}
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 text-center mb-12 tracking-tight">
           Publicá tu vehículo en 3 simples pasos
         </h2>
 
@@ -47,20 +47,20 @@ export default function MonetizationSection({ onOpenPublishModal }) {
             {steps.map((step) => {
               const StepIcon = step.icon;
               return (
-                <div key={step.number} className="flex flex-col items-center space-y-3">
-                  <div className="w-14 h-14 rounded-2xl bg-[#151B28] border border-slate-800 flex items-center justify-center text-[#8B5CF6]">
+                <div key={step.number} className="flex flex-col items-center space-y-3 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                  <div className="w-14 h-14 rounded-2xl bg-purple-50 border border-purple-100 flex items-center justify-center text-[#6D28D9]">
                     <StepIcon className="w-7 h-7 stroke-[1.5]" />
                   </div>
                   
-                  <span className="text-sm font-bold text-[#8B5CF6]">
+                  <span className="text-sm font-black text-[#6D28D9]">
                     {step.number}
                   </span>
 
-                  <h3 className="text-base font-bold text-white leading-snug">
+                  <h3 className="text-base font-bold text-slate-900 leading-snug">
                     {step.title}
                   </h3>
 
-                  <p className="text-xs text-slate-400 leading-relaxed max-w-[200px]">
+                  <p className="text-xs text-slate-600 leading-relaxed max-w-[200px]">
                     {step.description}
                   </p>
                 </div>
@@ -68,24 +68,24 @@ export default function MonetizationSection({ onOpenPublishModal }) {
             })}
           </div>
 
-          {/* Right Column: Pricing Card matching screenshot */}
+          {/* Right Column: Pricing Card */}
           <div className="lg:col-span-5">
-            <div className="p-8 rounded-3xl bg-[#151B28] border border-[#6D28D9]/40 shadow-2xl glow-violet">
+            <div className="p-8 rounded-3xl bg-white border border-purple-200 shadow-xl shadow-purple-900/10">
               
-              <div className="flex items-center gap-2 mb-4 text-slate-300">
-                <Tag className="w-5 h-5 text-[#8B5CF6]" />
-                <span className="text-sm font-medium">Publicá tu vehículo</span>
+              <div className="flex items-center gap-2 mb-4 text-slate-700">
+                <Tag className="w-5 h-5 text-[#6D28D9]" />
+                <span className="text-sm font-semibold">Publicá tu vehículo</span>
               </div>
 
               <div className="mb-6">
-                <span className="text-4xl font-black text-white font-mono">$15.000</span>
-                <span className="text-xs text-slate-400 block mt-1">por 30 días</span>
+                <span className="text-4xl font-black text-slate-900 font-mono">$15.000</span>
+                <span className="text-xs text-slate-500 block mt-1 font-medium">por 30 días</span>
               </div>
 
               <ul className="space-y-3 mb-8">
                 {checklist.map((item, idx) => (
-                  <li key={idx} className="flex items-center gap-2.5 text-xs text-slate-300">
-                    <Check className="w-4 h-4 text-[#8B5CF6]" />
+                  <li key={idx} className="flex items-center gap-2.5 text-xs text-slate-700 font-medium">
+                    <Check className="w-4 h-4 text-[#6D28D9]" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -93,7 +93,7 @@ export default function MonetizationSection({ onOpenPublishModal }) {
 
               <button
                 onClick={onOpenPublishModal}
-                className="w-full py-3.5 rounded-xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-bold text-sm transition-all border border-purple-500/30"
+                className="w-full py-3.5 rounded-xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-bold text-sm transition-all shadow-md shadow-purple-600/20 cursor-pointer"
               >
                 Publicar mi vehículo
               </button>

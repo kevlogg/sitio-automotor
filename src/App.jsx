@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import FloatingSearchBar from './components/FloatingSearchBar';
 import CategoryExplorer from './components/CategoryExplorer';
+import MundoAutomotorSidebar from './components/MundoAutomotorSidebar';
 import MonetizationSection from './components/MonetizationSection';
 import FeaturedVehiclesFeed from './components/FeaturedVehiclesFeed';
 import VehicleDetailModal from './components/VehicleDetailModal';
@@ -23,6 +24,7 @@ export default function App() {
   const [selectedYear, setSelectedYear] = useState('all');
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [activeTab, setActiveTab] = useState('all');
+  const [activeRubro, setActiveRubro] = useState(null);
 
   // Modal States
   const [detailVehicle, setDetailVehicle] = useState(null);
@@ -115,11 +117,11 @@ export default function App() {
   }, [vehicles, searchTerm, activeTab, selectedCategory, selectedBrand, selectedYear, selectedLocation]);
 
   return (
-    <div className="min-h-screen bg-[#0D111A] text-slate-100 flex flex-col selection:bg-[#6D28D9] selection:text-white">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-[#6D28D9] selection:text-white">
       
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl bg-[#6D28D9] text-white font-bold text-xs shadow-2xl shadow-purple-900/50 border border-purple-400/40 animate-bounce">
+        <div className="fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl bg-[#6D28D9] text-white font-bold text-xs shadow-2xl shadow-purple-900/30 border border-purple-400/40 animate-bounce">
           {toastMessage}
         </div>
       )}
@@ -168,18 +170,40 @@ export default function App() {
           }}
         />
 
+        {/* Main Feed Section with Mundo Automotor Sidebar */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            {/* Sidebar Column */}
+            <div className="lg:col-span-3 lg:sticky lg:top-24 z-20">
+              <MundoAutomotorSidebar
+                activeRubro={activeRubro}
+                onSelectRubro={(rubroId) => {
+                  setActiveRubro(rubroId);
+                  if (rubroId) {
+                    showToast(`Rubro seleccionado: ${rubroId}`);
+                  }
+                }}
+              />
+            </div>
+
+            {/* Featured Feed Column */}
+            <div className="lg:col-span-9">
+              <FeaturedVehiclesFeed
+                vehicles={filteredVehicles}
+                favorites={favorites}
+                onToggleFavorite={handleToggleFavorite}
+                onOpenDetailModal={(v) => setDetailVehicle(v)}
+                onWhatsAppContact={handleWhatsAppContact}
+              />
+            </div>
+
+          </div>
+        </div>
+
         {/* Monetization / Vender Section */}
         <MonetizationSection
           onOpenPublishModal={() => setPublishModalOpen(true)}
-        />
-
-        {/* Featured Vehicles Feed */}
-        <FeaturedVehiclesFeed
-          vehicles={filteredVehicles}
-          favorites={favorites}
-          onToggleFavorite={handleToggleFavorite}
-          onOpenDetailModal={(v) => setDetailVehicle(v)}
-          onWhatsAppContact={handleWhatsAppContact}
         />
 
       </main>

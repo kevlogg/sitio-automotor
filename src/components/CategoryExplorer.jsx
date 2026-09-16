@@ -12,11 +12,11 @@ const ICON_MAP = {
 
 export default function CategoryExplorer({ selectedCategory, onSelectCategory }) {
   return (
-    <section id="categorias" className="py-12 bg-[#0D111A]">
+    <section id="categorias" className="py-12 bg-[#F8FAFC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Centered Title matching screenshot */}
-        <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">
+        {/* Centered Title */}
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 text-center mb-8 tracking-tight">
           Explorá por categoría
         </h2>
 
@@ -30,12 +30,12 @@ export default function CategoryExplorer({ selectedCategory, onSelectCategory })
               <div
                 key={cat.id}
                 onClick={() => onSelectCategory(isSelected ? 'all' : cat.id)}
-                className={`group rounded-2xl bg-[#151B28] border overflow-hidden cursor-pointer transition-all duration-300 flex flex-col hover:border-[#6D28D9] ${
-                  isSelected ? 'border-[#6D28D9] ring-2 ring-[#6D28D9]/40' : 'border-slate-800'
+                className={`group rounded-2xl bg-white border overflow-hidden cursor-pointer transition-all duration-300 flex flex-col hover:border-[#6D28D9] shadow-xs hover:shadow-md ${
+                  isSelected ? 'border-[#6D28D9] ring-2 ring-[#6D28D9]/40 bg-purple-50/40' : 'border-slate-200'
                 }`}
               >
                 {/* Top Image */}
-                <div className="h-36 overflow-hidden bg-slate-900">
+                <div className="h-36 overflow-hidden bg-slate-100">
                   <img
                     src={cat.image}
                     alt={cat.name}
@@ -45,13 +45,13 @@ export default function CategoryExplorer({ selectedCategory, onSelectCategory })
 
                 {/* Bottom Content */}
                 <div className="p-4 text-center flex-1 flex flex-col justify-between items-center space-y-2">
-                  <IconComponent className="w-6 h-6 text-slate-300 group-hover:text-[#8B5CF6] transition-colors" />
+                  <IconComponent className="w-6 h-6 text-slate-600 group-hover:text-[#6D28D9] transition-colors" />
                   
-                  <h3 className="text-base font-bold text-white group-hover:text-[#8B5CF6] transition-colors">
+                  <h3 className="text-base font-bold text-slate-900 group-hover:text-[#6D28D9] transition-colors">
                     {cat.name}
                   </h3>
 
-                  <span className="text-xs font-semibold text-[#8B5CF6] group-hover:underline">
+                  <span className="text-xs font-bold text-[#6D28D9] group-hover:underline">
                     Ver más
                   </span>
                 </div>
