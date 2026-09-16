@@ -57,12 +57,13 @@ export default function ProofTrustFooter() {
           <div className="space-y-3">
             {!logoError ? (
               <img
-                src="/logo.png"
+                src="/logo.jpg"
                 alt="SA Sitio Automotor"
                 onError={() => setLogoError(true)}
-                className="h-10 w-auto object-contain"
+                className="h-10 w-auto object-contain rounded-lg"
               />
             ) : (
+
               <span className="text-lg font-black tracking-tight text-white">
                 SITIO <span className="text-[#8B5CF6]">AUTOMOTOR</span>
               </span>
