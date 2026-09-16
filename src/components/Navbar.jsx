@@ -23,7 +23,7 @@ export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavor
           <div className="flex items-center cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             {!logoError ? (
               <img
-                src="/logo.jpg"
+                src="/logo.png"
                 alt="SA Sitio Automotor"
                 onError={() => setLogoError(true)}
                 className="h-10 sm:h-12 w-auto object-contain rounded-lg"
