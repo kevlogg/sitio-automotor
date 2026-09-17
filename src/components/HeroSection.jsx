@@ -5,39 +5,45 @@ export default function HeroSection({ onOpenPublishModal, onSearchScroll }) {
   return (
     <section id="hero" className="relative w-full min-h-[520px] lg:min-h-[580px] flex items-center overflow-hidden py-12">
       
-      {/* Full Width Background Image - Complete, Unblurred, Edge to Edge */}
+      {/* Full Width Daylight Background Image - Bright Clear Daytime */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/hero_exact.png"
-          alt="Sitio Automotor Flota Vehicular"
-          className="w-full h-full object-cover object-center opacity-100 brightness-100 contrast-105"
+          src="/hero_daylight.png"
+          alt="Sitio Automotor Flota Vehicular de Día"
+          className="w-full h-full object-cover object-center opacity-100 brightness-105 contrast-105"
         />
+
+        {/* Soft Left Overlay for Maximum Text Contrast (Directly on Image, No Card) */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-slate-900/45 to-transparent w-full lg:w-2/3 pointer-events-none"></div>
+
+        {/* Smooth Difuminado Fade at the Bottom Transitioning Seamlessly to #F8FAFC */}
+        <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC]/80 to-transparent pointer-events-none"></div>
       </div>
 
-      {/* Floating Glass Box for Text & CTAs ensuring legibility while showing image 100% full width */}
+      {/* Hero Content directly on top of image */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="max-w-xl text-left bg-[#0D111A]/85 backdrop-blur-md border border-slate-700/80 p-6 sm:p-8 rounded-3xl shadow-2xl shadow-black/50 space-y-6">
+        <div className="max-w-xl text-left space-y-6">
           
           {/* Title */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.12]">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] drop-shadow-xl">
             Todo el mundo <br />
             automotor <br />
-            <span className="text-[#8B5CF6]">en un solo sitio.</span>
+            <span className="text-[#A78BFA] drop-shadow-md">en un solo sitio.</span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-slate-300 text-sm sm:text-base leading-relaxed font-medium">
+          <p className="text-slate-100 text-sm sm:text-base leading-relaxed font-semibold drop-shadow-md max-w-lg">
             Autos, camionetas, motos, camiones y náutica.<br />
             Comprá, vendé y conectate con agencias y particulares verificados.
           </p>
 
           {/* Buttons Row */}
-          <div className="flex flex-wrap items-center gap-4 pt-1">
+          <div className="flex flex-wrap items-center gap-4 pt-2">
             
             {/* Primary Search Button */}
             <button
               onClick={onSearchScroll}
-              className="px-6 py-3.5 rounded-xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-bold text-sm shadow-xl shadow-purple-900/50 transition-all flex items-center gap-2 border border-purple-500/30 active:scale-95 cursor-pointer"
+              className="px-6 py-3.5 rounded-xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-bold text-sm shadow-xl shadow-purple-900/40 transition-all flex items-center gap-2 border border-purple-400/40 active:scale-95 cursor-pointer"
             >
               <Search className="w-4 h-4" />
               <span>Buscar vehículos</span>
@@ -46,7 +52,7 @@ export default function HeroSection({ onOpenPublishModal, onSearchScroll }) {
             {/* Secondary Publish Button */}
             <button
               onClick={onOpenPublishModal}
-              className="px-6 py-3.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-white font-bold text-sm border border-slate-600 shadow-md backdrop-blur-md transition-all active:scale-95 cursor-pointer"
+              className="px-6 py-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-900 text-white font-bold text-sm border border-slate-700/80 backdrop-blur-md shadow-lg transition-all active:scale-95 cursor-pointer"
             >
               <span>Publicar mi vehículo</span>
             </button>
