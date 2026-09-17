@@ -5,16 +5,16 @@ export default function HeroSection({ onOpenPublishModal, onSearchScroll }) {
   return (
     <section id="hero" className="relative w-full min-h-[520px] lg:min-h-[580px] flex items-center overflow-hidden py-12">
       
-      {/* Full Width Daylight Background Image - Bright Clear Daytime */}
+      {/* Full Width Daylight Fleet Background Image - Multi-Vehicle Showcase */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/hero_daylight.png"
-          alt="Sitio Automotor Flota Vehicular de Día"
+          src="/hero_daylight_fleet.png"
+          alt="Sitio Automotor Flota Vehicular Completa de Día"
           className="w-full h-full object-cover object-center opacity-100 brightness-105 contrast-105"
         />
 
-        {/* Soft Left Overlay for Maximum Text Contrast (Directly on Image, No Card) */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-slate-900/45 to-transparent w-full lg:w-2/3 pointer-events-none"></div>
+        {/* Soft Left Gradient Overlay for Maximum Text Contrast (Directly on Image, No Card) */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-900/40 to-transparent w-full lg:w-2/3 pointer-events-none"></div>
 
         {/* Smooth Difuminado Fade at the Bottom Transitioning Seamlessly to #F8FAFC */}
         <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC]/80 to-transparent pointer-events-none"></div>
