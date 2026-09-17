@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import FloatingSearchBar from './components/FloatingSearchBar';
@@ -11,11 +11,93 @@ import PublishModal from './components/PublishModal';
 import FavoritesModal from './components/FavoritesModal';
 import ProofTrustFooter from './components/ProofTrustFooter';
 import { MOCK_VEHICLES } from './data/mockVehicles';
+import { supabase } from './lib/supabase';
 
 export default function App() {
-  // Vehicle state
-  const [vehicles, setVehicles] = useState(MOCK_VEHICLES);
-  const [favorites, setFavorites] = useState(['v1', 'v2']);
+  // Vehicle state initialized with localStorage fallback
+  const [vehicles, setVehicles] = useState(() => {
+    try {
+      const savedCustom = localStorage.getItem('sa_custom_vehicles');
+      if (savedCustom) {
+        const parsedArr = JSON.parse(savedCustom);
+        if (Array.isArray(parsedArr) && parsedArr.length > 0) {
+          return [...parsedArr, ...MOCK_VEHICLES];
+        }
+      }
+    } catch (err) {
+      console.error('Error al cargar publicaciones de localStorage:', err);
+    }
+    return MOCK_VEHICLES;
+  });
+
+  // Fetch live vehicles from Supabase Cloud on mount
+  useEffect(() => {
+    async function fetchSupabaseVehicles() {
+      try {
+        const { data, error } = await supabase
+          .from('vehicles')
+          .select('*')
+          .eq('status', 'active')
+          .order('created_at', { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          const formatted = data.map((v) => ({
+            id: v.id,
+            title: v.title,
+            category: v.category,
+            categoryLabel: v.category_label || v.category,
+            brand: v.brand,
+            model: v.model,
+            year: v.year,
+            mileage: v.mileage,
+            mileageNum: v.mileage_num,
+            fuel: v.fuel,
+            transmission: v.transmission,
+            priceCurrency: v.price_currency,
+            price: Number(v.price),
+            formattedPrice: v.formatted_price || `${v.price_currency || 'USD'} ${Number(v.price).toLocaleString('es-AR')}`,
+            location: v.location,
+            sellerType: v.seller_type,
+            sellerName: v.seller_name,
+            sellerWhatsApp: v.seller_whatsapp,
+            badge: v.badge,
+            badgeColor: v.badge_color || 'violet',
+            image: v.image_url,
+            images: v.images && v.images.length > 0 ? v.images : [v.image_url],
+            description: v.description,
+            features: v.features || []
+          }));
+          setVehicles(formatted);
+        }
+      } catch (err) {
+        console.warn('Conexión a Supabase usando fallback local:', err);
+      }
+    }
+    fetchSupabaseVehicles();
+  }, []);
+
+  // Favorites state initialized with localStorage persistence
+  const [favorites, setFavorites] = useState(() => {
+    try {
+      const savedFavs = localStorage.getItem('sa_favorites');
+      if (savedFavs) {
+        const parsed = JSON.parse(savedFavs);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (err) {
+      console.error('Error al cargar favoritos de localStorage:', err);
+    }
+    return ['v1', 'v2'];
+  });
+
+  // Sync favorites changes to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('sa_favorites', JSON.stringify(favorites));
+    } catch (err) {
+      console.error('Error al guardar favoritos en localStorage:', err);
+    }
+  }, [favorites]);
 
   // Filter States
   const [searchTerm, setSearchTerm] = useState('');
@@ -23,6 +105,9 @@ export default function App() {
   const [selectedBrand, setSelectedBrand] = useState('all');
   const [selectedYear, setSelectedYear] = useState('all');
   const [selectedLocation, setSelectedLocation] = useState('all');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [sortBy, setSortBy] = useState('featured');
   const [activeTab, setActiveTab] = useState('all');
   const [activeRubro, setActiveRubro] = useState(null);
 
@@ -43,7 +128,7 @@ export default function App() {
   // Favoriting Handler
   const handleToggleFavorite = (id) => {
     if (favorites.includes(id)) {
-      setFavorites(favorites.filter(favId => favId !== id));
+      setFavorites(favorites.filter((favId) => favId !== id));
       showToast('Vehículo eliminado de favoritos');
     } else {
       setFavorites([...favorites, id]);
@@ -51,19 +136,81 @@ export default function App() {
     }
   };
 
-  // WhatsApp Contact Lead Simulator
-  const handleWhatsAppContact = (vehicle) => {
+  // WhatsApp Contact Lead Simulator & Analytics Tracker
+  const handleWhatsAppContact = async (vehicle) => {
+    const cleanPhone = vehicle.sellerWhatsApp ? vehicle.sellerWhatsApp.replace(/\D/g, '') : '5491112345678';
     const text = encodeURIComponent(
       `Hola ${vehicle.sellerName}, vi tu aviso "${vehicle.title}" (${vehicle.formattedPrice}) en Sitio Automotor y quisiera consultar disponibilidad e información.`
     );
-    const url = `https://wa.me/${vehicle.sellerWhatsApp}?text=${text}`;
+    const url = `https://wa.me/${cleanPhone}?text=${text}`;
     window.open(url, '_blank');
     showToast(`Iniciando contacto por WhatsApp con ${vehicle.sellerName}...`);
+
+    // Track lead in Supabase cloud asynchronously
+    try {
+      if (typeof vehicle.id === 'string' && vehicle.id.length > 20) {
+        await supabase.from('leads').insert([
+          {
+            vehicle_id: vehicle.id,
+            seller_whatsapp: cleanPhone
+          }
+        ]);
+      }
+    } catch (e) {
+      console.warn('Lead track skipped:', e);
+    }
   };
 
-  // Adding a new vehicle listing
-  const handleAddVehicle = (newVehicle) => {
-    setVehicles([newVehicle, ...vehicles]);
+  // Adding a new vehicle listing with Supabase Cloud & Local Storage
+  const handleAddVehicle = async (newVehicle) => {
+    const updated = [newVehicle, ...vehicles];
+    setVehicles(updated);
+
+    try {
+      const savedCustom = localStorage.getItem('sa_custom_vehicles');
+      const customArr = savedCustom ? JSON.parse(savedCustom) : [];
+      localStorage.setItem('sa_custom_vehicles', JSON.stringify([newVehicle, ...customArr]));
+    } catch (err) {
+      console.error('Error al guardar aviso en localStorage:', err);
+    }
+
+    // Insert into Supabase Table
+    try {
+      const { error } = await supabase.from('vehicles').insert([
+        {
+          title: newVehicle.title,
+          category: newVehicle.category,
+          category_label: newVehicle.categoryLabel,
+          brand: newVehicle.brand,
+          model: newVehicle.model,
+          year: newVehicle.year,
+          mileage: newVehicle.mileage,
+          mileage_num: newVehicle.mileageNum || 0,
+          fuel: newVehicle.fuel,
+          transmission: newVehicle.transmission,
+          price_currency: newVehicle.priceCurrency,
+          price: newVehicle.price,
+          formatted_price: newVehicle.formattedPrice,
+          location: newVehicle.location,
+          seller_type: newVehicle.sellerType,
+          seller_name: newVehicle.sellerName,
+          seller_whatsapp: newVehicle.sellerWhatsApp,
+          badge: newVehicle.badge,
+          badge_color: newVehicle.badgeColor,
+          image_url: newVehicle.image,
+          images: newVehicle.images,
+          description: newVehicle.description,
+          features: newVehicle.features,
+          status: 'active'
+        }
+      ]);
+      if (error) {
+        console.warn('Supabase Insert Pending Table Execution:', error.message);
+      }
+    } catch (e) {
+      console.warn('Error al insertar en Supabase:', e);
+    }
+
     showToast('¡Tu vehículo fue publicado exitosamente! 🎉');
   };
 
@@ -74,14 +221,14 @@ export default function App() {
     }
   };
 
-  // Filtered Vehicles Computation
+  // Filtered & Sorted Vehicles Computation
   const filteredVehicles = useMemo(() => {
-    return vehicles.filter((v) => {
+    const list = vehicles.filter((v) => {
       // Search term filter
       if (searchTerm.trim() !== '') {
         const term = searchTerm.toLowerCase();
-        const matchesTitle = v.title.toLowerCase().includes(term);
-        const matchesBrand = v.brand.toLowerCase().includes(term);
+        const matchesTitle = v.title ? v.title.toLowerCase().includes(term) : false;
+        const matchesBrand = v.brand ? v.brand.toLowerCase().includes(term) : false;
         const matchesModel = v.model ? v.model.toLowerCase().includes(term) : false;
         if (!matchesTitle && !matchesBrand && !matchesModel) return false;
       }
@@ -103,22 +250,58 @@ export default function App() {
 
       // Year filter
       if (selectedYear !== 'all') {
-        const minYear = parseInt(selectedYear);
+        const minYear = parseInt(selectedYear, 10);
         if (v.year < minYear) return false;
       }
 
-      // Location filter
-      if (selectedLocation !== 'all' && !v.location.includes(selectedLocation.split(',')[0])) {
-        return false;
+      // Location filter fix
+      if (selectedLocation !== 'all') {
+        if (selectedLocation.includes(',')) {
+          if (!v.location.toLowerCase().includes(selectedLocation.toLowerCase())) return false;
+        } else {
+          const prov = selectedLocation.split(',')[0].trim().toLowerCase();
+          if (!v.location.toLowerCase().includes(prov)) return false;
+        }
+      }
+
+      // Min Price Filter
+      if (minPrice !== '' && !isNaN(Number(minPrice))) {
+        if (v.price < Number(minPrice)) return false;
+      }
+
+      // Max Price Filter
+      if (maxPrice !== '' && !isNaN(Number(maxPrice))) {
+        if (v.price > Number(maxPrice)) return false;
       }
 
       return true;
     });
-  }, [vehicles, searchTerm, activeTab, selectedCategory, selectedBrand, selectedYear, selectedLocation]);
+
+    // Sort Result
+    if (sortBy === 'price-asc') {
+      list.sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-desc') {
+      list.sort((a, b) => b.price - a.price);
+    } else if (sortBy === 'year-desc') {
+      list.sort((a, b) => b.year - a.year);
+    }
+
+    return list;
+  }, [
+    vehicles,
+    searchTerm,
+    activeTab,
+    selectedCategory,
+    selectedBrand,
+    selectedYear,
+    selectedLocation,
+    minPrice,
+    maxPrice,
+    sortBy,
+  ]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-[#6D28D9] selection:text-white">
-      
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl bg-[#6D28D9] text-white font-bold text-xs shadow-2xl shadow-purple-900/30 border border-purple-400/40 animate-bounce">
@@ -135,14 +318,13 @@ export default function App() {
 
       {/* Main Content */}
       <main className="flex-1">
-        
         {/* Left Aligned Hero Section */}
         <HeroSection
           onOpenPublishModal={() => setPublishModalOpen(true)}
           onSearchScroll={handleSearchScroll}
         />
 
-        {/* Floating Search Bar */}
+        {/* Floating Search Bar with Price & Sort */}
         <FloatingSearchBar
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
@@ -157,6 +339,12 @@ export default function App() {
           setSelectedYear={setSelectedYear}
           selectedLocation={selectedLocation}
           setSelectedLocation={setSelectedLocation}
+          minPrice={minPrice}
+          setMinPrice={setMinPrice}
+          maxPrice={maxPrice}
+          setMaxPrice={setMaxPrice}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
           onSearchSubmit={handleSearchScroll}
         />
 
@@ -173,7 +361,6 @@ export default function App() {
         {/* Main Feed Section with Mundo Automotor Sidebar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
             {/* Sidebar Column */}
             <div className="lg:col-span-3 lg:sticky lg:top-24 z-20">
               <MundoAutomotorSidebar
@@ -197,15 +384,11 @@ export default function App() {
                 onWhatsAppContact={handleWhatsAppContact}
               />
             </div>
-
           </div>
         </div>
 
         {/* Monetization / Vender Section */}
-        <MonetizationSection
-          onOpenPublishModal={() => setPublishModalOpen(true)}
-        />
-
+        <MonetizationSection onOpenPublishModal={() => setPublishModalOpen(true)} />
       </main>
 
       {/* Proof & Trust Footer */}
@@ -235,7 +418,6 @@ export default function App() {
         onOpenDetailModal={(v) => setDetailVehicle(v)}
         onWhatsAppContact={handleWhatsAppContact}
       />
-
     </div>
   );
 }

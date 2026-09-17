@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { X, Calendar, Gauge, Fuel, ShieldCheck, MapPin, MessageCircle, Heart, CheckCircle2, User } from 'lucide-react';
 
 export default function VehicleDetailModal({ vehicle, onClose, isFavorite, onToggleFavorite, onWhatsAppContact }) {
+  const [selectedImgState, setSelectedImg] = useState(null);
+
   if (!vehicle) return null;
 
-  const [selectedImg, setSelectedImg] = useState(vehicle.image);
+  const selectedImg = selectedImgState || vehicle.image;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md overflow-y-auto animate-fadeIn">

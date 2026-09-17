@@ -3,8 +3,6 @@ import { X, CheckCircle2, Upload, PlusCircle } from 'lucide-react';
 import { PROVINCE_OPTIONS } from '../data/mockVehicles';
 
 export default function PublishModal({ isOpen, onClose, onVehicleAdded }) {
-  if (!isOpen) return null;
-
   const [formData, setFormData] = useState({
     title: '',
     category: 'autos',
@@ -26,6 +24,8 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded }) {
   });
 
   const [submitted, setSubmitted] = useState(false);
+
+  if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
