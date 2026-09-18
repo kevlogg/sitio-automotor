@@ -10,6 +10,7 @@ import VehicleDetailModal from './components/VehicleDetailModal';
 import PublishModal from './components/PublishModal';
 import FavoritesModal from './components/FavoritesModal';
 import ProofTrustFooter from './components/ProofTrustFooter';
+import PingPongVideo from './components/PingPongVideo';
 import { MOCK_VEHICLES } from './data/mockVehicles';
 import { supabase } from './lib/supabase';
 
@@ -324,22 +325,14 @@ export default function App() {
           onSearchScroll={handleSearchScroll}
         />
 
-        {/* Section 2 Downwards - Video Background (rueda.mp4) */}
+        {/* Section 2 Downwards - Video Background (rueda.mp4 Ping-Pong Loop) */}
         <div className="relative w-full overflow-hidden">
-          {/* Background Video Layer */}
-          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover opacity-35 filter saturate-110 brightness-95"
-            >
-              <source src="/rueda.mp4" type="video/mp4" />
-            </video>
-            {/* Subtle Gradient & Backdrop Overlay for Legibility */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#F8FAFC]/90 via-[#F8FAFC]/50 to-[#F8FAFC]/90 pointer-events-none"></div>
-          </div>
+          {/* Background Video Layer with Boomerang / Ping-Pong Effect */}
+          <PingPongVideo
+            src="/rueda.mp4"
+            className="w-full h-full object-cover opacity-35 filter saturate-110 brightness-95"
+            overlayClassName="absolute inset-0 bg-gradient-to-b from-[#F8FAFC]/90 via-[#F8FAFC]/50 to-[#F8FAFC]/90 pointer-events-none"
+          />
 
           {/* Content Layer on Top of Video */}
           <div className="relative z-10 space-y-4">
