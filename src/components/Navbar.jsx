@@ -61,21 +61,6 @@ export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavor
           {/* Acciones Derechas */}
           <div className="hidden md:flex items-center space-x-4">
             
-            {/* Favoritos */}
-            <button
-              onClick={onOpenFavoritesModal}
-              className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-slate-800/60"
-              title="Mis Favoritos"
-            >
-              <Heart className={`w-4 h-4 ${favoritesCount > 0 ? 'fill-[#8B5CF6] text-[#8B5CF6]' : 'text-slate-400'}`} />
-              <span>Favoritos</span>
-              {favoritesCount > 0 && (
-                <span className="w-4 h-4 rounded-full bg-[#6D28D9] text-white text-[10px] font-bold flex items-center justify-center">
-                  {favoritesCount}
-                </span>
-              )}
-            </button>
-
             {/* CTA + Publicar mi vehículo */}
             <button
               onClick={onOpenPublishModal}
@@ -89,13 +74,6 @@ export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavor
 
           {/* Mobile Menu Toggle */}
           <div className="md:hidden flex items-center gap-2">
-            <button
-              onClick={onOpenFavoritesModal}
-              className="p-2 rounded-lg text-slate-300"
-            >
-              <Heart className={`w-5 h-5 ${favoritesCount > 0 ? 'fill-[#8B5CF6] text-[#8B5CF6]' : ''}`} />
-            </button>
-
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-lg text-slate-300 hover:text-white"

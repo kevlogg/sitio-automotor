@@ -17,7 +17,7 @@ export default function HeroSection({ onOpenPublishModal, onSearchScroll }) {
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-900/40 to-transparent w-full lg:w-2/3 pointer-events-none"></div>
 
         {/* Smooth Difuminado Fade at the Bottom Transitioning Seamlessly to #F8FAFC */}
-        <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC]/80 to-transparent pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#F8FAFC] to-transparent pointer-events-none"></div>
       </div>
 
       {/* Hero Content directly on top of image */}

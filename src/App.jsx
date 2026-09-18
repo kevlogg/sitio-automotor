@@ -324,71 +324,92 @@ export default function App() {
           onSearchScroll={handleSearchScroll}
         />
 
-        {/* Floating Search Bar with Price & Sort */}
-        <FloatingSearchBar
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={(cat) => {
-            setSelectedCategory(cat);
-            if (cat !== 'all') setActiveTab(cat);
-          }}
-          selectedBrand={selectedBrand}
-          setSelectedBrand={setSelectedBrand}
-          selectedYear={selectedYear}
-          setSelectedYear={setSelectedYear}
-          selectedLocation={selectedLocation}
-          setSelectedLocation={setSelectedLocation}
-          minPrice={minPrice}
-          setMinPrice={setMinPrice}
-          maxPrice={maxPrice}
-          setMaxPrice={setMaxPrice}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          onSearchSubmit={handleSearchScroll}
-        />
+        {/* Section 2 Downwards - Video Background (rueda.mp4) */}
+        <div className="relative w-full overflow-hidden">
+          {/* Background Video Layer */}
+          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover opacity-35 filter saturate-110 brightness-95"
+            >
+              <source src="/rueda.mp4" type="video/mp4" />
+            </video>
+            {/* Subtle Gradient & Backdrop Overlay for Legibility */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#F8FAFC]/90 via-[#F8FAFC]/50 to-[#F8FAFC]/90 pointer-events-none"></div>
+          </div>
 
-        {/* Category Explorer */}
-        <CategoryExplorer
-          selectedCategory={selectedCategory}
-          onSelectCategory={(catId) => {
-            setSelectedCategory(catId);
-            setActiveTab(catId);
-            handleSearchScroll();
-          }}
-        />
+          {/* Content Layer on Top of Video */}
+          <div className="relative z-10 space-y-4">
+            {/* Floating Search Bar with Price & Sort */}
+            <FloatingSearchBar
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={(cat) => {
+                setSelectedCategory(cat);
+                if (cat !== 'all') setActiveTab(cat);
+              }}
+              selectedBrand={selectedBrand}
+              setSelectedBrand={setSelectedBrand}
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+              selectedLocation={selectedLocation}
+              setSelectedLocation={setSelectedLocation}
+              minPrice={minPrice}
+              setMinPrice={setMinPrice}
+              maxPrice={maxPrice}
+              setMaxPrice={setMaxPrice}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              onSearchSubmit={handleSearchScroll}
+            />
 
-        {/* Main Feed Section with Mundo Automotor Sidebar */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Sidebar Column */}
-            <div className="lg:col-span-3 lg:sticky lg:top-24 z-20">
-              <MundoAutomotorSidebar
-                activeRubro={activeRubro}
-                onSelectRubro={(rubroId) => {
-                  setActiveRubro(rubroId);
-                  if (rubroId) {
-                    showToast(`Rubro seleccionado: ${rubroId}`);
-                  }
-                }}
-              />
+            {/* Category Explorer */}
+            <CategoryExplorer
+              selectedCategory={selectedCategory}
+              onSelectCategory={(catId) => {
+                setSelectedCategory(catId);
+                setActiveTab(catId);
+                handleSearchScroll();
+              }}
+            />
+
+            {/* Main Feed Section with Mundo Automotor Sidebar */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Sidebar Column */}
+                <div className="lg:col-span-3 lg:sticky lg:top-24 z-20">
+                  <MundoAutomotorSidebar
+                    activeRubro={activeRubro}
+                    onSelectRubro={(rubroId) => {
+                      setActiveRubro(rubroId);
+                      if (rubroId) {
+                        showToast(`Rubro seleccionado: ${rubroId}`);
+                      }
+                    }}
+                  />
+                </div>
+
+                {/* Featured Feed Column */}
+                <div className="lg:col-span-9">
+                  <FeaturedVehiclesFeed
+                    vehicles={filteredVehicles}
+                    favorites={favorites}
+                    onToggleFavorite={handleToggleFavorite}
+                    onOpenDetailModal={(v) => setDetailVehicle(v)}
+                    onWhatsAppContact={handleWhatsAppContact}
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* Featured Feed Column */}
-            <div className="lg:col-span-9">
-              <FeaturedVehiclesFeed
-                vehicles={filteredVehicles}
-                favorites={favorites}
-                onToggleFavorite={handleToggleFavorite}
-                onOpenDetailModal={(v) => setDetailVehicle(v)}
-                onWhatsAppContact={handleWhatsAppContact}
-              />
-            </div>
+            {/* Monetization / Vender Section */}
+            <MonetizationSection onOpenPublishModal={() => setPublishModalOpen(true)} />
           </div>
         </div>
-
-        {/* Monetization / Vender Section */}
-        <MonetizationSection onOpenPublishModal={() => setPublishModalOpen(true)} />
       </main>
 
       {/* Proof & Trust Footer */}

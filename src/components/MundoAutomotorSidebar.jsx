@@ -38,10 +38,10 @@ export default function MundoAutomotorSidebar({ activeRubro, onSelectRubro }) {
   ];
 
   return (
-    <aside className="w-full bg-white rounded-3xl border border-slate-200/90 p-5 shadow-sm space-y-4">
+    <aside className="w-full bg-[#EEF2F6] rounded-3xl border border-slate-300/80 p-5 shadow-md space-y-4">
       
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+      <div className="flex items-center justify-between pb-2 border-b border-slate-200">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="w-4 h-4 text-[#6D28D9]" />
           <h3 className="text-xs font-black tracking-widest text-slate-800 uppercase">
@@ -72,7 +72,7 @@ export default function MundoAutomotorSidebar({ activeRubro, onSelectRubro }) {
               className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all duration-200 text-left ${
                 isSelected
                   ? 'bg-[#6D28D9] text-white shadow-lg shadow-purple-600/30 scale-[1.01]'
-                  : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 hover:translate-x-0.5'
+                  : 'text-slate-700 hover:bg-white hover:text-slate-900 hover:shadow-xs border border-transparent hover:border-slate-200/80 hover:translate-x-0.5'
               }`}
             >
               <IconComponent className={`w-5 h-5 flex-shrink-0 ${isSelected ? 'text-white' : 'text-slate-500'}`} />

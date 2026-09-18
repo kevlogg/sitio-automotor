@@ -88,7 +88,7 @@ export default function FloatingSearchBar({
       </div>
 
       {/* Main Filter Container */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-xl shadow-slate-200/60 space-y-3">
+      <div className="p-4 sm:p-5 rounded-2xl bg-[#EEF2F6] border border-slate-300/80 shadow-xl shadow-slate-900/5 space-y-3">
         <form
           onSubmit={(e) => {
             e.preventDefault();

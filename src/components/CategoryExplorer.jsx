@@ -12,7 +12,7 @@ const ICON_MAP = {
 
 export default function CategoryExplorer({ selectedCategory, onSelectCategory }) {
   return (
-    <section id="categorias" className="py-12 bg-[#F8FAFC]">
+    <section id="categorias" className="py-12 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Centered Title */}
@@ -30,8 +30,8 @@ export default function CategoryExplorer({ selectedCategory, onSelectCategory })
               <div
                 key={cat.id}
                 onClick={() => onSelectCategory(isSelected ? 'all' : cat.id)}
-                className={`group rounded-2xl bg-white border overflow-hidden cursor-pointer transition-all duration-300 flex flex-col hover:border-[#6D28D9] shadow-xs hover:shadow-md ${
-                  isSelected ? 'border-[#6D28D9] ring-2 ring-[#6D28D9]/40 bg-purple-50/40' : 'border-slate-200'
+                className={`group rounded-2xl bg-[#EEF2F6] border overflow-hidden cursor-pointer transition-all duration-300 flex flex-col hover:bg-white hover:border-[#6D28D9] shadow-md hover:shadow-xl hover:-translate-y-0.5 ${
+                  isSelected ? 'border-[#6D28D9] ring-2 ring-[#6D28D9]/40 bg-purple-50/90' : 'border-slate-300/80'
                 }`}
               >
                 {/* Top Image */}
