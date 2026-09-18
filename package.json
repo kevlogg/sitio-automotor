@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seed-demo": "node scripts/seed_demo_vehicles.js",
+    "clean-demo": "node scripts/clean_demo_vehicles.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
