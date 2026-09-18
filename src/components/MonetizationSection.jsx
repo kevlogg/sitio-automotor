@@ -1,7 +1,9 @@
 import React from 'react';
 import { Camera, Users, MessageSquare, Tag, Check } from 'lucide-react';
 
-export default function MonetizationSection({ onOpenPublishModal }) {
+export default function MonetizationSection({ cardTheme = 'violet', onOpenPublishModal }) {
+  const isDark = cardTheme === 'dark';
+
   const steps = [
     {
       number: '01',
@@ -47,20 +49,29 @@ export default function MonetizationSection({ onOpenPublishModal }) {
             {steps.map((step) => {
               const StepIcon = step.icon;
               return (
-                <div key={step.number} className="flex flex-col items-center space-y-3 bg-[#E4DAF8] p-5 rounded-2xl border border-purple-300/90 shadow-md hover:bg-white transition-all">
-                  <div className="w-14 h-14 rounded-2xl bg-white border border-purple-200 flex items-center justify-center text-[#6D28D9]">
+                <div
+                  key={step.number}
+                  className={`flex flex-col items-center space-y-3 p-5 rounded-2xl border transition-all ${
+                    isDark
+                      ? 'bg-[#0D121F]/95 backdrop-blur-md border-slate-800 hover:bg-[#182235] text-white shadow-xl shadow-slate-950/40'
+                      : 'bg-[#E4DAF8] border-purple-300/90 hover:bg-white text-slate-900 shadow-md'
+                  }`}
+                >
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${
+                    isDark ? 'bg-slate-800 border-slate-700 text-[#A78BFA]' : 'bg-white border-purple-200 text-[#6D28D9]'
+                  }`}>
                     <StepIcon className="w-7 h-7 stroke-[1.5]" />
                   </div>
                   
-                  <span className="text-sm font-black text-[#6D28D9]">
+                  <span className={`text-sm font-black ${isDark ? 'text-[#A78BFA]' : 'text-[#6D28D9]'}`}>
                     {step.number}
                   </span>
 
-                  <h3 className="text-base font-bold text-slate-900 leading-snug">
+                  <h3 className={`text-base font-bold leading-snug ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     {step.title}
                   </h3>
 
-                  <p className="text-xs text-slate-600 leading-relaxed max-w-[200px]">
+                  <p className={`text-xs leading-relaxed max-w-[200px] ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                     {step.description}
                   </p>
                 </div>
@@ -70,22 +81,26 @@ export default function MonetizationSection({ onOpenPublishModal }) {
 
           {/* Right Column: Pricing Card */}
           <div className="lg:col-span-5">
-            <div className="p-8 rounded-3xl bg-[#E4DAF8] border-2 border-purple-400 shadow-xl shadow-purple-900/10">
+            <div className={`p-8 rounded-3xl border-2 transition-all ${
+              isDark
+                ? 'bg-[#0D121F]/95 backdrop-blur-md border-purple-500 shadow-2xl shadow-purple-950/40 text-white'
+                : 'bg-[#E4DAF8] border-purple-400 shadow-xl shadow-purple-900/10 text-slate-900'
+            }`}>
               
-              <div className="flex items-center gap-2 mb-4 text-slate-700">
-                <Tag className="w-5 h-5 text-[#6D28D9]" />
+              <div className={`flex items-center gap-2 mb-4 ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                <Tag className={`w-5 h-5 ${isDark ? 'text-[#A78BFA]' : 'text-[#6D28D9]'}`} />
                 <span className="text-sm font-semibold">Publicá tu vehículo</span>
               </div>
 
               <div className="mb-6">
-                <span className="text-4xl font-black text-slate-900 font-mono">$15.000</span>
-                <span className="text-xs text-slate-500 block mt-1 font-medium">por 30 días</span>
+                <span className={`text-4xl font-black font-mono ${isDark ? 'text-white' : 'text-slate-900'}`}>$15.000</span>
+                <span className={`text-xs block mt-1 font-medium ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>por 30 días</span>
               </div>
 
               <ul className="space-y-3 mb-8">
                 {checklist.map((item, idx) => (
-                  <li key={idx} className="flex items-center gap-2.5 text-xs text-slate-700 font-medium">
-                    <Check className="w-4 h-4 text-[#6D28D9]" />
+                  <li key={idx} className={`flex items-center gap-2.5 text-xs font-medium ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                    <Check className={`w-4 h-4 ${isDark ? 'text-[#A78BFA]' : 'text-[#6D28D9]'}`} />
                     <span>{item}</span>
                   </li>
                 ))}

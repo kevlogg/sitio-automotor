@@ -111,6 +111,7 @@ export default function App() {
   const [sortBy, setSortBy] = useState('featured');
   const [activeTab, setActiveTab] = useState('all');
   const [activeRubro, setActiveRubro] = useState(null);
+  const [cardTheme, setCardTheme] = useState('violet'); // 'violet' | 'dark'
 
   // Modal States
   const [detailVehicle, setDetailVehicle] = useState(null);
@@ -124,6 +125,15 @@ export default function App() {
     setTimeout(() => {
       setToastMessage(null);
     }, 3500);
+  };
+
+  // Toggle Card Theme (Violeta Opaco vs Negro Opaco)
+  const handleToggleCardTheme = () => {
+    setCardTheme((prev) => {
+      const next = prev === 'violet' ? 'dark' : 'violet';
+      showToast(next === 'dark' ? 'Tema de cards cambiado a: Negro Opaco 🖤' : 'Tema de cards cambiado a: Violeta Opaco 💜');
+      return next;
+    });
   };
 
   // Favoriting Handler
@@ -358,10 +368,13 @@ export default function App() {
               sortBy={sortBy}
               setSortBy={setSortBy}
               onSearchSubmit={handleSearchScroll}
+              cardTheme={cardTheme}
+              onToggleCardTheme={handleToggleCardTheme}
             />
 
             {/* Category Explorer */}
             <CategoryExplorer
+              cardTheme={cardTheme}
               selectedCategory={selectedCategory}
               onSelectCategory={(catId) => {
                 setSelectedCategory(catId);
@@ -376,6 +389,7 @@ export default function App() {
                 {/* Sidebar Column */}
                 <div className="lg:col-span-3 lg:sticky lg:top-24 z-20">
                   <MundoAutomotorSidebar
+                    cardTheme={cardTheme}
                     activeRubro={activeRubro}
                     onSelectRubro={(rubroId) => {
                       setActiveRubro(rubroId);
@@ -389,6 +403,7 @@ export default function App() {
                 {/* Featured Feed Column */}
                 <div className="lg:col-span-9">
                   <FeaturedVehiclesFeed
+                    cardTheme={cardTheme}
                     vehicles={filteredVehicles}
                     favorites={favorites}
                     onToggleFavorite={handleToggleFavorite}
@@ -400,13 +415,13 @@ export default function App() {
             </div>
 
             {/* Monetization / Vender Section */}
-            <MonetizationSection onOpenPublishModal={() => setPublishModalOpen(true)} />
+            <MonetizationSection cardTheme={cardTheme} onOpenPublishModal={() => setPublishModalOpen(true)} />
           </div>
         </div>
       </main>
 
       {/* Proof & Trust Footer */}
-      <ProofTrustFooter />
+      <ProofTrustFooter cardTheme={cardTheme} />
 
       {/* Modals */}
       <VehicleDetailModal

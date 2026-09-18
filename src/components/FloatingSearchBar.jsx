@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, ChevronDown, SlidersHorizontal, RotateCcw } from 'lucide-react';
+import { Search, ChevronDown, SlidersHorizontal, RotateCcw, Palette } from 'lucide-react';
 import { BRAND_OPTIONS, PROVINCE_OPTIONS } from '../data/mockVehicles';
 
 export default function FloatingSearchBar({
@@ -19,7 +19,9 @@ export default function FloatingSearchBar({
   setMaxPrice,
   sortBy,
   setSortBy,
-  onSearchSubmit
+  onSearchSubmit,
+  cardTheme = 'violet',
+  onToggleCardTheme
 }) {
   const categoryOptions = [
     { value: 'all', label: 'Todos' },
@@ -66,29 +68,54 @@ export default function FloatingSearchBar({
     setSortBy('featured');
   };
 
+  const isDark = cardTheme === 'dark';
+
   return (
     <div id="search-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 z-20">
       
-      {/* Header Title with Reset Action */}
-      <div className="flex items-center justify-between mb-6">
+      {/* Header Title with Theme Switcher & Reset Action */}
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
           <SlidersHorizontal className="w-6 h-6 text-[#6D28D9]" />
           ¿Qué vehículo estás buscando?
         </h2>
 
-        {hasActiveFilters && (
-          <button
-            onClick={handleResetFilters}
-            className="text-xs font-semibold text-[#6D28D9] hover:text-[#5B21B6] flex items-center gap-1.5 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-xl border border-purple-200 transition-all cursor-pointer"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Limpiar filtros</span>
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          {/* Card Theme Switcher Button */}
+          {onToggleCardTheme && (
+            <button
+              type="button"
+              onClick={onToggleCardTheme}
+              className={`text-xs font-black flex items-center gap-2 px-3.5 py-2 rounded-xl border transition-all cursor-pointer shadow-md ${
+                isDark
+                  ? 'bg-purple-600 text-white border-purple-400 hover:bg-purple-500 shadow-purple-900/30'
+                  : 'bg-slate-900 text-white border-slate-700 hover:bg-slate-800 shadow-slate-900/20'
+              }`}
+              title="Cambiar color de las cards del sitio"
+            >
+              <Palette className="w-4 h-4 text-purple-300" />
+              <span>Color Cards: {isDark ? '🖤 Negro Opaco' : '💜 Violeta Opaco'}</span>
+            </button>
+          )}
+
+          {hasActiveFilters && (
+            <button
+              onClick={handleResetFilters}
+              className="text-xs font-semibold text-[#6D28D9] hover:text-[#5B21B6] flex items-center gap-1.5 bg-purple-50 hover:bg-purple-100 px-3 py-2 rounded-xl border border-purple-200 transition-all cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Limpiar filtros</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Main Filter Container */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-[#E4DAF8] border border-purple-300/90 shadow-xl shadow-purple-900/10 space-y-3">
+      <div className={`p-4 sm:p-5 rounded-2xl border transition-colors space-y-3 ${
+        isDark
+          ? 'bg-[#0D121F]/95 backdrop-blur-md border-slate-800 shadow-2xl shadow-slate-950/60 text-white'
+          : 'bg-[#E4DAF8] border-purple-300/90 shadow-xl shadow-purple-900/10 text-slate-900'
+      }`}>
         <form
           onSubmit={(e) => {
             e.preventDefault();

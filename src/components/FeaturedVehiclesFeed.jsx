@@ -2,12 +2,15 @@ import React from 'react';
 import { ArrowRight, Heart, Eye, MessageCircle } from 'lucide-react';
 
 export default function FeaturedVehiclesFeed({
+  cardTheme = 'violet',
   vehicles,
   favorites,
   onToggleFavorite,
   onOpenDetailModal,
   onWhatsAppContact
 }) {
+  const isDark = cardTheme === 'dark';
+
   return (
     <section id="vehiculos" className="py-12 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -32,7 +35,11 @@ export default function FeaturedVehiclesFeed({
             return (
               <div
                 key={item.id}
-                className="group rounded-2xl bg-[#E4DAF8] border border-purple-300/90 overflow-hidden flex flex-col justify-between hover:bg-white hover:border-[#6D28D9] shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                className={`group rounded-2xl border overflow-hidden flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-300 shadow-md hover:shadow-xl ${
+                  isDark
+                    ? 'bg-[#0D121F]/95 backdrop-blur-md border-slate-800 hover:bg-[#182235] hover:border-[#8B5CF6] text-white'
+                    : 'bg-[#E4DAF8] border-purple-300/90 hover:bg-white hover:border-[#6D28D9] text-slate-900'
+                }`}
               >
                 {/* Image 16:9 with category badge */}
                 <div className="relative aspect-video overflow-hidden bg-slate-100 cursor-pointer" onClick={() => onOpenDetailModal(item)}>
@@ -70,26 +77,32 @@ export default function FeaturedVehiclesFeed({
                   <div>
                     <h3
                       onClick={() => onOpenDetailModal(item)}
-                      className="text-sm font-bold text-slate-900 hover:text-[#6D28D9] transition-colors cursor-pointer line-clamp-1"
+                      className={`text-sm font-bold transition-colors cursor-pointer line-clamp-1 ${
+                        isDark ? 'text-white hover:text-[#A78BFA]' : 'text-slate-900 hover:text-[#6D28D9]'
+                      }`}
                     >
                       {item.title}
                     </h3>
 
-                    <p className="text-[11px] text-slate-500 mt-1 font-medium">
+                    <p className={`text-[11px] mt-1 font-medium ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       {item.year} • {item.mileage} • {item.location.split(',')[0]}
                     </p>
                   </div>
 
                   {/* Price */}
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-sm font-extrabold text-[#6D28D9] font-mono">
+                  <div className={`pt-2 border-t flex items-center justify-between ${isDark ? 'border-slate-800' : 'border-purple-200/80'}`}>
+                    <span className={`text-sm font-extrabold font-mono ${isDark ? 'text-[#A78BFA]' : 'text-[#6D28D9]'}`}>
                       US$ {item.price.toLocaleString('es-AR')}
                     </span>
 
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => onOpenDetailModal(item)}
-                        className="p-1.5 rounded-lg bg-slate-100 hover:bg-[#6D28D9] hover:text-white text-slate-700 transition-colors"
+                        className={`p-1.5 rounded-lg transition-colors ${
+                          isDark
+                            ? 'bg-slate-800 hover:bg-[#8B5CF6] text-slate-200 hover:text-white'
+                            : 'bg-slate-100 hover:bg-[#6D28D9] text-slate-700 hover:text-white'
+                        }`}
                         title="Ver detalle"
                       >
                         <Eye className="w-3.5 h-3.5" />

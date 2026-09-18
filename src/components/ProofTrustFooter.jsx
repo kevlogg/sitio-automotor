@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Gauge, Globe, Mail, Phone, MapPin } from 'lucide-react';
 
-export default function ProofTrustFooter() {
+export default function ProofTrustFooter({ cardTheme = 'violet' }) {
   const [logoError, setLogoError] = useState(false);
+  const isDark = cardTheme === 'dark';
 
   const metrics = [
     {
@@ -27,19 +28,25 @@ export default function ProofTrustFooter() {
       
       {/* 3 Metrics Row */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-6 px-6 rounded-2xl bg-[#E4DAF8] border border-purple-300/90 shadow-md">
+        <div className={`grid grid-cols-1 md:grid-cols-3 gap-8 py-6 px-6 rounded-2xl border transition-colors ${
+          isDark
+            ? 'bg-[#0D121F]/95 backdrop-blur-md border-slate-800 text-white shadow-xl shadow-slate-950/40'
+            : 'bg-[#E4DAF8] border-purple-300/90 text-slate-900 shadow-md'
+        }`}>
           {metrics.map((m, idx) => {
             const IconComp = m.icon;
             return (
               <div key={idx} className="flex items-center gap-4 justify-center md:justify-start">
-                <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-[#6D28D9] shadow-xs">
+                <div className={`w-12 h-12 rounded-xl border flex items-center justify-center shadow-xs ${
+                  isDark ? 'bg-slate-800 border-slate-700 text-[#A78BFA]' : 'bg-white border-purple-200 text-[#6D28D9]'
+                }`}>
                   <IconComp className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-slate-900 mb-0.5">
+                  <h4 className={`text-base font-bold mb-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     {m.title}
                   </h4>
-                  <p className="text-xs text-slate-600">
+                  <p className={`text-xs ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                     {m.description}
                   </p>
                 </div>
