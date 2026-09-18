@@ -30,8 +30,8 @@ export default function CategoryExplorer({ selectedCategory, onSelectCategory })
               <div
                 key={cat.id}
                 onClick={() => onSelectCategory(isSelected ? 'all' : cat.id)}
-                className={`group rounded-2xl bg-[#F3F0FF]/95 backdrop-blur-md border overflow-hidden cursor-pointer transition-all duration-300 flex flex-col hover:bg-white hover:border-[#6D28D9] shadow-md hover:shadow-xl hover:-translate-y-0.5 ${
-                  isSelected ? 'border-[#6D28D9] ring-2 ring-[#6D28D9]/40 bg-purple-100/90' : 'border-purple-200/90'
+                className={`group rounded-2xl bg-[#E4DAF8] border overflow-hidden cursor-pointer transition-all duration-300 flex flex-col hover:bg-white hover:border-[#6D28D9] shadow-md hover:shadow-xl hover:-translate-y-0.5 ${
+                  isSelected ? 'border-[#6D28D9] ring-2 ring-[#6D28D9]/40 bg-purple-200' : 'border-purple-300/90'
                 }`}
               >
                 {/* Top Image */}

@@ -47,8 +47,8 @@ export default function MonetizationSection({ onOpenPublishModal }) {
             {steps.map((step) => {
               const StepIcon = step.icon;
               return (
-                <div key={step.number} className="flex flex-col items-center space-y-3 bg-[#F3F0FF]/95 backdrop-blur-md p-5 rounded-2xl border border-purple-200/90 shadow-md hover:bg-white transition-all">
-                  <div className="w-14 h-14 rounded-2xl bg-purple-50 border border-purple-100 flex items-center justify-center text-[#6D28D9]">
+                <div key={step.number} className="flex flex-col items-center space-y-3 bg-[#E4DAF8] p-5 rounded-2xl border border-purple-300/90 shadow-md hover:bg-white transition-all">
+                  <div className="w-14 h-14 rounded-2xl bg-white border border-purple-200 flex items-center justify-center text-[#6D28D9]">
                     <StepIcon className="w-7 h-7 stroke-[1.5]" />
                   </div>
                   
@@ -70,7 +70,7 @@ export default function MonetizationSection({ onOpenPublishModal }) {
 
           {/* Right Column: Pricing Card */}
           <div className="lg:col-span-5">
-            <div className="p-8 rounded-3xl bg-[#F3F0FF]/95 backdrop-blur-md border-2 border-purple-300 shadow-xl shadow-purple-900/10">
+            <div className="p-8 rounded-3xl bg-[#E4DAF8] border-2 border-purple-400 shadow-xl shadow-purple-900/10">
               
               <div className="flex items-center gap-2 mb-4 text-slate-700">
                 <Tag className="w-5 h-5 text-[#6D28D9]" />
