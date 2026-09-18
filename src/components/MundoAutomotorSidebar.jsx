@@ -38,10 +38,10 @@ export default function MundoAutomotorSidebar({ activeRubro, onSelectRubro }) {
   ];
 
   return (
-    <aside className="w-full bg-[#EEF2F6] rounded-3xl border border-slate-300/80 p-5 shadow-md space-y-4">
+    <aside className="w-full bg-[#F3F0FF]/95 backdrop-blur-md rounded-3xl border border-purple-200/90 p-5 shadow-md space-y-4">
       
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+      <div className="flex items-center justify-between pb-2 border-b border-purple-200/60">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="w-4 h-4 text-[#6D28D9]" />
           <h3 className="text-xs font-black tracking-widest text-slate-800 uppercase">

@@ -27,7 +27,7 @@ export default function ProofTrustFooter() {
       
       {/* 3 Metrics Row */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-6 px-6 rounded-2xl bg-slate-50 border border-slate-200/90">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-6 px-6 rounded-2xl bg-[#F3F0FF]/95 backdrop-blur-md border border-purple-200/90 shadow-md">
           {metrics.map((m, idx) => {
             const IconComp = m.icon;
             return (

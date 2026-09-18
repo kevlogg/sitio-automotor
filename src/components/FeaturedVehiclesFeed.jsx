@@ -32,7 +32,7 @@ export default function FeaturedVehiclesFeed({
             return (
               <div
                 key={item.id}
-                className="group rounded-2xl bg-[#EEF2F6] border border-slate-300/80 overflow-hidden flex flex-col justify-between hover:bg-white hover:border-[#6D28D9] shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                className="group rounded-2xl bg-[#F3F0FF]/95 backdrop-blur-md border border-purple-200/90 overflow-hidden flex flex-col justify-between hover:bg-white hover:border-[#6D28D9] shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
               >
                 {/* Image 16:9 with category badge */}
                 <div className="relative aspect-video overflow-hidden bg-slate-100 cursor-pointer" onClick={() => onOpenDetailModal(item)}>
