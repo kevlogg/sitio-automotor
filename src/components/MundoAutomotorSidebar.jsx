@@ -18,7 +18,7 @@ import {
   X
 } from 'lucide-react';
 
-export default function MundoAutomotorSidebar({ cardTheme = 'violet', activeRubro, onSelectRubro }) {
+export default function MundoAutomotorSidebar({ cardTheme = 'violet', activeRubro, onSelectRubro, onOpenRegisterBusiness }) {
   const isDark = cardTheme === 'dark';
 
   const rubros = [
@@ -46,6 +46,17 @@ export default function MundoAutomotorSidebar({ cardTheme = 'violet', activeRubr
         : 'bg-[#E4DAF8] border-purple-300/90 text-slate-900'
     }`}>
       
+      {/* CTA Registrar Negocio Automotor */}
+      {onOpenRegisterBusiness && (
+        <button
+          onClick={onOpenRegisterBusiness}
+          className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs shadow-md shadow-amber-900/30 flex items-center justify-center gap-2 border border-amber-300/30 transition-transform active:scale-95 cursor-pointer"
+        >
+          <Sparkles className="w-4 h-4 text-amber-200" />
+          <span>+ Sumar mi Negocio / Servicio</span>
+        </button>
+      )}
+
       {/* Header */}
       <div className={`flex items-center justify-between pb-2 border-b ${isDark ? 'border-slate-800' : 'border-purple-300/80'}`}>
         <div className="flex items-center gap-2">

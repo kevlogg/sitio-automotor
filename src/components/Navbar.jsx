@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Heart, PlusCircle, Menu, X } from 'lucide-react';
+import { Heart, PlusCircle, Menu, X, User, LogOut, ShieldCheck, Building2, Car, Wrench } from 'lucide-react';
 
-export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavoritesModal }) {
+export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavoritesModal, currentUser, onOpenAuthModal, onSignOut }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
 
@@ -13,6 +13,16 @@ export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavor
     { name: 'Quiénes somos', href: '#nosotros' },
     { name: 'Contacto', href: '#contacto' },
   ];
+
+  const getUserBadge = () => {
+    if (!currentUser?.profile) return null;
+    const type = currentUser.profile.user_type;
+    if (type === 'agencia') return { label: 'Agencia', icon: Building2, color: 'bg-purple-500/20 text-purple-300 border-purple-500/40' };
+    if (type === 'negocio_automotor') return { label: 'Negocio', icon: Wrench, color: 'bg-amber-500/20 text-amber-300 border-amber-500/40' };
+    return { label: 'Particular', icon: Car, color: 'bg-blue-500/20 text-blue-300 border-blue-500/40' };
+  };
+
+  const badgeInfo = getUserBadge();
 
   return (
     <header className="sticky top-0 z-50 bg-[#0D111A]/95 backdrop-blur-md border-b border-slate-800/80 transition-all duration-300 shadow-md">
@@ -59,8 +69,44 @@ export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavor
           </nav>
 
           {/* Acciones Derechas */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-3">
             
+            {/* Estado de Sesión */}
+            {currentUser ? (
+              <div className="flex items-center gap-2 bg-slate-900/90 border border-slate-800 rounded-2xl px-3 py-1.5">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-xl bg-[#6D28D9] text-white flex items-center justify-center font-bold text-xs">
+                    {currentUser.profile?.full_name?.charAt(0) || 'U'}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-white max-w-[110px] truncate">
+                      {currentUser.profile?.business_name || currentUser.profile?.full_name || 'Usuario'}
+                    </span>
+                    {badgeInfo && (
+                      <span className={`text-[9px] font-extrabold border px-1.5 py-0.2 rounded-md ${badgeInfo.color}`}>
+                        {badgeInfo.label}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={onSignOut}
+                  title="Cerrar sesión"
+                  className="p-1.5 rounded-lg hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors ml-1 cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={onOpenAuthModal}
+                className="px-3.5 py-2 rounded-xl border border-purple-500/40 bg-purple-950/30 hover:bg-purple-900/50 text-purple-200 font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <User className="w-3.5 h-3.5 text-purple-400" />
+                <span>Ingresar / Registro</span>
+              </button>
+            )}
+
             {/* CTA + Publicar mi vehículo */}
             <button
               onClick={onOpenPublishModal}

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { X, CheckCircle2, Upload, PlusCircle, Loader2, ImagePlus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, CheckCircle2, Upload, PlusCircle, Loader2, ImagePlus, Lock, User, ArrowRight, Building2, Car } from 'lucide-react';
 import { PROVINCE_OPTIONS } from '../data/mockVehicles';
 import { uploadVehicleImage } from '../lib/supabase';
 
-export default function PublishModal({ isOpen, onClose, onVehicleAdded }) {
+export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentUser, onRequireAuth }) {
   const [formData, setFormData] = useState({
     title: '',
     category: 'autos',
@@ -22,6 +22,20 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded }) {
     sellerWhatsApp: '',
     description: '',
   });
+
+  useEffect(() => {
+    if (currentUser?.profile) {
+      const profile = currentUser.profile;
+      const isAgency = profile.user_type === 'agencia';
+      setFormData((prev) => ({
+        ...prev,
+        sellerName: profile.business_name || profile.full_name || '',
+        sellerWhatsApp: profile.phone_whatsapp || '',
+        sellerType: isAgency ? 'Agencia Verificada' : 'Particular Verificado',
+        location: profile.city ? `${profile.province || ''}, ${profile.city}` : prev.location,
+      }));
+    }
+  }, [currentUser]);
 
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
@@ -139,18 +153,59 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded }) {
           </button>
         </div>
 
-        {/* Plan Header Banner */}
-        <div className="p-4 bg-purple-50 border-b border-purple-100 flex items-center justify-between px-6">
-          <div className="flex items-center gap-3">
-            <div className="px-3 py-1 rounded-full bg-[#6D28D9] text-white font-black text-xs">
-              Plan Individual
+        {/* SI NO ESTÁ AUTENTICADO: Auth Gate */}
+        {!currentUser ? (
+          <div className="p-8 text-center space-y-6">
+            <div className="w-16 h-16 rounded-3xl bg-purple-100 text-[#6D28D9] mx-auto flex items-center justify-center shadow-lg shadow-purple-900/10">
+              <Lock className="w-8 h-8" />
             </div>
-            <span className="text-xs text-slate-700 font-medium">
-              Publicación activa por 30 días corrida con almacenamiento HD en la nube.
-            </span>
+
+            <div className="space-y-2 max-w-md mx-auto">
+              <h4 className="text-xl font-black text-slate-900">Necesitás una cuenta para publicar</h4>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Registrate como <strong className="text-purple-600 font-bold">Particular</strong> o <strong className="text-purple-600 font-bold">Agencia</strong> para subir tu vehículo y recibir consultas directamente en tu WhatsApp.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 max-w-sm mx-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onRequireAuth('signup');
+                }}
+                className="w-full py-3.5 px-5 rounded-2xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-extrabold text-xs shadow-lg shadow-purple-900/30 flex items-center justify-center gap-2 cursor-pointer transition-transform active:scale-95"
+              >
+                <User className="w-4 h-4" />
+                <span>Crear Cuenta Gratuita</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onRequireAuth('login');
+                }}
+                className="w-full py-3.5 px-5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+              >
+                Ya tengo cuenta — Ingresar
+              </button>
+            </div>
           </div>
-          <span className="text-lg font-black text-slate-900 font-mono">$15.000</span>
-        </div>
+        ) : (
+          <>
+            {/* Plan Header Banner */}
+            <div className="p-4 bg-purple-50 border-b border-purple-100 flex items-center justify-between px-6">
+              <div className="flex items-center gap-3">
+                <div className="px-3 py-1 rounded-full bg-[#6D28D9] text-white font-black text-xs">
+                  Plan {currentUser.profile?.user_type === 'agencia' ? 'Agencia' : 'Individual'}
+                </div>
+                <span className="text-xs text-slate-700 font-medium">
+                  Publicación activa por 30 días con fotos en Supabase Storage.
+                </span>
+              </div>
+              <span className="text-lg font-black text-slate-900 font-mono">$15.000</span>
+            </div>
 
         {submitted ? (
           <div className="p-12 text-center space-y-4">
@@ -375,6 +430,8 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded }) {
             </button>
 
           </form>
+        )}
+        </>
         )}
 
       </div>

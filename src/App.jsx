@@ -9,6 +9,8 @@ import FeaturedVehiclesFeed from './components/FeaturedVehiclesFeed';
 import VehicleDetailModal from './components/VehicleDetailModal';
 import PublishModal from './components/PublishModal';
 import FavoritesModal from './components/FavoritesModal';
+import AuthModal from './components/AuthModal';
+import RegisterBusinessModal from './components/RegisterBusinessModal';
 import ProofTrustFooter from './components/ProofTrustFooter';
 import PingPongVideo from './components/PingPongVideo';
 import { MOCK_VEHICLES } from './data/mockVehicles';
@@ -112,6 +114,74 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('all');
   const [activeRubro, setActiveRubro] = useState(null);
   const [cardTheme, setCardTheme] = useState('violet'); // 'violet' | 'dark'
+
+  // User Authentication State
+  const [currentUser, setCurrentUser] = useState(null); // { user, profile }
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('signup'); // 'login' | 'signup'
+  const [registerBusinessModalOpen, setRegisterBusinessModalOpen] = useState(false);
+
+  // Escuchar estado de autenticación en Supabase
+  useEffect(() => {
+    async function getInitialSession() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        setCurrentUser({
+          user,
+          profile: profile || {
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata?.full_name || 'Usuario',
+            user_type: user.user_metadata?.user_type || 'particular',
+          },
+        });
+      }
+    }
+    getInitialSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .maybeSingle();
+
+        setCurrentUser({
+          user: session.user,
+          profile: profile || {
+            id: session.user.id,
+            email: session.user.email,
+            full_name: session.user.user_metadata?.full_name || 'Usuario',
+            user_type: session.user.user_metadata?.user_type || 'particular',
+          },
+        });
+      } else {
+        setCurrentUser(null);
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setCurrentUser(null);
+    showToast('Sesión cerrada correctamente');
+  };
+
+  const handleOpenAuthModal = (mode = 'signup') => {
+    setAuthModalMode(mode);
+    setAuthModalOpen(true);
+  };
 
   // Modal States
   const [detailVehicle, setDetailVehicle] = useState(null);
@@ -325,6 +395,9 @@ export default function App() {
         favoritesCount={favorites.length}
         onOpenPublishModal={() => setPublishModalOpen(true)}
         onOpenFavoritesModal={() => setFavoritesModalOpen(true)}
+        currentUser={currentUser}
+        onOpenAuthModal={() => handleOpenAuthModal('signup')}
+        onSignOut={handleSignOut}
       />
 
       {/* Main Content */}
@@ -397,6 +470,7 @@ export default function App() {
                         showToast(`Rubro seleccionado: ${rubroId}`);
                       }
                     }}
+                    onOpenRegisterBusiness={() => setRegisterBusinessModalOpen(true)}
                   />
                 </div>
 
@@ -436,6 +510,26 @@ export default function App() {
         isOpen={publishModalOpen}
         onClose={() => setPublishModalOpen(false)}
         onVehicleAdded={handleAddVehicle}
+        currentUser={currentUser}
+        onRequireAuth={(mode) => handleOpenAuthModal(mode)}
+      />
+
+      <AuthModal
+        isOpen={authModalOpen}
+        initialMode={authModalMode}
+        onClose={() => setAuthModalOpen(false)}
+        onAuthSuccess={(userSession) => {
+          setCurrentUser(userSession);
+          showToast(`¡Bienvenido/a, ${userSession.profile?.full_name || 'Usuario'}! 🎉`);
+        }}
+      />
+
+      <RegisterBusinessModal
+        isOpen={registerBusinessModalOpen}
+        onClose={() => setRegisterBusinessModalOpen(false)}
+        onBusinessRegistered={(serviceData) => {
+          showToast(`¡Tu negocio "${serviceData.name}" fue agregado a Mundo Automotor! 🚀`);
+        }}
       />
 
       <FavoritesModal

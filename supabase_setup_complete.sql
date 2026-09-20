@@ -4,6 +4,32 @@
 -- Ejecutar este script completo en el SQL Editor de Supabase
 -- ====================================================================
 
+-- 0. TABLA DE PERFILES DE USUARIO (Particular / Agencia / Negocio Automotor)
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
+  full_name TEXT NOT NULL,
+  user_type TEXT DEFAULT 'particular' CHECK (user_type IN ('particular', 'agencia', 'negocio_automotor')),
+  phone_whatsapp TEXT,
+  city TEXT,
+  province TEXT,
+  business_name TEXT,
+  rubro TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir lectura publica de perfiles') THEN
+    CREATE POLICY "Permitir lectura publica de perfiles" ON public.profiles FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir crear y editar perfil propio') THEN
+    CREATE POLICY "Permitir crear y editar perfil propio" ON public.profiles FOR ALL USING (auth.uid() = id);
+  END IF;
+END $$;
+
 -- 1. TABLA DE VEHÍCULOS
 CREATE TABLE IF NOT EXISTS public.vehicles (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
