@@ -197,15 +197,6 @@ export default function App() {
     }, 3500);
   };
 
-  // Toggle Card Theme (Violeta Opaco vs Negro Opaco)
-  const handleToggleCardTheme = () => {
-    setCardTheme((prev) => {
-      const next = prev === 'violet' ? 'dark' : 'violet';
-      showToast(next === 'dark' ? 'Tema de cards cambiado a: Negro Opaco 🖤' : 'Tema de cards cambiado a: Violeta Opaco 💜');
-      return next;
-    });
-  };
-
   // Favoriting Handler
   const handleToggleFavorite = (id) => {
     if (favorites.includes(id)) {
@@ -442,7 +433,6 @@ export default function App() {
               setSortBy={setSortBy}
               onSearchSubmit={handleSearchScroll}
               cardTheme={cardTheme}
-              onToggleCardTheme={handleToggleCardTheme}
             />
 
             {/* Category Explorer */}
