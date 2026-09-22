@@ -1,8 +1,10 @@
 import React from 'react';
 import { Camera, Users, MessageSquare, Tag, Check } from 'lucide-react';
+import useScrollReveal from '../hooks/useScrollReveal';
 
 export default function MonetizationSection({ cardTheme = 'violet', onOpenPublishModal }) {
   const isDark = cardTheme === 'dark';
+  const containerRef = useScrollReveal({ threshold: 0.1 });
 
   const steps = [
     {
@@ -32,12 +34,14 @@ export default function MonetizationSection({ cardTheme = 'violet', onOpenPublis
     'Red de agencias y vendedores'
   ];
 
+  const stepDelays = ['delay-75', 'delay-150', 'delay-250'];
+
   return (
-    <section id="vender" className="py-16 bg-transparent">
+    <section id="vender" ref={containerRef} className="py-16 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Title */}
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 text-center mb-12 tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 text-center mb-12 tracking-tight reveal-on-scroll">
           Publicá tu vehículo en 3 simples pasos
         </h2>
 
@@ -46,18 +50,20 @@ export default function MonetizationSection({ cardTheme = 'violet', onOpenPublis
           
           {/* Left Column: 3 Steps */}
           <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            {steps.map((step) => {
+            {steps.map((step, idx) => {
               const StepIcon = step.icon;
+              const delayClass = stepDelays[idx];
+
               return (
                 <div
                   key={step.number}
-                  className={`flex flex-col items-center space-y-3 p-5 rounded-2xl border transition-all ${
+                  className={`flex flex-col items-center space-y-3 p-5 rounded-2xl border reveal-on-scroll ${delayClass} transition-all duration-300 hover:-translate-y-1 shadow-xl hover:shadow-2xl hover:shadow-purple-950/70 ${
                     isDark
                       ? 'bg-[#0D121F]/95 backdrop-blur-md border-slate-800 hover:bg-[#182235] text-white shadow-xl shadow-slate-950/40'
                       : 'bg-gradient-to-br from-[#261647] via-[#1E1138] to-[#160B2B] border-purple-700/70 hover:border-purple-400 text-white shadow-xl shadow-purple-950/50'
                   }`}
                 >
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border transition-transform duration-300 hover:scale-110 ${
                     isDark ? 'bg-slate-800 border-slate-700 text-[#A78BFA]' : 'bg-[#180E2E] border-purple-700/60 text-[#A78BFA]'
                   }`}>
                     <StepIcon className="w-7 h-7 stroke-[1.5]" />
@@ -79,9 +85,9 @@ export default function MonetizationSection({ cardTheme = 'violet', onOpenPublis
             })}
           </div>
 
-          {/* Right Column: Pricing Card */}
-          <div className="lg:col-span-5">
-            <div className={`p-8 rounded-3xl border-2 transition-all ${
+          {/* Right Column: Pricing Card with Glow Pulse Animation */}
+          <div className="lg:col-span-5 reveal-on-scroll delay-300">
+            <div className={`p-8 rounded-3xl border-2 transition-all duration-300 animate-glow-pulse ${
               isDark
                 ? 'bg-[#0D121F]/95 backdrop-blur-md border-purple-500 shadow-2xl shadow-purple-950/40 text-white'
                 : 'bg-gradient-to-br from-[#261647] via-[#1E1138] to-[#160B2B] border-purple-500 shadow-2xl shadow-purple-950/60 text-white'
@@ -108,7 +114,7 @@ export default function MonetizationSection({ cardTheme = 'violet', onOpenPublis
 
               <button
                 onClick={onOpenPublishModal}
-                className="w-full py-3.5 rounded-xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-bold text-sm transition-all shadow-md shadow-purple-600/20 cursor-pointer"
+                className="w-full py-3.5 rounded-xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-bold text-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-purple-600/20 cursor-pointer"
               >
                 Publicar mi vehículo
               </button>

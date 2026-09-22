@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search, ChevronDown, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { BRAND_OPTIONS, PROVINCE_OPTIONS } from '../data/mockVehicles';
+import useScrollReveal from '../hooks/useScrollReveal';
 
 export default function FloatingSearchBar({
   searchTerm,
@@ -22,6 +23,8 @@ export default function FloatingSearchBar({
   onSearchSubmit,
   cardTheme = 'violet'
 }) {
+  const containerRef = useScrollReveal({ threshold: 0.1 });
+
   const categoryOptions = [
     { value: 'all', label: 'Todos' },
     { value: 'autos', label: 'Autos' },
@@ -70,9 +73,9 @@ export default function FloatingSearchBar({
   const isDark = cardTheme === 'dark';
 
   return (
-    <div id="search-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 z-20">
+    <div id="search-section" ref={containerRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 z-20 reveal-on-scroll">
       
-      {/* Header Title with Theme Switcher & Reset Action */}
+      {/* Header Title with Reset Action */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
           <SlidersHorizontal className="w-6 h-6 text-[#6D28D9]" />
@@ -83,7 +86,7 @@ export default function FloatingSearchBar({
           <div className="flex items-center gap-3">
             <button
               onClick={handleResetFilters}
-              className="text-xs font-semibold text-[#6D28D9] hover:text-[#5B21B6] flex items-center gap-1.5 bg-purple-50 hover:bg-purple-100 px-3 py-2 rounded-xl border border-purple-200 transition-all cursor-pointer"
+              className="text-xs font-semibold text-[#6D28D9] hover:text-[#5B21B6] flex items-center gap-1.5 bg-purple-50 hover:bg-purple-100 px-3 py-2 rounded-xl border border-purple-200 transition-all duration-200 hover:scale-[1.03] active:scale-95 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Limpiar filtros</span>
@@ -93,7 +96,7 @@ export default function FloatingSearchBar({
       </div>
 
       {/* Main Filter Container */}
-      <div className={`p-4 sm:p-5 rounded-2xl border transition-colors space-y-3 ${
+      <div className={`p-4 sm:p-5 rounded-2xl border transition-all duration-300 space-y-3 ${
         isDark
           ? 'bg-[#0D121F]/95 backdrop-blur-md border-slate-800 shadow-2xl shadow-slate-950/60 text-white'
           : 'bg-gradient-to-br from-[#261647] via-[#1E1138] to-[#160B2B] border-purple-700/70 shadow-2xl shadow-purple-950/50 text-white'
@@ -120,7 +123,7 @@ export default function FloatingSearchBar({
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Marca, modelo o versión (ej. Corolla, Amarok)..."
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white placeholder-purple-300/50 text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all"
+                  className="w-full pl-10 pr-3.5 py-2.5 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white placeholder-purple-300/50 text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] focus:ring-2 focus:ring-purple-500/40 transition-all duration-300"
                 />
               </div>
             </div>
@@ -134,7 +137,7 @@ export default function FloatingSearchBar({
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full appearance-none px-3 py-2.5 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all cursor-pointer pr-8 font-medium"
+                  className="w-full appearance-none px-3 py-2.5 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] focus:ring-2 focus:ring-purple-500/40 transition-all duration-300 cursor-pointer pr-8 font-medium"
                 >
                   {categoryOptions.map((opt) => (
                     <option key={opt.value} value={opt.value} className="bg-[#180E2E] text-white">
@@ -155,7 +158,7 @@ export default function FloatingSearchBar({
                 <select
                   value={selectedBrand}
                   onChange={(e) => setSelectedBrand(e.target.value)}
-                  className="w-full appearance-none px-3 py-2.5 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all cursor-pointer pr-8 font-medium"
+                  className="w-full appearance-none px-3 py-2.5 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] focus:ring-2 focus:ring-purple-500/40 transition-all duration-300 cursor-pointer pr-8 font-medium"
                 >
                   <option value="all" className="bg-[#180E2E] text-white">Todas las marcas</option>
                   {BRAND_OPTIONS.filter(b => b !== 'Todas las marcas').map((b) => (
@@ -172,7 +175,7 @@ export default function FloatingSearchBar({
             <div className="lg:col-span-2">
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-bold text-xs shadow-md shadow-purple-600/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-bold text-xs shadow-md shadow-purple-600/20 transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Search className="w-3.5 h-3.5" />
                 <span>Buscar</span>
@@ -193,7 +196,7 @@ export default function FloatingSearchBar({
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
-                  className="w-full appearance-none px-3 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all cursor-pointer pr-8 font-medium"
+                  className="w-full appearance-none px-3 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] focus:ring-2 focus:ring-purple-500/40 transition-all duration-300 cursor-pointer pr-8 font-medium"
                 >
                   {yearOptions.map((y) => (
                     <option key={y.value} value={y.value} className="bg-[#180E2E] text-white">
@@ -214,7 +217,7 @@ export default function FloatingSearchBar({
                 <select
                   value={selectedLocation}
                   onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="w-full appearance-none px-3 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all cursor-pointer pr-8 font-medium"
+                  className="w-full appearance-none px-3 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] focus:ring-2 focus:ring-purple-500/40 transition-all duration-300 cursor-pointer pr-8 font-medium"
                 >
                   <option value="all" className="bg-[#180E2E] text-white">Todas las provincias</option>
                   {PROVINCE_OPTIONS.filter(p => p !== 'Todas las ubicaciones').map((p) => (
@@ -238,14 +241,14 @@ export default function FloatingSearchBar({
                   placeholder="Mínimo"
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
-                  className="w-full px-2.5 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs placeholder-purple-300/50 focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all"
+                  className="w-full px-2.5 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs placeholder-purple-300/50 focus:outline-none focus:border-purple-400 focus:bg-[#231442] focus:ring-2 focus:ring-purple-500/40 transition-all duration-300"
                 />
                 <input
                   type="number"
                   placeholder="Máximo"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
-                  className="w-full px-2.5 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs placeholder-purple-300/50 focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all"
+                  className="w-full px-2.5 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs placeholder-purple-300/50 focus:outline-none focus:border-purple-400 focus:bg-[#231442] focus:ring-2 focus:ring-purple-500/40 transition-all duration-300"
                 />
               </div>
             </div>
@@ -259,7 +262,7 @@ export default function FloatingSearchBar({
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full appearance-none px-3 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all cursor-pointer pr-8 font-medium"
+                  className="w-full appearance-none px-3 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] focus:ring-2 focus:ring-purple-500/40 transition-all duration-300 cursor-pointer pr-8 font-medium"
                 >
                   {sortOptions.map((opt) => (
                     <option key={opt.value} value={opt.value} className="bg-[#180E2E] text-white">
@@ -278,3 +281,4 @@ export default function FloatingSearchBar({
     </div>
   );
 }
+

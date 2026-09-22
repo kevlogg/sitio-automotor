@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Gauge, Globe, Mail, Phone, MapPin } from 'lucide-react';
+import useScrollReveal from '../hooks/useScrollReveal';
 
 export default function ProofTrustFooter({ cardTheme = 'dark' }) {
   const [logoError, setLogoError] = useState(false);
+  const containerRef = useScrollReveal({ threshold: 0.1 });
 
   const metrics = [
     {
@@ -23,20 +25,20 @@ export default function ProofTrustFooter({ cardTheme = 'dark' }) {
   ];
 
   return (
-    <footer className="bg-[#0D111A] border-t border-slate-800/80 text-slate-300 pt-12 pb-8 transition-colors">
+    <footer ref={containerRef} className="bg-[#0D111A] border-t border-slate-800/80 text-slate-300 pt-12 pb-8 transition-colors">
       
       {/* 3 Metrics Row */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 reveal-on-scroll">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-6 px-6 rounded-2xl border border-slate-800/80 bg-slate-900/90 backdrop-blur-md text-white shadow-xl shadow-slate-950/50">
           {metrics.map((m, idx) => {
             const IconComp = m.icon;
             return (
-              <div key={idx} className="flex items-center gap-4 justify-center md:justify-start">
-                <div className="w-12 h-12 rounded-xl border border-purple-800/50 bg-purple-950/40 text-purple-400 flex items-center justify-center shadow-md">
+              <div key={idx} className="group flex items-center gap-4 justify-center md:justify-start cursor-default">
+                <div className="w-12 h-12 rounded-xl border border-purple-800/50 bg-purple-950/40 text-purple-400 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-[4deg] group-hover:border-purple-500 group-hover:bg-purple-900/50">
                   <IconComp className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="text-base font-bold text-white mb-0.5">
+                  <h4 className="text-base font-bold text-white mb-0.5 group-hover:text-purple-300 transition-colors">
                     {m.title}
                   </h4>
                   <p className="text-xs text-slate-400">

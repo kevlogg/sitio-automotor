@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowRight, Heart, Eye, MessageCircle } from 'lucide-react';
+import useScrollReveal from '../hooks/useScrollReveal';
 
 export default function FeaturedVehiclesFeed({
   cardTheme = 'violet',
@@ -10,18 +11,31 @@ export default function FeaturedVehiclesFeed({
   onWhatsAppContact
 }) {
   const isDark = cardTheme === 'dark';
+  const containerRef = useScrollReveal({ threshold: 0.1 });
+  const [animatingFavId, setAnimatingFavId] = useState(null);
+
+  const delays = ['delay-75', 'delay-150', 'delay-200', 'delay-300', 'delay-400'];
+
+  const handleFavoriteClick = (e, id) => {
+    e.stopPropagation();
+    setAnimatingFavId(id);
+    onToggleFavorite(id);
+    setTimeout(() => {
+      setAnimatingFavId(null);
+    }, 250);
+  };
 
   return (
-    <section id="vehiculos" className="py-12 bg-transparent">
+    <section id="vehiculos" ref={containerRef} className="py-12 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 reveal-on-scroll">
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             Vehículos destacados
           </h2>
 
-          <a href="#vehiculos" className="text-xs font-bold text-[#6D28D9] hover:text-[#5B21B6] flex items-center gap-1">
+          <a href="#vehiculos" className="text-xs font-bold text-[#6D28D9] hover:text-[#5B21B6] flex items-center gap-1 underline-slide">
             <span>Ver todos</span>
             <ArrowRight className="w-4 h-4" />
           </a>
@@ -29,13 +43,15 @@ export default function FeaturedVehiclesFeed({
 
         {/* Product Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {vehicles.map((item) => {
+          {vehicles.map((item, idx) => {
             const isFav = favorites.includes(item.id);
+            const isAnimatingFav = animatingFavId === item.id;
+            const delayClass = delays[idx % delays.length];
 
             return (
               <div
                 key={item.id}
-                className={`group rounded-2xl border overflow-hidden flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-purple-950/60 ${
+                className={`group rounded-2xl border overflow-hidden flex flex-col justify-between reveal-on-scroll ${delayClass} hover:-translate-y-1.5 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-purple-950/70 ${
                   isDark
                     ? 'bg-[#180E2E]/95 backdrop-blur-md border-purple-900/60 hover:bg-[#231442] hover:border-purple-500 text-white'
                     : 'bg-gradient-to-br from-[#261647] via-[#1E1138] to-[#160B2B] border-purple-700/70 hover:border-purple-400 hover:from-[#311C5B] hover:to-[#21113E] text-white'
@@ -46,29 +62,26 @@ export default function FeaturedVehiclesFeed({
                   <img
                     src={item.image}
                     alt={item.title}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover object-center group-hover:scale-106 scale-100 transition-transform duration-400 ease-out"
                   />
 
                   {/* Top Left Badge */}
                   <div className="absolute top-2.5 left-2.5 z-10">
-                    <span className="px-2 py-0.5 rounded bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider border border-white/20">
+                    <span className="px-2 py-0.5 rounded bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider border border-white/20 hover:bg-purple-900/90 hover:border-purple-400 transition-colors duration-200">
                       {item.category === 'autos' ? 'AUTO' : item.category === 'camionetas' ? 'CAMIONETA' : item.category === 'motos' ? 'MOTO' : item.category === 'camiones' ? 'CAMIÓN' : 'NÁUTICA'}
                     </span>
                   </div>
 
                   {/* Favorite button */}
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleFavorite(item.id);
-                    }}
-                    className={`absolute top-2.5 right-2.5 p-1.5 rounded-lg backdrop-blur-md border transition-all z-10 ${
+                    onClick={(e) => handleFavoriteClick(e, item.id)}
+                    className={`absolute top-2.5 right-2.5 p-1.5 rounded-lg backdrop-blur-md border transition-all z-10 active:scale-90 ${
                       isFav
                         ? 'bg-[#6D28D9] border-purple-400 text-white'
                         : 'bg-slate-950/60 border-purple-500/40 text-purple-200 hover:text-white hover:bg-purple-900/80'
                     }`}
                   >
-                    <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-white text-white' : ''}`} />
+                    <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-white text-white' : ''} ${isAnimatingFav ? 'animate-heart-pop' : ''}`} />
                   </button>
                 </div>
 
@@ -96,14 +109,14 @@ export default function FeaturedVehiclesFeed({
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => onOpenDetailModal(item)}
-                        className="p-1.5 rounded-lg bg-purple-950/80 hover:bg-[#6D28D9] text-purple-200 hover:text-white border border-purple-800/50 transition-colors"
+                        className="p-1.5 rounded-lg bg-purple-950/80 hover:bg-[#6D28D9] text-purple-200 hover:text-white border border-purple-800/50 transition-all duration-200 hover:scale-105 active:scale-95"
                         title="Ver detalle"
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => onWhatsAppContact(item)}
-                        className="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-colors shadow-md"
+                        className="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all duration-200 hover:scale-105 active:scale-95 shadow-md"
                         title="Consultar WhatsApp"
                       >
                         <MessageCircle className="w-3.5 h-3.5" />

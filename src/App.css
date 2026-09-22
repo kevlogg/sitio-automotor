@@ -15,6 +15,98 @@
   animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Staggered Hero Reveal Animation */
+@keyframes heroReveal {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-hero-reveal {
+  animation: heroReveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Stagger Delay Helpers */
+.delay-75 { animation-delay: 75ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+
+/* Elastic Heart Pop Microinteraction */
+@keyframes heartPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-heart-pop {
+  animation: heartPop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Glowing Pulsing Border Effect for Monetization Card */
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.25), 0 0 30px rgba(109, 40, 217, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(139, 92, 246, 0.5), 0 0 55px rgba(109, 40, 217, 0.35);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+/* Underline Slide Animation for Links */
+.underline-slide {
+  position: relative;
+  display: inline-block;
+}
+
+.underline-slide::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.group:hover .underline-slide::after,
+.underline-slide:hover::after {
+  transform: scaleX(1);
+}
+
+/* Scroll Reveal Classes */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* Custom Hide Scrollbar Utility */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -22,4 +114,23 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Accessibility: Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .animate-hero-reveal,
+  .animate-fadeIn,
+  .animate-heart-pop,
+  .animate-glow-pulse,
+  .reveal-on-scroll {
+    animation: none !important;
+    transition: opacity 0.2s ease !important;
+    transform: none !important;
+  }
+  .reveal-on-scroll {
+    opacity: 1 !important;
+  }
+  .underline-slide::after {
+    transition: none !important;
+  }
 }
