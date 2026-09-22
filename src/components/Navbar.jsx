@@ -6,12 +6,10 @@ export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavor
   const [logoError, setLogoError] = useState(false);
 
   const navLinks = [
-    { name: 'Inicio', href: '#hero' },
     { name: 'Vehículos', href: '#vehiculos' },
     { name: 'Agencias', href: '#agencias' },
     { name: 'Servicios', href: '#servicios' },
     { name: 'Quiénes somos', href: '#nosotros' },
-    { name: 'Contacto', href: '#contacto' },
   ];
 
   const getUserBadge = () => {
