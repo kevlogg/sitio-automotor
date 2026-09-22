@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 
 /**
  * WheelSectionDivider
- * Transparent strip: a 48px wheel rolls across with a visible smoke cloud trailing behind.
- * Smoke and wheel are siblings in a wider motion container so nothing clips the puffs.
+ * Dense drift smoke cloud — 8 overlapping puffs with staggered timing
+ * create a continuous burnout aura trailing behind the wheel.
  */
 export default function WheelSectionDivider() {
   const containerRef = useRef(null);
   const [animKey, setAnimKey] = useState(0);
-  const [direction, setDirection] = useState(null); // 'right' | 'left' | null
+  const [direction, setDirection] = useState(null);
   const lastScrollY = useRef(0);
   const isScrollingDown = useRef(true);
 
@@ -28,12 +28,12 @@ export default function WheelSectionDivider() {
     if (!el) return;
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
             const dir = isScrollingDown.current ? 'right' : 'left';
             setDirection(dir);
             setAnimKey((k) => k + 1);
-            setTimeout(() => setDirection(null), 2200);
+            setTimeout(() => setDirection(null), 2300);
           }
         });
       },
@@ -45,60 +45,46 @@ export default function WheelSectionDivider() {
 
   const goRight = direction === 'right';
 
+  // 8 smoke puffs — each has size, x/y position in smoke zone, delay, duration
+  // Positions are within the 180px smoke zone, varying to create a wide cloud
+  const puffs = [
+    { size: 65, x: 55,  y: 20, delay: '0s',    dur: '0.9s'  },
+    { size: 80, x: 30,  y: 12, delay: '0.1s',  dur: '1.1s'  },
+    { size: 50, x: 90,  y: 28, delay: '0.2s',  dur: '0.75s' },
+    { size: 70, x: 15,  y: 22, delay: '0.3s',  dur: '1.0s'  },
+    { size: 55, x: 70,  y: 8,  delay: '0.15s', dur: '0.85s' },
+    { size: 85, x: 45,  y: 18, delay: '0.4s',  dur: '1.15s' },
+    { size: 45, x: 105, y: 30, delay: '0.05s', dur: '0.7s'  },
+    { size: 60, x: 80,  y: 25, delay: '0.25s', dur: '0.95s' },
+  ];
+
   return (
     <>
       <style>{`
-        /* Wheel translation across screen */
         @keyframes rollRight {
-          0%   { transform: translateX(-120px); opacity: 0; }
+          0%   { transform: translateX(-240px); opacity: 0; }
           5%   { opacity: 1; }
           95%  { opacity: 1; }
-          100% { transform: translateX(calc(100vw + 20px)); opacity: 0; }
+          100% { transform: translateX(calc(100vw + 30px)); opacity: 0; }
         }
         @keyframes rollLeft {
-          0%   { transform: translateX(calc(100vw + 20px)); opacity: 0; }
+          0%   { transform: translateX(calc(100vw + 30px)); opacity: 0; }
           5%   { opacity: 1; }
           95%  { opacity: 1; }
-          100% { transform: translateX(-120px); opacity: 0; }
+          100% { transform: translateX(-240px); opacity: 0; }
         }
-        /* Rim spin */
-        @keyframes rimCW  { to { transform: rotate(1440deg); } }
-        @keyframes rimCCW { to { transform: rotate(-1440deg); } }
+        @keyframes rimCW  { from { transform: rotate(0deg); } to { transform: rotate(1440deg); } }
+        @keyframes rimCCW { from { transform: rotate(0deg); } to { transform: rotate(-1440deg); } }
 
-        /* Smoke puffs — drift away from trailing side */
-        @keyframes puffOutLeft {
-          0%   { transform: translate(0px, 0px)   scale(0.4); opacity: 0.9; }
-          40%  { opacity: 0.75; }
-          100% { transform: translate(-38px, -20px) scale(3);   opacity: 0; }
-        }
-        @keyframes puffOutLeft2 {
-          0%   { transform: translate(0px, 0px)   scale(0.3); opacity: 0.8; }
-          40%  { opacity: 0.65; }
-          100% { transform: translate(-48px, -30px) scale(3.5); opacity: 0; }
-        }
-        @keyframes puffOutLeft3 {
-          0%   { transform: translate(0px, 0px)   scale(0.5); opacity: 0.7; }
-          40%  { opacity: 0.55; }
-          100% { transform: translate(-28px, -14px) scale(2.5); opacity: 0; }
-        }
-        @keyframes puffOutRight {
-          0%   { transform: translate(0px, 0px)  scale(0.4); opacity: 0.9; }
-          40%  { opacity: 0.75; }
-          100% { transform: translate(38px, -20px) scale(3);   opacity: 0; }
-        }
-        @keyframes puffOutRight2 {
-          0%   { transform: translate(0px, 0px)  scale(0.3); opacity: 0.8; }
-          40%  { opacity: 0.65; }
-          100% { transform: translate(48px, -30px) scale(3.5); opacity: 0; }
-        }
-        @keyframes puffOutRight3 {
-          0%   { transform: translate(0px, 0px)  scale(0.5); opacity: 0.7; }
-          40%  { opacity: 0.55; }
-          100% { transform: translate(28px, -14px) scale(2.5); opacity: 0; }
+        /* Dense smoke — puffs expand upward and fade */
+        @keyframes driftPuff {
+          0%   { transform: scale(0.35); opacity: 0.0; }
+          15%  { opacity: 0.85; }
+          55%  { opacity: 0.6; }
+          100% { transform: scale(1) translateY(-18px); opacity: 0; }
         }
       `}</style>
 
-      {/* Invisible height-reserving container */}
       <div
         ref={containerRef}
         role="presentation"
@@ -113,71 +99,70 @@ export default function WheelSectionDivider() {
         }}
       >
         {direction && (
-          /*
-           * Motion wrapper: 120px wide (48px wheel + 72px smoke room).
-           * When going right: smoke is on the LEFT side (index 0..70 = smoke, 72..120 = wheel).
-           * When going left:  smoke is on the RIGHT side (0..48 = wheel, 48..120 = smoke).
-           * translateX animation moves this entire wrapper across the screen.
-           */
           <div
             key={`${direction}-${animKey}`}
             style={{
               position: 'absolute',
               top: '50%',
               left: 0,
-              width: '120px',
+              width: '228px',    // 180px smoke + 48px wheel
               height: '48px',
               marginTop: '-24px',
               willChange: 'transform',
               animation: `${goRight ? 'rollRight' : 'rollLeft'} 2s cubic-bezier(0.22,0.61,0.36,1) forwards`,
               display: 'flex',
-              flexDirection: goRight ? 'row' : 'row-reverse', // smoke always trails behind wheel
+              flexDirection: goRight ? 'row' : 'row-reverse',
               alignItems: 'center',
             }}
           >
-            {/* ── SMOKE CLUSTER (72px wide, positioned trailing side) ── */}
+            {/* ─── SMOKE CLOUD ZONE (180px) ─── */}
             <div
               style={{
                 position: 'relative',
-                width: '72px',
+                width: '180px',
                 height: '48px',
                 flexShrink: 0,
                 overflow: 'visible',
               }}
             >
-              {/* Puff 1 */}
+              {puffs.map(({ size, x, y, delay, dur }, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: 'absolute',
+                    // Mirror x position for left-travel direction
+                    left: goRight ? `${x}px` : `${180 - x - size}px`,
+                    top: `${y}px`,
+                    width: `${size}px`,
+                    height: `${size}px`,
+                    borderRadius: '50%',
+                    background: `radial-gradient(circle,
+                      rgba(240,225,255,0.88) 0%,
+                      rgba(192,132,252,0.60) 30%,
+                      rgba(147,51,234,0.35) 58%,
+                      transparent 78%
+                    )`,
+                    filter: 'blur(8px)',
+                    animation: `driftPuff ${dur} ease-out infinite ${delay}`,
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              ))}
+
+              {/* Wide glow base — continuous ambient aura under the cloud */}
               <div style={{
                 position: 'absolute',
-                left: '28px', top: '14px',
-                width: '22px', height: '22px',
+                left: goRight ? '0px' : '0px',
+                top: '8px',
+                width: '160px',
+                height: '36px',
                 borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(235,215,255,0.85) 0%, rgba(168,85,247,0.55) 45%, transparent 72%)',
-                filter: 'blur(4px)',
-                animation: `${goRight ? 'puffOutLeft' : 'puffOutRight'} 0.7s ease-out infinite 0s`,
-              }} />
-              {/* Puff 2 — larger, slower */}
-              <div style={{
-                position: 'absolute',
-                left: '20px', top: '18px',
-                width: '30px', height: '30px',
-                borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(220,190,255,0.75) 0%, rgba(147,51,234,0.45) 40%, transparent 70%)',
-                filter: 'blur(6px)',
-                animation: `${goRight ? 'puffOutLeft2' : 'puffOutRight2'} 0.9s ease-out infinite 0.18s`,
-              }} />
-              {/* Puff 3 — small, fast */}
-              <div style={{
-                position: 'absolute',
-                left: '34px', top: '10px',
-                width: '16px', height: '16px',
-                borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(245,230,255,0.9) 0%, rgba(192,132,252,0.6) 40%, transparent 75%)',
-                filter: 'blur(3px)',
-                animation: `${goRight ? 'puffOutLeft3' : 'puffOutRight3'} 0.55s ease-out infinite 0.35s`,
+                background: 'radial-gradient(ellipse, rgba(168,85,247,0.18) 0%, transparent 70%)',
+                filter: 'blur(12px)',
               }} />
             </div>
 
-            {/* ── WHEEL SVG 48×48 ── */}
+            {/* ─── WHEEL SVG 48×48 ─── */}
             <svg
               width="48"
               height="48"
@@ -186,7 +171,7 @@ export default function WheelSectionDivider() {
                 flexShrink: 0,
                 display: 'block',
                 transform: goRight ? 'skewX(-10deg)' : 'skewX(10deg)',
-                filter: 'drop-shadow(0 2px 10px rgba(147,51,234,0.6))',
+                filter: 'drop-shadow(0 2px 12px rgba(147,51,234,0.7))',
               }}
             >
               <defs>
@@ -196,23 +181,12 @@ export default function WheelSectionDivider() {
                   <stop offset="100%" stopColor="#6b21a8" />
                 </linearGradient>
               </defs>
-
-              {/* Black tyre */}
               <circle cx="50" cy="50" r="48" fill="#0c0c0f" stroke="#09090b" strokeWidth="3" />
-              {/* Tread */}
               <circle cx="50" cy="50" r="42" fill="none" stroke="#1e1e22" strokeWidth="5" strokeDasharray="7 5" />
-              {/* Rim */}
               <circle cx="50" cy="50" r="35" fill="#141418" stroke="#3f3f46" strokeWidth="2" />
-
-              {/* Spinning group */}
               <g style={{ transformOrigin: '50px 50px', animation: `${goRight ? 'rimCW' : 'rimCCW'} 2s cubic-bezier(0.22,0.61,0.36,1) forwards` }}>
                 {[0, 72, 144, 216, 288].map((deg) => (
-                  <path
-                    key={deg}
-                    d="M47 46 L48 17 Q50 14 52 17 L53 46 Z"
-                    fill="url(#wsdSpoke)"
-                    transform={`rotate(${deg} 50 50)`}
-                  />
+                  <path key={deg} d="M47 46 L48 17 Q50 14 52 17 L53 46 Z" fill="url(#wsdSpoke)" transform={`rotate(${deg} 50 50)`} />
                 ))}
                 <circle cx="50" cy="50" r="13" fill="#09090b" stroke="#a855f7" strokeWidth="2.5" />
                 <circle cx="50" cy="50" r="6"  fill="#a855f7" />
@@ -220,8 +194,6 @@ export default function WheelSectionDivider() {
                   <circle key={deg} cx="50" cy="31" r="2.5" fill="#d4d4d8" transform={`rotate(${deg} 50 50)`} />
                 ))}
               </g>
-
-              {/* Brake caliper (static) */}
               <path d="M76 36 A28 28 0 0 0 76 64 L85 59 A37 37 0 0 1 85 41 Z" fill="#4c1d95" stroke="#7c3aed" strokeWidth="1.5" />
             </svg>
           </div>
