@@ -70,85 +70,115 @@
   animation: glowPulse 3s ease-in-out infinite;
 }
 
-/* Rolling Wheel & Smoke Animations */
-@keyframes rollRight {
+/* Drift Scroll Separator Styles */
+.drift-scroll-separator {
+  position: relative;
+  width: 100%;
+  height: 130px;
+  background-color: #0b0b10;
+  overflow: hidden;
+  border-top: 1px solid rgba(168, 85, 247, 0.15);
+  border-bottom: 1px solid rgba(168, 85, 247, 0.15);
+}
+
+.drift-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.asphalt-line {
+  position: absolute;
+  bottom: 22px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.45), transparent);
+}
+
+.skid-marks {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.75) 0px,
+    rgba(0, 0, 0, 0.75) 35px,
+    transparent 35px,
+    transparent 50px
+  );
+  opacity: 0.7;
+}
+
+.drifter-assembly {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  width: 85px;
+  height: 85px;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* Camber del primer diseño */
+.wheel-camber {
+  width: 100%;
+  height: 100%;
+  transform-origin: bottom center;
+  transform: skewX(-14deg) rotate(-6deg);
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 12px rgba(147, 51, 234, 0.25));
+}
+
+.sport-wheel {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.spinning-rim {
+  transform-origin: 100px 100px;
+  will-change: transform;
+}
+
+/* Humo de densidad media */
+.smoke-trail {
+  position: absolute;
+  bottom: 6px;
+  left: -15px;
+  width: 50px;
+  height: 35px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.smoke-active .smoke-trail {
+  opacity: 1;
+}
+
+.puff {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(216, 180, 254, 0.4) 0%, rgba(147, 51, 234, 0.18) 50%, transparent 75%);
+  filter: blur(4px);
+  will-change: transform, opacity;
+}
+
+.p1 { width: 30px; height: 30px; bottom: 0; left: 0; animation: smokeFloat 0.55s ease-out infinite 0s; }
+.p2 { width: 40px; height: 40px; bottom: 4px; left: -10px; animation: smokeFloat 0.65s ease-out infinite 0.15s; }
+.p3 { width: 25px; height: 25px; bottom: 2px; left: 6px; animation: smokeFloat 0.5s ease-out infinite 0.3s; }
+.p4 { width: 45px; height: 45px; bottom: 8px; left: -18px; animation: smokeFloat 0.75s ease-out infinite 0.22s; }
+
+@keyframes smokeFloat {
   0% {
-    transform: translateX(-120px) rotate(0deg);
-    opacity: 0;
-  }
-  5% {
-    opacity: 1;
-  }
-  95% {
-    opacity: 1;
+    transform: scale(0.3) translate(0, 0);
+    opacity: 0.8;
   }
   100% {
-    transform: translateX(calc(100vw + 60px)) rotate(1440deg);
+    transform: scale(2) translate(-30px, -18px);
     opacity: 0;
   }
-}
-
-@keyframes rollLeft {
-  0% {
-    transform: translateX(calc(100vw + 60px)) rotate(0deg);
-    opacity: 0;
-  }
-  5% {
-    opacity: 1;
-  }
-  95% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(-120px) rotate(-1440deg);
-    opacity: 0;
-  }
-}
-
-@keyframes smokePuffRight {
-  0% {
-    opacity: 0.85;
-    transform: scale(0.3) translate(0, 0) rotate(0deg);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(1.6) translate(-35px, -15px) rotate(-25deg);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(2.6) translate(-75px, -35px) rotate(-45deg);
-  }
-}
-
-@keyframes smokePuffLeft {
-  0% {
-    opacity: 0.85;
-    transform: scale(0.3) translate(0, 0) rotate(0deg);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(1.6) translate(35px, -15px) rotate(25deg);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(2.6) translate(75px, -35px) rotate(45deg);
-  }
-}
-
-.animate-roll-right {
-  animation: rollRight 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-}
-
-.animate-roll-left {
-  animation: rollLeft 2.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-}
-
-.animate-smoke-right {
-  animation: smokePuffRight 1.4s ease-out forwards;
-}
-
-.animate-smoke-left {
-  animation: smokePuffLeft 1.4s ease-out forwards;
 }
 
 /* Underline Slide Animation for Links */

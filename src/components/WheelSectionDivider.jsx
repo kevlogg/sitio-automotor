@@ -1,170 +1,161 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 /**
- * WheelSectionDivider Component
- * Renders an animated rolling wheel (black tire + violet alloy rim) with smoke trail across the screen.
- * - Scrolling DOWN: Rolls left -> right across full viewport width.
- * - Scrolling UP: Rolls right -> left across full viewport width.
+ * WheelSectionDivider Component (Drift Scroll Separator)
+ * Exact custom drift wheel design provided:
+ * - Camber angle (skewX(-14deg) rotate(-6deg))
+ * - Outer dark tire with tread dashes & inner rim
+ * - Static perforated brake disc & dark violet caliper (#581c87)
+ * - 5 violet gradient spokes (#c084fc -> #9333ea -> #6b21a8) with bolts
+ * - Real-time scroll progress tracking & smoke trail on active scroll
  */
 export default function WheelSectionDivider() {
   const containerRef = useRef(null);
-  const [triggerState, setTriggerState] = useState(null); // 'down' | 'up' | null
-  const [animKey, setAnimKey] = useState(0);
-  const lastScrollY = useRef(0);
-  const isScrollingDown = useRef(true);
+  const drifterRef = useRef(null);
+  const rimRef = useRef(null);
 
-  // Track global scroll direction
   useEffect(() => {
-    const handleScroll = () => {
-      const currentY = window.scrollY;
-      if (currentY > lastScrollY.current + 3) {
-        isScrollingDown.current = true;
-      } else if (currentY < lastScrollY.current - 3) {
-        isScrollingDown.current = false;
-      }
-      lastScrollY.current = currentY;
-    };
+    const container = containerRef.current;
+    const drifter = drifterRef.current;
+    const rim = rimRef.current;
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    if (!container || !drifter || !rim) return;
 
-  // IntersectionObserver to trigger wheel animation on section entry
-  useEffect(() => {
-    const target = containerRef.current;
-    if (!target) return;
+    let isInView = false;
+    let lastScrollY = window.scrollY;
+    let smokeTimeout = null;
+    let animationFrameId = null;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const dir = isScrollingDown.current ? 'down' : 'up';
-            setTriggerState(dir);
-            setAnimKey((prev) => prev + 1);
-          } else {
-            setTriggerState(null);
-          }
-        });
+        isInView = entries[0].isIntersecting;
       },
-      {
-        threshold: 0.1,
-        rootMargin: '120px 0px 120px 0px'
-      }
+      { threshold: 0 }
     );
+    observer.observe(container);
 
-    observer.observe(target);
-    return () => observer.disconnect();
+    function onScrollUpdate() {
+      if (!isInView || !container || !drifter || !rim) return;
+
+      const rect = container.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+
+      // Progress 0 to 1: from entering screen bottom to leaving screen top
+      const totalRange = windowHeight + rect.height;
+      const currentPos = windowHeight - rect.top;
+      const progress = Math.min(Math.max(currentPos / totalRange, 0), 1);
+
+      // Horizontal position: -90px off-screen left to 100vw + 20px off-screen right
+      const screenWidth = window.innerWidth;
+      const startX = -90;
+      const endX = screenWidth + 20;
+      const currentX = startX + (endX - startX) * progress;
+
+      // Angular rotation tied to pixel progress (4 full rotations)
+      const rotationDeg = progress * 1440;
+
+      // Apply GPU-accelerated transforms
+      drifter.style.transform = `translateX(${currentX}px)`;
+      rim.style.transform = `rotate(${rotationDeg}deg)`;
+
+      // Detect active scrolling to trigger smoke trail
+      if (Math.abs(window.scrollY - lastScrollY) > 1) {
+        drifter.classList.add('smoke-active');
+        if (smokeTimeout) clearTimeout(smokeTimeout);
+        smokeTimeout = setTimeout(() => {
+          if (drifter) drifter.classList.remove('smoke-active');
+        }, 150);
+      }
+
+      lastScrollY = window.scrollY;
+    }
+
+    const handleScroll = () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(onScrollUpdate);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Initial calculation
+    onScrollUpdate();
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      if (smokeTimeout) clearTimeout(smokeTimeout);
+    };
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full h-20 my-6 overflow-hidden pointer-events-none"
-    >
-      {/* Decorative Track Line / Road */}
-      <div className="absolute inset-x-0 bottom-4 h-[2px] bg-gradient-to-r from-transparent via-purple-600/50 to-transparent" />
-      <div className="absolute inset-x-0 bottom-3.5 h-[1px] bg-gradient-to-r from-transparent via-purple-400/30 to-transparent" />
+    <div ref={containerRef} className="drift-scroll-separator" role="presentation">
+      <div className="drift-track">
+        {/* Marcas de asfalto y línea guía */}
+        <div className="skid-marks"></div>
+        <div className="asphalt-line"></div>
 
-      {/* Animated Wheel & Smoke Wrapper anchored at left-0 */}
-      {triggerState && (
-        <div
-          key={`${triggerState}-${animKey}`}
-          className={`absolute bottom-2 left-0 flex items-center ${
-            triggerState === 'down' ? 'animate-roll-right' : 'animate-roll-left'
-          }`}
-          style={{ width: '64px', height: '64px' }}
-        >
-          {/* Particle Smoke Trail behind wheel */}
-          <div
-            className={`absolute bottom-1 z-0 flex items-center gap-1.5 ${
-              triggerState === 'down' ? 'right-7 flex-row-reverse' : 'left-7 flex-row'
-            }`}
-          >
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className={`rounded-full bg-gradient-to-tr from-purple-500/50 via-purple-300/40 to-slate-200/30 blur-[4px] ${
-                  triggerState === 'down' ? 'animate-smoke-right' : 'animate-smoke-left'
-                }`}
-                style={{
-                  width: `${16 + i * 7}px`,
-                  height: `${16 + i * 7}px`,
-                  animationDelay: `${i * 90}ms`
-                }}
-              />
-            ))}
+        {/* Conjunto Rueda en Drift */}
+        <div ref={drifterRef} className="drifter-assembly">
+          
+          {/* Partículas de Humo en densidad media */}
+          <div className="smoke-trail">
+            <span className="puff p1"></span>
+            <span className="puff p2"></span>
+            <span className="puff p3"></span>
+            <span className="puff p4"></span>
           </div>
 
-          {/* SVG Wheel (Black Tire + Violet Alloy Rim) */}
-          <svg
-            viewBox="0 0 100 100"
-            className="w-16 h-16 z-10 drop-shadow-2xl filter brightness-105"
-          >
-            <defs>
-              <radialGradient id={`violetRimGrad-${animKey}`} cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#DDD6FE" />
-                <stop offset="40%" stopColor="#A78BFA" />
-                <stop offset="75%" stopColor="#6D28D9" />
-                <stop offset="100%" stopColor="#4C1D95" />
-              </radialGradient>
-              <radialGradient id={`tireRubberGrad-${animKey}`} cx="50%" cy="50%" r="50%">
-                <stop offset="65%" stopColor="#1E293B" />
-                <stop offset="88%" stopColor="#0F172A" />
-                <stop offset="100%" stopColor="#020617" />
-              </radialGradient>
-            </defs>
+          {/* Inclinación de Derrape */}
+          <div className="wheel-camber">
+            <svg className="sport-wheel" viewBox="0 0 200 200">
+              <defs>
+                <linearGradient id="violetSpokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#c084fc"/>
+                  <stop offset="50%" stopColor="#9333ea"/>
+                  <stop offset="100%" stopColor="#6b21a8"/>
+                </linearGradient>
+              </defs>
 
-            {/* Outer Black Rubber Tire */}
-            <circle cx="50" cy="50" r="48" fill={`url(#tireRubberGrad-${animKey})`} stroke="#0B0F17" strokeWidth="3" />
+              {/* Neumático exterior */}
+              <circle cx="100" cy="100" r="92" fill="#141416" stroke="#09090b" strokeWidth="8" />
+              <circle cx="100" cy="100" r="84" fill="none" stroke="#27272a" strokeWidth="4" strokeDasharray="8 6" />
 
-            {/* Tire Tread Markings */}
-            {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
-              <line
-                key={deg}
-                x1="50"
-                y1="3"
-                x2="50"
-                y2="9"
-                stroke="#334155"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                transform={`rotate(${deg} 50 50)`}
-              />
-            ))}
+              {/* Aro interior */}
+              <circle cx="100" cy="100" r="76" fill="#18181b" stroke="#3f3f46" strokeWidth="3" />
 
-            {/* Outer Rim Ring */}
-            <circle cx="50" cy="50" r="38" fill="#020617" stroke="#C4B5FD" strokeWidth="1.5" />
+              {/* Disco de freno perforado estático */}
+              <circle cx="100" cy="100" r="54" fill="#3f3f46" stroke="#52525b" strokeWidth="1.5" />
+              <circle cx="100" cy="100" r="48" fill="none" stroke="#27272a" strokeWidth="2" strokeDasharray="3 5" />
 
-            {/* Violet Alloy Rim Circle */}
-            <circle cx="50" cy="50" r="35" fill={`url(#violetRimGrad-${animKey})`} stroke="#5B21B6" strokeWidth="1" />
+              {/* Caliper violeta oscuro */}
+              <path d="M 148 78 A 54 54 0 0 0 148 122 L 160 116 A 66 66 0 0 1 160 84 Z" fill="#581c87" stroke="#7e22ce" strokeWidth="1.5"/>
 
-            {/* 5 Alloy Spokes */}
-            {[0, 72, 144, 216, 288].map((deg) => (
-              <g key={deg} transform={`rotate(${deg} 50 50)`}>
-                <polygon points="47,50 44,18 56,18 53,50" fill="#EDE9FE" opacity="0.9" />
-                <polygon points="48.5,50 46.5,20 53.5,20 51.5,50" fill={`url(#violetRimGrad-${animKey})`} />
+              {/* 5 Rayos Violetas (Grupo giratorio controlado por JS) */}
+              <g ref={rimRef} className="spinning-rim">
+                {/* Rayo 1 (0°) */}
+                <path d="M 94 92 L 96 32 Q 100 28 104 32 L 106 92 Z" fill="url(#violetSpokeGrad)" />
+                {/* Rayo 2 (72°) */}
+                <path d="M 94 92 L 96 32 Q 100 28 104 32 L 106 92 Z" fill="url(#violetSpokeGrad)" transform="rotate(72 100 100)" />
+                {/* Rayo 3 (144°) */}
+                <path d="M 94 92 L 96 32 Q 100 28 104 32 L 106 92 Z" fill="url(#violetSpokeGrad)" transform="rotate(144 100 100)" />
+                {/* Rayo 4 (216°) */}
+                <path d="M 94 92 L 96 32 Q 100 28 104 32 L 106 92 Z" fill="url(#violetSpokeGrad)" transform="rotate(216 100 100)" />
+                {/* Rayo 5 (288°) */}
+                <path d="M 94 92 L 96 32 Q 100 28 104 32 L 106 92 Z" fill="url(#violetSpokeGrad)" transform="rotate(288 100 100)" />
+
+                {/* Centro de llanta y pernos */}
+                <circle cx="100" cy="100" r="22" fill="#09090b" stroke="#a855f7" strokeWidth="2.5" />
+                <circle cx="100" cy="100" r="10" fill="#a855f7" />
+                <circle cx="100" cy="85" r="2.5" fill="#e4e4e7" />
+                <circle cx="114" cy="95" r="2.5" fill="#e4e4e7" />
+                <circle cx="109" cy="111" r="2.5" fill="#e4e4e7" />
+                <circle cx="91" cy="111" r="2.5" fill="#e4e4e7" />
+                <circle cx="86" cy="95" r="2.5" fill="#e4e4e7" />
               </g>
-            ))}
-
-            {/* Inner Brake Disc */}
-            <circle cx="50" cy="50" r="18" fill="#0F172A" stroke="#8B5CF6" strokeWidth="1.5" />
-
-            {/* Center Cap with SA Accent */}
-            <circle cx="50" cy="50" r="10" fill="#6D28D9" stroke="#E9D5FF" strokeWidth="1.5" />
-            <text
-              x="50"
-              y="53.5"
-              fill="#FFFFFF"
-              fontSize="7"
-              fontWeight="900"
-              fontFamily="sans-serif"
-              textAnchor="middle"
-            >
-              SA
-            </text>
-          </svg>
+            </svg>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
