@@ -13,6 +13,7 @@ import AuthModal from './components/AuthModal';
 import RegisterBusinessModal from './components/RegisterBusinessModal';
 import ProofTrustFooter from './components/ProofTrustFooter';
 import PingPongVideo from './components/PingPongVideo';
+import WheelSectionDivider from './components/WheelSectionDivider';
 import { MOCK_VEHICLES } from './data/mockVehicles';
 import { supabase } from './lib/supabase';
 
@@ -446,6 +447,9 @@ export default function App() {
               }}
             />
 
+            {/* Section Cut Divider: Rolling Wheel & Smoke */}
+            <WheelSectionDivider />
+
             {/* Main Feed Section with Mundo Automotor Sidebar */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -478,8 +482,14 @@ export default function App() {
               </div>
             </div>
 
+            {/* Section Cut Divider: Rolling Wheel & Smoke */}
+            <WheelSectionDivider />
+
             {/* Monetization / Vender Section */}
             <MonetizationSection cardTheme={cardTheme} onOpenPublishModal={() => setPublishModalOpen(true)} />
+            
+            {/* Section Cut Divider: Rolling Wheel & Smoke */}
+            <WheelSectionDivider />
           </div>
         </div>
       </main>
