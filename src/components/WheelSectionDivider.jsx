@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 /**
- * WheelSectionDivider — invisible strip, only a wheel + smoke passes through.
- * No background, no borders, no black box. Just the wheel.
+ * WheelSectionDivider — fully transparent strip, 48px wheel + visible smoke drift.
+ * Fixed smoke keyframes (no JSX template dependency).
  */
 export default function WheelSectionDivider() {
   const containerRef = useRef(null);
@@ -32,11 +32,11 @@ export default function WheelSectionDivider() {
             const dir = isScrollingDown.current ? 'right' : 'left';
             setDirection(dir);
             setAnimKey((k) => k + 1);
-            setTimeout(() => setDirection(null), 2000);
+            setTimeout(() => setDirection(null), 2200);
           }
         });
       },
-      { threshold: 0.5 }
+      { threshold: 0.4 }
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -46,18 +46,19 @@ export default function WheelSectionDivider() {
 
   return (
     <>
+      {/* Static keyframes — no JSX variable dependency */}
       <style>{`
         @keyframes wsdRight {
-          0%   { transform: translateX(-52px); opacity: 0; }
-          8%   { opacity: 1; }
-          92%  { opacity: 1; }
-          100% { transform: translateX(calc(100vw + 52px)); opacity: 0; }
+          0%   { transform: translateX(-60px); opacity: 0; }
+          6%   { opacity: 1; }
+          94%  { opacity: 1; }
+          100% { transform: translateX(calc(100vw + 60px)); opacity: 0; }
         }
         @keyframes wsdLeft {
-          0%   { transform: translateX(calc(100vw + 52px)); opacity: 0; }
-          8%   { opacity: 1; }
-          92%  { opacity: 1; }
-          100% { transform: translateX(-52px); opacity: 0; }
+          0%   { transform: translateX(calc(100vw + 60px)); opacity: 0; }
+          6%   { opacity: 1; }
+          94%  { opacity: 1; }
+          100% { transform: translateX(-60px); opacity: 0; }
         }
         @keyframes wsdSpinCW {
           from { transform: rotate(0deg); }
@@ -67,28 +68,42 @@ export default function WheelSectionDivider() {
           from { transform: rotate(0deg); }
           to   { transform: rotate(-1440deg); }
         }
-        @keyframes wsdPuff1 {
-          0%   { transform: translate(0,0) scale(0.5); opacity: 0.7; }
-          100% { transform: translate(${goRight ? '-14px' : '14px'},-10px) scale(2.2); opacity: 0; }
+        /* Smoke drifts left (behind wheel moving right) */
+        @keyframes smokeL1 {
+          0%   { transform: translate(0px, 0px) scale(0.5); opacity: 0.85; }
+          100% { transform: translate(-20px, -12px) scale(2.5); opacity: 0; }
         }
-        @keyframes wsdPuff2 {
-          0%   { transform: translate(0,0) scale(0.4); opacity: 0.6; }
-          100% { transform: translate(${goRight ? '-18px' : '18px'},-14px) scale(2.8); opacity: 0; }
+        @keyframes smokeL2 {
+          0%   { transform: translate(0px, 0px) scale(0.4); opacity: 0.7; }
+          100% { transform: translate(-26px, -18px) scale(3.2); opacity: 0; }
         }
-        @keyframes wsdPuff3 {
-          0%   { transform: translate(0,0) scale(0.3); opacity: 0.5; }
-          100% { transform: translate(${goRight ? '-10px' : '10px'},-8px) scale(1.8); opacity: 0; }
+        @keyframes smokeL3 {
+          0%   { transform: translate(0px, 0px) scale(0.3); opacity: 0.6; }
+          100% { transform: translate(-14px, -8px) scale(2); opacity: 0; }
+        }
+        /* Smoke drifts right (behind wheel moving left) */
+        @keyframes smokeR1 {
+          0%   { transform: translate(0px, 0px) scale(0.5); opacity: 0.85; }
+          100% { transform: translate(20px, -12px) scale(2.5); opacity: 0; }
+        }
+        @keyframes smokeR2 {
+          0%   { transform: translate(0px, 0px) scale(0.4); opacity: 0.7; }
+          100% { transform: translate(26px, -18px) scale(3.2); opacity: 0; }
+        }
+        @keyframes smokeR3 {
+          0%   { transform: translate(0px, 0px) scale(0.3); opacity: 0.6; }
+          100% { transform: translate(14px, -8px) scale(2); opacity: 0; }
         }
       `}</style>
 
-      {/* Invisible container — zero background, just reserves height */}
+      {/* Transparent container */}
       <div
         ref={containerRef}
         role="presentation"
         style={{
           position: 'relative',
           width: '100%',
-          height: '40px',
+          height: '52px',
           overflow: 'visible',
           background: 'transparent',
           pointerEvents: 'none',
@@ -102,22 +117,44 @@ export default function WheelSectionDivider() {
               position: 'absolute',
               top: '50%',
               left: 0,
-              transform: 'translateY(-50%)',
-              width: '36px',
-              height: '36px',
+              marginTop: '-24px', // half of 48px wheel
+              width: '48px',
+              height: '48px',
               willChange: 'transform',
               animation: `${goRight ? 'wsdRight' : 'wsdLeft'} 2s cubic-bezier(0.22,0.61,0.36,1) forwards`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
             }}
           >
-            {/* Smoke puffs — appear behind/beside wheel */}
+            {/* === SMOKE PUFFS === */}
+            {/* Smoke appears on the trailing side of the wheel */}
             {[
-              { size: 14, delay: '0s', anim: 'wsdPuff1', offset: goRight ? { right: '28px', top: '6px' } : { left: '28px', top: '6px' } },
-              { size: 18, delay: '0.12s', anim: 'wsdPuff2', offset: goRight ? { right: '24px', top: '2px' } : { left: '24px', top: '2px' } },
-              { size: 11, delay: '0.25s', anim: 'wsdPuff3', offset: goRight ? { right: '32px', top: '10px' } : { left: '32px', top: '10px' } },
-            ].map(({ size, delay, anim, offset }, i) => (
+              {
+                size: 18,
+                delay: '0s',
+                duration: '0.7s',
+                anim: goRight ? 'smokeL1' : 'smokeR1',
+                style: goRight
+                  ? { right: '-4px', bottom: '6px' }
+                  : { left: '-4px', bottom: '6px' },
+              },
+              {
+                size: 24,
+                delay: '0.15s',
+                duration: '0.85s',
+                anim: goRight ? 'smokeL2' : 'smokeR2',
+                style: goRight
+                  ? { right: '-2px', bottom: '2px' }
+                  : { left: '-2px', bottom: '2px' },
+              },
+              {
+                size: 14,
+                delay: '0.3s',
+                duration: '0.6s',
+                anim: goRight ? 'smokeL3' : 'smokeR3',
+                style: goRight
+                  ? { right: '2px', bottom: '10px' }
+                  : { left: '2px', bottom: '10px' },
+              },
+            ].map(({ size, delay, duration, anim, style: puffStyle }, i) => (
               <div
                 key={i}
                 style={{
@@ -125,34 +162,42 @@ export default function WheelSectionDivider() {
                   width: `${size}px`,
                   height: `${size}px`,
                   borderRadius: '50%',
-                  background: 'radial-gradient(circle, rgba(220,190,255,0.6) 0%, rgba(147,51,234,0.3) 40%, transparent 75%)',
-                  filter: 'blur(3px)',
-                  animation: `${anim} 0.65s ease-out infinite ${delay}`,
-                  ...offset,
+                  background:
+                    'radial-gradient(circle, rgba(230,200,255,0.75) 0%, rgba(147,51,234,0.45) 40%, transparent 72%)',
+                  filter: 'blur(4px)',
+                  animation: `${anim} ${duration} ease-out infinite ${delay}`,
+                  ...puffStyle,
                 }}
               />
             ))}
 
-            {/* Wheel SVG — explicit 36x36, no overflow */}
+            {/* === WHEEL SVG 48×48 === */}
             <svg
-              width="36"
-              height="36"
+              width="48"
+              height="48"
               viewBox="0 0 100 100"
               style={{
                 display: 'block',
-                flexShrink: 0,
                 transform: goRight ? 'skewX(-10deg)' : 'skewX(10deg)',
-                filter: 'drop-shadow(0 2px 6px rgba(147,51,234,0.5))',
+                filter: 'drop-shadow(0 3px 8px rgba(147,51,234,0.55))',
               }}
             >
-              {/* Outer tyre */}
-              <circle cx="50" cy="50" r="48" fill="#0f0f12" stroke="#09090b" strokeWidth="3" />
-              {/* Tread pattern */}
-              <circle cx="50" cy="50" r="43" fill="none" stroke="#222226" strokeWidth="3" strokeDasharray="6 5" />
-              {/* Rim base */}
-              <circle cx="50" cy="50" r="35" fill="#16161a" stroke="#3f3f46" strokeWidth="2" />
+              <defs>
+                <linearGradient id="wsdSpokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#c084fc" />
+                  <stop offset="50%" stopColor="#9333ea" />
+                  <stop offset="100%" stopColor="#6b21a8" />
+                </linearGradient>
+              </defs>
 
-              {/* 5 violet spokes — spinning group */}
+              {/* Outer tyre - black rubber */}
+              <circle cx="50" cy="50" r="48" fill="#0d0d10" stroke="#09090b" strokeWidth="3" />
+              {/* Tread dashes */}
+              <circle cx="50" cy="50" r="43" fill="none" stroke="#1f1f24" strokeWidth="4" strokeDasharray="7 5" />
+              {/* Inner rim edge */}
+              <circle cx="50" cy="50" r="37" fill="#141418" stroke="#3f3f46" strokeWidth="2" />
+
+              {/* Spinning group (5 violet spokes + center) */}
               <g
                 style={{
                   transformOrigin: '50px 50px',
@@ -161,45 +206,39 @@ export default function WheelSectionDivider() {
                     : 'wsdSpinCCW 2s cubic-bezier(0.22,0.61,0.36,1) forwards',
                 }}
               >
+                {/* 5 spokes at 72° intervals */}
                 {[0, 72, 144, 216, 288].map((deg) => (
                   <path
                     key={deg}
-                    d="M47 46 L48 18 Q50 15 52 18 L53 46 Z"
-                    fill="url(#spokeGrad)"
+                    d="M47 46 L48 17 Q50 14 52 17 L53 46 Z"
+                    fill="url(#wsdSpokeGrad)"
                     transform={`rotate(${deg} 50 50)`}
                   />
                 ))}
-                {/* Center hub */}
-                <circle cx="50" cy="50" r="12" fill="#09090b" stroke="#a855f7" strokeWidth="2" />
-                <circle cx="50" cy="50" r="5" fill="#a855f7" />
+                {/* Center hub ring */}
+                <circle cx="50" cy="50" r="13" fill="#09090b" stroke="#a855f7" strokeWidth="2.5" />
+                {/* Center cap */}
+                <circle cx="50" cy="50" r="6" fill="#a855f7" />
                 {/* Lug nuts */}
                 {[0, 72, 144, 216, 288].map((deg) => (
                   <circle
                     key={deg}
                     cx="50"
-                    cy="33"
-                    r="2"
+                    cy="31"
+                    r="2.5"
                     fill="#d4d4d8"
                     transform={`rotate(${deg} 50 50)`}
                   />
                 ))}
               </g>
 
-              {/* Brake caliper */}
+              {/* Brake caliper (fixed, doesn't spin) */}
               <path
-                d="M76 38 A28 28 0 0 0 76 62 L83 58 A35 35 0 0 1 83 42 Z"
+                d="M76 36 A28 28 0 0 0 76 64 L85 59 A37 37 0 0 1 85 41 Z"
                 fill="#4c1d95"
                 stroke="#7c3aed"
-                strokeWidth="1"
+                strokeWidth="1.5"
               />
-
-              <defs>
-                <linearGradient id="spokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#c084fc" />
-                  <stop offset="50%" stopColor="#9333ea" />
-                  <stop offset="100%" stopColor="#6b21a8" />
-                </linearGradient>
-              </defs>
             </svg>
           </div>
         )}
