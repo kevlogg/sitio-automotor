@@ -108,7 +108,7 @@ export default function WheelSectionDivider() {
         }
       `}</style>
 
-      {/* Dark section divider strip */}
+      {/* Transparent section divider — only wheel + smoke visible */}
       <div
         ref={containerRef}
         role="presentation"
@@ -116,20 +116,11 @@ export default function WheelSectionDivider() {
           position: 'relative',
           width: '100%',
           height: '68px',
-          background: 'linear-gradient(180deg, #06060a 0%, #0a0a12 50%, #06060a 100%)',
-          overflow: 'hidden',
-          borderTop: '1px solid rgba(139,92,246,0.25)',
-          borderBottom: '1px solid rgba(139,92,246,0.25)',
+          background: 'transparent',
+          overflow: 'visible',
           pointerEvents: 'none',
         }}
       >
-        {/* Subtle purple ambient glow on the floor */}
-        <div style={{
-          position: 'absolute',
-          bottom: 0, left: 0, right: 0,
-          height: '30px',
-          background: 'linear-gradient(0deg, rgba(109,40,217,0.08) 0%, transparent 100%)',
-        }} />
 
         {direction && (
           <div
