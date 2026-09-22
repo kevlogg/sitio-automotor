@@ -1,141 +1,178 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 /**
- * WheelSectionDivider Component (Drift Scroll Separator)
- * Exact custom drift wheel design with 60fps GPU drift pass:
- * - Scrolling DOWN: Wheel drifts smoothly from left to right with smoke to the left.
- * - Scrolling UP: Wheel drifts smoothly in reverse from right to left with smoke to the right.
+ * WheelSectionDivider — thin 20px strip with a tiny 32px wheel rolling across.
+ * The SVG wheel has explicit width/height so it NEVER bleeds outside its box.
  */
 export default function WheelSectionDivider() {
   const containerRef = useRef(null);
-  const [triggerState, setTriggerState] = useState(null); // 'down' | 'up' | null
   const [animKey, setAnimKey] = useState(0);
+  const [direction, setDirection] = useState(null); // 'right' | 'left' | null
   const lastScrollY = useRef(0);
   const isScrollingDown = useRef(true);
 
-  // Track global scroll direction
+  // Track scroll direction globally
   useEffect(() => {
-    const handleScroll = () => {
-      const currentY = window.scrollY;
-      if (currentY > lastScrollY.current + 3) {
-        isScrollingDown.current = true;
-      } else if (currentY < lastScrollY.current - 3) {
-        isScrollingDown.current = false;
-      }
-      lastScrollY.current = currentY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y > lastScrollY.current + 2) isScrollingDown.current = true;
+      else if (y < lastScrollY.current - 2) isScrollingDown.current = false;
+      lastScrollY.current = y;
     };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // IntersectionObserver to trigger wheel animation on section entry
+  // Trigger animation when this strip enters the viewport
   useEffect(() => {
-    const target = containerRef.current;
-    if (!target) return;
-
+    const el = containerRef.current;
+    if (!el) return;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const dir = isScrollingDown.current ? 'down' : 'up';
-            setTriggerState(dir);
-            setAnimKey((prev) => prev + 1);
-
-            // Hide wheel after sweep finishes (1.8s)
-            setTimeout(() => {
-              setTriggerState(null);
-            }, 1850);
+            const dir = isScrollingDown.current ? 'right' : 'left';
+            setDirection(dir);
+            setAnimKey((k) => k + 1);
+            setTimeout(() => setDirection(null), 1900);
           }
         });
       },
-      {
-        threshold: 0.1,
-        rootMargin: '100px 0px 100px 0px'
-      }
+      { threshold: 0.5 }
     );
-
-    observer.observe(target);
+    observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
-  const isRight = triggerState === 'down';
+  const goRight = direction === 'right';
 
   return (
-    <div ref={containerRef} className="drift-scroll-separator" role="presentation">
-      <div className="drift-track">
-        {/* Marcas de asfalto y línea guía */}
-        <div className="skid-marks"></div>
-        <div className="asphalt-line"></div>
+    <div
+      ref={containerRef}
+      role="presentation"
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '20px',
+        backgroundColor: '#08080c',
+        overflow: 'hidden',
+        borderTop: '1px solid rgba(168,85,247,0.15)',
+        borderBottom: '1px solid rgba(168,85,247,0.15)',
+        flexShrink: 0,
+      }}
+    >
+      {/* Asphalt guide line */}
+      <div style={{
+        position: 'absolute',
+        bottom: '3px',
+        left: 0,
+        width: '100%',
+        height: '1px',
+        background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), transparent)',
+      }} />
 
-        {/* Conjunto Rueda en Drift */}
-        {triggerState && (
-          <div
-            key={`${triggerState}-${animKey}`}
-            className={`drifter-assembly smoke-active ${
-              isRight ? 'animate-drift-right' : 'animate-drift-left'
-            }`}
+      {/* Rolling wheel */}
+      {direction && (
+        <div
+          key={`${direction}-${animKey}`}
+          style={{
+            position: 'absolute',
+            bottom: '2px',
+            left: 0,
+            width: '32px',
+            height: '16px',
+            willChange: 'transform',
+            animation: goRight
+              ? 'wsdRight 1.8s cubic-bezier(0.22,0.61,0.36,1) forwards'
+              : 'wsdLeft 1.8s cubic-bezier(0.22,0.61,0.36,1) forwards',
+          }}
+        >
+          {/* The wheel SVG — explicit width & height, NO overflow:visible */}
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 100 100"
+            style={{ display: 'block', transform: goRight ? 'skewX(-8deg)' : 'skewX(8deg)' }}
           >
-            {/* Partículas de Humo en densidad media */}
-            <div className={isRight ? 'smoke-trail' : 'smoke-trail-reverse'}>
-              <span className={`puff ${isRight ? 'p1' : 'p1-reverse'}`}></span>
-              <span className={`puff ${isRight ? 'p2' : 'p2-reverse'}`}></span>
-              <span className={`puff ${isRight ? 'p3' : 'p3-reverse'}`}></span>
-              <span className={`puff ${isRight ? 'p4' : 'p4-reverse'}`}></span>
-            </div>
+            {/* Tyre */}
+            <circle cx="50" cy="50" r="48" fill="#111113" stroke="#09090b" strokeWidth="4" />
+            {/* Tread marks */}
+            <circle cx="50" cy="50" r="43" fill="none" stroke="#2a2a2e" strokeWidth="2" strokeDasharray="5 4" />
+            {/* Rim */}
+            <circle cx="50" cy="50" r="36" fill="#1a1a1f" stroke="#3f3f46" strokeWidth="1.5" />
+            {/* Spokes group — spins via CSS animation */}
+            <g
+              style={{
+                transformOrigin: '50px 50px',
+                animation: goRight
+                  ? 'wsdSpinCW 1.8s cubic-bezier(0.22,0.61,0.36,1) forwards'
+                  : 'wsdSpinCCW 1.8s cubic-bezier(0.22,0.61,0.36,1) forwards',
+              }}
+            >
+              {/* 5 violet spokes */}
+              {[0, 72, 144, 216, 288].map((deg) => (
+                <path
+                  key={deg}
+                  d="M47 45 L48 16 Q50 14 52 16 L53 45 Z"
+                  fill="#9333ea"
+                  transform={`rotate(${deg} 50 50)`}
+                />
+              ))}
+              {/* Center hub */}
+              <circle cx="50" cy="50" r="11" fill="#09090b" stroke="#a855f7" strokeWidth="1.5" />
+              <circle cx="50" cy="50" r="5" fill="#a855f7" />
+            </g>
+            {/* Brake caliper accent */}
+            <path
+              d="M76 38 A27 27 0 0 0 76 62 L82 58 A33 33 0 0 1 82 42 Z"
+              fill="#581c87"
+              stroke="#7e22ce"
+              strokeWidth="1"
+            />
+          </svg>
 
-            {/* Inclinación de Derrape (Camber normal o invertido) */}
-            <div className={isRight ? 'wheel-camber' : 'wheel-camber-reverse'}>
-              <svg className="sport-wheel" viewBox="0 0 200 200">
-                <defs>
-                  <linearGradient id={`violetSpokeGrad-${animKey}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#c084fc"/>
-                    <stop offset="50%" stopColor="#9333ea"/>
-                    <stop offset="100%" stopColor="#6b21a8"/>
-                  </linearGradient>
-                </defs>
+          {/* Tiny smoke puff */}
+          <div style={{
+            position: 'absolute',
+            bottom: '1px',
+            [goRight ? 'left' : 'right']: '-6px',
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(216,180,254,0.5) 0%, transparent 70%)',
+            filter: 'blur(2px)',
+            animation: 'wsdPuff 0.6s ease-out infinite',
+          }} />
+        </div>
+      )}
 
-                {/* Neumático exterior */}
-                <circle cx="100" cy="100" r="92" fill="#141416" stroke="#09090b" strokeWidth="8" />
-                <circle cx="100" cy="100" r="84" fill="none" stroke="#27272a" strokeWidth="4" strokeDasharray="8 6" />
-
-                {/* Aro interior */}
-                <circle cx="100" cy="100" r="76" fill="#18181b" stroke="#3f3f46" strokeWidth="3" />
-
-                {/* Disco de freno perforado estático */}
-                <circle cx="100" cy="100" r="54" fill="#3f3f46" stroke="#52525b" strokeWidth="1.5" />
-                <circle cx="100" cy="100" r="48" fill="none" stroke="#27272a" strokeWidth="2" strokeDasharray="3 5" />
-
-                {/* Caliper violeta oscuro */}
-                <path d="M 148 78 A 54 54 0 0 0 148 122 L 160 116 A 66 66 0 0 1 160 84 Z" fill="#581c87" stroke="#7e22ce" strokeWidth="1.5"/>
-
-                {/* 5 Rayos Violetas (Grupo giratorio continuo) */}
-                <g className={`spinning-rim ${isRight ? 'animate-spin-cw' : 'animate-spin-ccw'}`}>
-                  {/* Rayo 1 (0°) */}
-                  <path d="M 94 92 L 96 32 Q 100 28 104 32 L 106 92 Z" fill={`url(#violetSpokeGrad-${animKey})`} />
-                  {/* Rayo 2 (72°) */}
-                  <path d="M 94 92 L 96 32 Q 100 28 104 32 L 106 92 Z" fill={`url(#violetSpokeGrad-${animKey})`} transform="rotate(72 100 100)" />
-                  {/* Rayo 3 (144°) */}
-                  <path d="M 94 92 L 96 32 Q 100 28 104 32 L 106 92 Z" fill={`url(#violetSpokeGrad-${animKey})`} transform="rotate(144 100 100)" />
-                  {/* Rayo 4 (216°) */}
-                  <path d="M 94 92 L 96 32 Q 100 28 104 32 L 106 92 Z" fill={`url(#violetSpokeGrad-${animKey})`} transform="rotate(216 100 100)" />
-                  {/* Rayo 5 (288°) */}
-                  <path d="M 94 92 L 96 32 Q 100 28 104 32 L 106 92 Z" fill={`url(#violetSpokeGrad-${animKey})`} transform="rotate(288 100 100)" />
-
-                  {/* Centro de llanta y pernos */}
-                  <circle cx="100" cy="100" r="22" fill="#09090b" stroke="#a855f7" strokeWidth="2.5" />
-                  <circle cx="100" cy="100" r="10" fill="#a855f7" />
-                  <circle cx="100" cy="85" r="2.5" fill="#e4e4e7" />
-                  <circle cx="114" cy="95" r="2.5" fill="#e4e4e7" />
-                  <circle cx="109" cy="111" r="2.5" fill="#e4e4e7" />
-                  <circle cx="91" cy="111" r="2.5" fill="#e4e4e7" />
-                  <circle cx="86" cy="95" r="2.5" fill="#e4e4e7" />
-                </g>
-              </svg>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Keyframe injector */}
+      <style>{`
+        @keyframes wsdRight {
+          0%   { transform: translateX(-36px); opacity: 0; }
+          5%   { opacity: 1; }
+          95%  { opacity: 1; }
+          100% { transform: translateX(calc(100vw + 20px)); opacity: 0; }
+        }
+        @keyframes wsdLeft {
+          0%   { transform: translateX(calc(100vw + 20px)); opacity: 0; }
+          5%   { opacity: 1; }
+          95%  { opacity: 1; }
+          100% { transform: translateX(-36px); opacity: 0; }
+        }
+        @keyframes wsdSpinCW {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(1440deg); }
+        }
+        @keyframes wsdSpinCCW {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(-1440deg); }
+        }
+        @keyframes wsdPuff {
+          0%   { transform: scale(0.4); opacity: 0.7; }
+          100% { transform: scale(2); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }
