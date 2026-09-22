@@ -32,18 +32,18 @@ export default function CategoryExplorer({ cardTheme = 'violet', selectedCategor
               <div
                 key={cat.id}
                 onClick={() => onSelectCategory(isSelected ? 'all' : cat.id)}
-                className={`group rounded-2xl border overflow-hidden cursor-pointer transition-all duration-300 flex flex-col hover:-translate-y-0.5 shadow-md hover:shadow-xl ${
+                className={`group rounded-2xl border overflow-hidden cursor-pointer transition-all duration-300 flex flex-col hover:-translate-y-0.5 shadow-xl hover:shadow-2xl hover:shadow-purple-950/60 ${
                   isDark
-                    ? `bg-[#0D121F]/95 backdrop-blur-md hover:bg-[#182235] hover:border-[#8B5CF6] ${
-                        isSelected ? 'border-[#8B5CF6] ring-2 ring-purple-500/40 bg-[#1E1B4B]' : 'border-slate-800'
+                    ? `bg-[#180E2E]/95 backdrop-blur-md hover:bg-[#231442] hover:border-purple-500 ${
+                        isSelected ? 'border-purple-400 ring-2 ring-purple-500/50 bg-[#281549]' : 'border-purple-900/60'
                       }`
-                    : `bg-[#E4DAF8] hover:bg-white hover:border-[#6D28D9] ${
-                        isSelected ? 'border-[#6D28D9] ring-2 ring-[#6D28D9]/40 bg-purple-200' : 'border-purple-300/90'
+                    : `bg-gradient-to-br from-[#261647] via-[#1E1138] to-[#160B2B] border-purple-700/70 hover:border-purple-400 hover:from-[#311C5B] hover:to-[#21113E] ${
+                        isSelected ? 'border-purple-400 ring-2 ring-purple-400/50 bg-[#2D1B54]' : ''
                       }`
                 }`}
               >
                 {/* Top Image */}
-                <div className="h-36 overflow-hidden bg-slate-100">
+                <div className="h-36 overflow-hidden bg-slate-900">
                   <img
                     src={cat.image}
                     alt={cat.name}
@@ -53,19 +53,13 @@ export default function CategoryExplorer({ cardTheme = 'violet', selectedCategor
 
                 {/* Bottom Content */}
                 <div className="p-4 text-center flex-1 flex flex-col justify-between items-center space-y-2">
-                  <IconComponent className={`w-6 h-6 transition-colors ${
-                    isDark ? 'text-purple-300 group-hover:text-[#A78BFA]' : 'text-slate-600 group-hover:text-[#6D28D9]'
-                  }`} />
+                  <IconComponent className="w-6 h-6 text-purple-400 group-hover:text-purple-300 transition-colors" />
                   
-                  <h3 className={`text-base font-bold transition-colors ${
-                    isDark ? 'text-white group-hover:text-[#A78BFA]' : 'text-slate-900 group-hover:text-[#6D28D9]'
-                  }`}>
+                  <h3 className="text-base font-extrabold text-white group-hover:text-purple-300 transition-colors">
                     {cat.name}
                   </h3>
 
-                  <span className={`text-xs font-bold group-hover:underline ${
-                    isDark ? 'text-[#A78BFA]' : 'text-[#6D28D9]'
-                  }`}>
+                  <span className="text-xs font-bold text-purple-300 group-hover:underline">
                     Ver más
                   </span>
                 </div>

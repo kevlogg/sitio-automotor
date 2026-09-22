@@ -40,11 +40,7 @@ export default function MundoAutomotorSidebar({ cardTheme = 'violet', activeRubr
   ];
 
   return (
-    <aside className={`w-full rounded-3xl border p-5 space-y-4 shadow-md transition-colors ${
-      isDark
-        ? 'bg-[#0D121F]/95 backdrop-blur-md border-slate-800 text-white shadow-2xl shadow-slate-950/40'
-        : 'bg-[#E4DAF8] border-purple-300/90 text-slate-900'
-    }`}>
+    <aside className="w-full rounded-3xl border border-purple-800/80 bg-gradient-to-b from-[#261647] via-[#1E1138] to-[#160B2B] text-white p-5 space-y-4 shadow-xl shadow-purple-950/50">
       
       {/* CTA Registrar Negocio Automotor */}
       {onOpenRegisterBusiness && (
@@ -58,17 +54,17 @@ export default function MundoAutomotorSidebar({ cardTheme = 'violet', activeRubr
       )}
 
       {/* Header */}
-      <div className={`flex items-center justify-between pb-2 border-b ${isDark ? 'border-slate-800' : 'border-purple-300/80'}`}>
+      <div className="flex items-center justify-between pb-2 border-b border-purple-800/60">
         <div className="flex items-center gap-2">
-          <SlidersHorizontal className={`w-4 h-4 ${isDark ? 'text-purple-400' : 'text-[#6D28D9]'}`} />
-          <h3 className={`text-xs font-black tracking-widest uppercase ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+          <SlidersHorizontal className="w-4 h-4 text-purple-300" />
+          <h3 className="text-xs font-black tracking-widest uppercase text-white">
             MUNDO AUTOMOTOR
           </h3>
         </div>
         {activeRubro && (
           <button
             onClick={() => onSelectRubro(null)}
-            className="text-[11px] font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1 bg-purple-900/40 px-2 py-0.5 rounded-lg border border-purple-500/30"
+            className="text-[11px] font-semibold text-purple-300 hover:text-white flex items-center gap-1 bg-purple-900/60 px-2 py-0.5 rounded-lg border border-purple-500/40"
           >
             <span>Limpiar</span>
             <X className="w-3 h-3" />
@@ -88,14 +84,12 @@ export default function MundoAutomotorSidebar({ cardTheme = 'violet', activeRubr
               onClick={() => onSelectRubro(isSelected ? null : item.id)}
               className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all duration-200 text-left ${
                 isSelected
-                  ? 'bg-[#6D28D9] text-white shadow-lg shadow-purple-600/30 scale-[1.01]'
-                  : isDark
-                  ? 'text-slate-300 hover:bg-[#182235] hover:text-white hover:border-slate-700 border border-transparent hover:translate-x-0.5'
-                  : 'text-slate-700 hover:bg-white hover:text-slate-900 hover:shadow-xs border border-transparent hover:border-slate-200/80 hover:translate-x-0.5'
+                  ? 'bg-[#6D28D9] text-white shadow-lg shadow-purple-600/40 scale-[1.01] border border-purple-400'
+                  : 'text-purple-200/90 hover:bg-purple-900/50 hover:text-white hover:border-purple-700/60 border border-transparent hover:translate-x-0.5'
               }`}
             >
               <IconComponent className={`w-5 h-5 flex-shrink-0 ${
-                isSelected ? 'text-white' : isDark ? 'text-purple-300' : 'text-slate-500'
+                isSelected ? 'text-white' : 'text-purple-400'
               }`} />
               <span className="truncate">{item.name}</span>
             </button>

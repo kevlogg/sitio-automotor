@@ -114,7 +114,7 @@ export default function FloatingSearchBar({
       <div className={`p-4 sm:p-5 rounded-2xl border transition-colors space-y-3 ${
         isDark
           ? 'bg-[#0D121F]/95 backdrop-blur-md border-slate-800 shadow-2xl shadow-slate-950/60 text-white'
-          : 'bg-[#E4DAF8] border-purple-300/90 shadow-xl shadow-purple-900/10 text-slate-900'
+          : 'bg-gradient-to-br from-[#261647] via-[#1E1138] to-[#160B2B] border-purple-700/70 shadow-2xl shadow-purple-950/50 text-white'
       }`}>
         <form
           onSubmit={(e) => {
@@ -128,61 +128,61 @@ export default function FloatingSearchBar({
             
             {/* Text Input Search */}
             <div className="lg:col-span-4">
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+              <label className="block text-[11px] font-semibold text-purple-200/90 mb-1">
                 Búsqueda
               </label>
               <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-300/70 pointer-events-none" />
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Marca, modelo o versión (ej. Corolla, Amarok)..."
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-[#6D28D9] focus:bg-white transition-all"
+                  className="w-full pl-10 pr-3.5 py-2.5 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white placeholder-purple-300/50 text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all"
                 />
               </div>
             </div>
 
             {/* Tipo de vehículo */}
             <div className="lg:col-span-3">
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+              <label className="block text-[11px] font-semibold text-purple-200/90 mb-1">
                 Tipo de vehículo
               </label>
               <div className="relative">
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full appearance-none px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#6D28D9] focus:bg-white transition-all cursor-pointer pr-8 font-medium"
+                  className="w-full appearance-none px-3 py-2.5 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all cursor-pointer pr-8 font-medium"
                 >
                   {categoryOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value} className="bg-white text-slate-800">
+                    <option key={opt.value} value={opt.value} className="bg-[#180E2E] text-white">
                       {opt.label}
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-300/70 pointer-events-none" />
               </div>
             </div>
 
             {/* Marca */}
             <div className="lg:col-span-3">
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+              <label className="block text-[11px] font-semibold text-purple-200/90 mb-1">
                 Marca
               </label>
               <div className="relative">
                 <select
                   value={selectedBrand}
                   onChange={(e) => setSelectedBrand(e.target.value)}
-                  className="w-full appearance-none px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#6D28D9] focus:bg-white transition-all cursor-pointer pr-8 font-medium"
+                  className="w-full appearance-none px-3 py-2.5 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all cursor-pointer pr-8 font-medium"
                 >
-                  <option value="all">Todas las marcas</option>
+                  <option value="all" className="bg-[#180E2E] text-white">Todas las marcas</option>
                   {BRAND_OPTIONS.filter(b => b !== 'Todas las marcas').map((b) => (
-                    <option key={b} value={b} className="bg-white text-slate-800">
+                    <option key={b} value={b} className="bg-[#180E2E] text-white">
                       {b}
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-300/70 pointer-events-none" />
               </div>
             </div>
 
@@ -200,54 +200,54 @@ export default function FloatingSearchBar({
           </div>
 
           {/* Secondary Row: Advanced Filters (Price Min/Max, Year, Location, Sort) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 pt-2 border-t border-slate-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 pt-2 border-t border-purple-800/40">
             
             {/* Año desde */}
             <div className="lg:col-span-3">
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+              <label className="block text-[11px] font-semibold text-purple-200/90 mb-1">
                 Año mínimo
               </label>
               <div className="relative">
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
-                  className="w-full appearance-none px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#6D28D9] focus:bg-white transition-all cursor-pointer pr-8 font-medium"
+                  className="w-full appearance-none px-3 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all cursor-pointer pr-8 font-medium"
                 >
                   {yearOptions.map((y) => (
-                    <option key={y.value} value={y.value} className="bg-white text-slate-800">
+                    <option key={y.value} value={y.value} className="bg-[#180E2E] text-white">
                       {y.label}
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-300/70 pointer-events-none" />
               </div>
             </div>
 
             {/* Provincia */}
             <div className="lg:col-span-3">
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+              <label className="block text-[11px] font-semibold text-purple-200/90 mb-1">
                 Ubicación
               </label>
               <div className="relative">
                 <select
                   value={selectedLocation}
                   onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="w-full appearance-none px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#6D28D9] focus:bg-white transition-all cursor-pointer pr-8 font-medium"
+                  className="w-full appearance-none px-3 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all cursor-pointer pr-8 font-medium"
                 >
-                  <option value="all">Todas las provincias</option>
+                  <option value="all" className="bg-[#180E2E] text-white">Todas las provincias</option>
                   {PROVINCE_OPTIONS.filter(p => p !== 'Todas las ubicaciones').map((p) => (
-                    <option key={p} value={p} className="bg-white text-slate-800">
+                    <option key={p} value={p} className="bg-[#180E2E] text-white">
                       {p}
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-300/70 pointer-events-none" />
               </div>
             </div>
 
             {/* Rango de Precio Min/Max */}
             <div className="lg:col-span-3">
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+              <label className="block text-[11px] font-semibold text-purple-200/90 mb-1">
                 Precio (USD)
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -256,36 +256,36 @@ export default function FloatingSearchBar({
                   placeholder="Mínimo"
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
-                  className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-xs focus:outline-none focus:border-[#6D28D9] focus:bg-white transition-all"
+                  className="w-full px-2.5 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs placeholder-purple-300/50 focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all"
                 />
                 <input
                   type="number"
                   placeholder="Máximo"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
-                  className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-xs focus:outline-none focus:border-[#6D28D9] focus:bg-white transition-all"
+                  className="w-full px-2.5 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs placeholder-purple-300/50 focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all"
                 />
               </div>
             </div>
 
             {/* Ordenar por */}
             <div className="lg:col-span-3">
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+              <label className="block text-[11px] font-semibold text-purple-200/90 mb-1">
                 Ordenar por
               </label>
               <div className="relative">
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full appearance-none px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#6D28D9] focus:bg-white transition-all cursor-pointer pr-8 font-medium"
+                  className="w-full appearance-none px-3 py-2 bg-[#180E2E]/80 border border-purple-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-purple-400 focus:bg-[#231442] transition-all cursor-pointer pr-8 font-medium"
                 >
                   {sortOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value} className="bg-white text-slate-800">
+                    <option key={opt.value} value={opt.value} className="bg-[#180E2E] text-white">
                       {opt.label}
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-300/70 pointer-events-none" />
               </div>
             </div>
 

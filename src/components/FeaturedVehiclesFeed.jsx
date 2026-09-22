@@ -35,14 +35,14 @@ export default function FeaturedVehiclesFeed({
             return (
               <div
                 key={item.id}
-                className={`group rounded-2xl border overflow-hidden flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-300 shadow-md hover:shadow-xl ${
+                className={`group rounded-2xl border overflow-hidden flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-purple-950/60 ${
                   isDark
-                    ? 'bg-[#0D121F]/95 backdrop-blur-md border-slate-800 hover:bg-[#182235] hover:border-[#8B5CF6] text-white'
-                    : 'bg-[#E4DAF8] border-purple-300/90 hover:bg-white hover:border-[#6D28D9] text-slate-900'
+                    ? 'bg-[#180E2E]/95 backdrop-blur-md border-purple-900/60 hover:bg-[#231442] hover:border-purple-500 text-white'
+                    : 'bg-gradient-to-br from-[#261647] via-[#1E1138] to-[#160B2B] border-purple-700/70 hover:border-purple-400 hover:from-[#311C5B] hover:to-[#21113E] text-white'
                 }`}
               >
                 {/* Image 16:9 with category badge */}
-                <div className="relative aspect-video overflow-hidden bg-slate-100 cursor-pointer" onClick={() => onOpenDetailModal(item)}>
+                <div className="relative aspect-video overflow-hidden bg-slate-900 cursor-pointer" onClick={() => onOpenDetailModal(item)}>
                   <img
                     src={item.image}
                     alt={item.title}
@@ -51,7 +51,7 @@ export default function FeaturedVehiclesFeed({
 
                   {/* Top Left Badge */}
                   <div className="absolute top-2.5 left-2.5 z-10">
-                    <span className="px-2 py-0.5 rounded bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider">
+                    <span className="px-2 py-0.5 rounded bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider border border-white/20">
                       {item.category === 'autos' ? 'AUTO' : item.category === 'camionetas' ? 'CAMIONETA' : item.category === 'motos' ? 'MOTO' : item.category === 'camiones' ? 'CAMIÓN' : 'NÁUTICA'}
                     </span>
                   </div>
@@ -65,7 +65,7 @@ export default function FeaturedVehiclesFeed({
                     className={`absolute top-2.5 right-2.5 p-1.5 rounded-lg backdrop-blur-md border transition-all z-10 ${
                       isFav
                         ? 'bg-[#6D28D9] border-purple-400 text-white'
-                        : 'bg-white/80 border-slate-200 text-slate-600 hover:text-slate-900'
+                        : 'bg-slate-950/60 border-purple-500/40 text-purple-200 hover:text-white hover:bg-purple-900/80'
                     }`}
                   >
                     <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-white text-white' : ''}`} />
@@ -77,39 +77,33 @@ export default function FeaturedVehiclesFeed({
                   <div>
                     <h3
                       onClick={() => onOpenDetailModal(item)}
-                      className={`text-sm font-bold transition-colors cursor-pointer line-clamp-1 ${
-                        isDark ? 'text-white hover:text-[#A78BFA]' : 'text-slate-900 hover:text-[#6D28D9]'
-                      }`}
+                      className="text-sm font-extrabold text-white transition-colors cursor-pointer line-clamp-1 group-hover:text-purple-300"
                     >
                       {item.title}
                     </h3>
 
-                    <p className={`text-[11px] mt-1 font-medium ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    <p className="text-[11px] mt-1 font-semibold text-purple-200/80">
                       {item.year} • {item.mileage} • {item.location.split(',')[0]}
                     </p>
                   </div>
 
                   {/* Price */}
-                  <div className={`pt-2 border-t flex items-center justify-between ${isDark ? 'border-slate-800' : 'border-purple-200/80'}`}>
-                    <span className={`text-sm font-extrabold font-mono ${isDark ? 'text-[#A78BFA]' : 'text-[#6D28D9]'}`}>
+                  <div className="pt-2 border-t border-purple-800/60 flex items-center justify-between">
+                    <span className="text-sm font-black font-mono text-purple-300">
                       US$ {item.price.toLocaleString('es-AR')}
                     </span>
 
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => onOpenDetailModal(item)}
-                        className={`p-1.5 rounded-lg transition-colors ${
-                          isDark
-                            ? 'bg-slate-800 hover:bg-[#8B5CF6] text-slate-200 hover:text-white'
-                            : 'bg-slate-100 hover:bg-[#6D28D9] text-slate-700 hover:text-white'
-                        }`}
+                        className="p-1.5 rounded-lg bg-purple-950/80 hover:bg-[#6D28D9] text-purple-200 hover:text-white border border-purple-800/50 transition-colors"
                         title="Ver detalle"
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => onWhatsAppContact(item)}
-                        className="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+                        className="p-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-colors shadow-md"
                         title="Consultar WhatsApp"
                       >
                         <MessageCircle className="w-3.5 h-3.5" />
