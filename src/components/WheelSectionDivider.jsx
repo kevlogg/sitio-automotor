@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 /**
- * WheelSectionDivider — fully transparent strip, 48px wheel + visible smoke drift.
- * Fixed smoke keyframes (no JSX template dependency).
+ * WheelSectionDivider
+ * Transparent strip: a 48px wheel rolls across with a visible smoke cloud trailing behind.
+ * Smoke and wheel are siblings in a wider motion container so nothing clips the puffs.
  */
 export default function WheelSectionDivider() {
   const containerRef = useRef(null);
@@ -46,199 +47,182 @@ export default function WheelSectionDivider() {
 
   return (
     <>
-      {/* Static keyframes — no JSX variable dependency */}
       <style>{`
-        @keyframes wsdRight {
-          0%   { transform: translateX(-60px); opacity: 0; }
-          6%   { opacity: 1; }
-          94%  { opacity: 1; }
-          100% { transform: translateX(calc(100vw + 60px)); opacity: 0; }
+        /* Wheel translation across screen */
+        @keyframes rollRight {
+          0%   { transform: translateX(-120px); opacity: 0; }
+          5%   { opacity: 1; }
+          95%  { opacity: 1; }
+          100% { transform: translateX(calc(100vw + 20px)); opacity: 0; }
         }
-        @keyframes wsdLeft {
-          0%   { transform: translateX(calc(100vw + 60px)); opacity: 0; }
-          6%   { opacity: 1; }
-          94%  { opacity: 1; }
-          100% { transform: translateX(-60px); opacity: 0; }
+        @keyframes rollLeft {
+          0%   { transform: translateX(calc(100vw + 20px)); opacity: 0; }
+          5%   { opacity: 1; }
+          95%  { opacity: 1; }
+          100% { transform: translateX(-120px); opacity: 0; }
         }
-        @keyframes wsdSpinCW {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(1440deg); }
+        /* Rim spin */
+        @keyframes rimCW  { to { transform: rotate(1440deg); } }
+        @keyframes rimCCW { to { transform: rotate(-1440deg); } }
+
+        /* Smoke puffs — drift away from trailing side */
+        @keyframes puffOutLeft {
+          0%   { transform: translate(0px, 0px)   scale(0.4); opacity: 0.9; }
+          40%  { opacity: 0.75; }
+          100% { transform: translate(-38px, -20px) scale(3);   opacity: 0; }
         }
-        @keyframes wsdSpinCCW {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(-1440deg); }
+        @keyframes puffOutLeft2 {
+          0%   { transform: translate(0px, 0px)   scale(0.3); opacity: 0.8; }
+          40%  { opacity: 0.65; }
+          100% { transform: translate(-48px, -30px) scale(3.5); opacity: 0; }
         }
-        /* Smoke drifts left (behind wheel moving right) */
-        @keyframes smokeL1 {
-          0%   { transform: translate(0px, 0px) scale(0.5); opacity: 0.85; }
-          100% { transform: translate(-20px, -12px) scale(2.5); opacity: 0; }
+        @keyframes puffOutLeft3 {
+          0%   { transform: translate(0px, 0px)   scale(0.5); opacity: 0.7; }
+          40%  { opacity: 0.55; }
+          100% { transform: translate(-28px, -14px) scale(2.5); opacity: 0; }
         }
-        @keyframes smokeL2 {
-          0%   { transform: translate(0px, 0px) scale(0.4); opacity: 0.7; }
-          100% { transform: translate(-26px, -18px) scale(3.2); opacity: 0; }
+        @keyframes puffOutRight {
+          0%   { transform: translate(0px, 0px)  scale(0.4); opacity: 0.9; }
+          40%  { opacity: 0.75; }
+          100% { transform: translate(38px, -20px) scale(3);   opacity: 0; }
         }
-        @keyframes smokeL3 {
-          0%   { transform: translate(0px, 0px) scale(0.3); opacity: 0.6; }
-          100% { transform: translate(-14px, -8px) scale(2); opacity: 0; }
+        @keyframes puffOutRight2 {
+          0%   { transform: translate(0px, 0px)  scale(0.3); opacity: 0.8; }
+          40%  { opacity: 0.65; }
+          100% { transform: translate(48px, -30px) scale(3.5); opacity: 0; }
         }
-        /* Smoke drifts right (behind wheel moving left) */
-        @keyframes smokeR1 {
-          0%   { transform: translate(0px, 0px) scale(0.5); opacity: 0.85; }
-          100% { transform: translate(20px, -12px) scale(2.5); opacity: 0; }
-        }
-        @keyframes smokeR2 {
-          0%   { transform: translate(0px, 0px) scale(0.4); opacity: 0.7; }
-          100% { transform: translate(26px, -18px) scale(3.2); opacity: 0; }
-        }
-        @keyframes smokeR3 {
-          0%   { transform: translate(0px, 0px) scale(0.3); opacity: 0.6; }
-          100% { transform: translate(14px, -8px) scale(2); opacity: 0; }
+        @keyframes puffOutRight3 {
+          0%   { transform: translate(0px, 0px)  scale(0.5); opacity: 0.7; }
+          40%  { opacity: 0.55; }
+          100% { transform: translate(28px, -14px) scale(2.5); opacity: 0; }
         }
       `}</style>
 
-      {/* Transparent container */}
+      {/* Invisible height-reserving container */}
       <div
         ref={containerRef}
         role="presentation"
         style={{
           position: 'relative',
           width: '100%',
-          height: '52px',
-          overflow: 'visible',
+          height: '56px',
           background: 'transparent',
+          overflow: 'visible',
           pointerEvents: 'none',
           zIndex: 10,
         }}
       >
         {direction && (
+          /*
+           * Motion wrapper: 120px wide (48px wheel + 72px smoke room).
+           * When going right: smoke is on the LEFT side (index 0..70 = smoke, 72..120 = wheel).
+           * When going left:  smoke is on the RIGHT side (0..48 = wheel, 48..120 = smoke).
+           * translateX animation moves this entire wrapper across the screen.
+           */
           <div
             key={`${direction}-${animKey}`}
             style={{
               position: 'absolute',
               top: '50%',
               left: 0,
-              marginTop: '-24px', // half of 48px wheel
-              width: '48px',
+              width: '120px',
               height: '48px',
+              marginTop: '-24px',
               willChange: 'transform',
-              animation: `${goRight ? 'wsdRight' : 'wsdLeft'} 2s cubic-bezier(0.22,0.61,0.36,1) forwards`,
+              animation: `${goRight ? 'rollRight' : 'rollLeft'} 2s cubic-bezier(0.22,0.61,0.36,1) forwards`,
+              display: 'flex',
+              flexDirection: goRight ? 'row' : 'row-reverse', // smoke always trails behind wheel
+              alignItems: 'center',
             }}
           >
-            {/* === SMOKE PUFFS === */}
-            {/* Smoke appears on the trailing side of the wheel */}
-            {[
-              {
-                size: 18,
-                delay: '0s',
-                duration: '0.7s',
-                anim: goRight ? 'smokeL1' : 'smokeR1',
-                style: goRight
-                  ? { right: '-4px', bottom: '6px' }
-                  : { left: '-4px', bottom: '6px' },
-              },
-              {
-                size: 24,
-                delay: '0.15s',
-                duration: '0.85s',
-                anim: goRight ? 'smokeL2' : 'smokeR2',
-                style: goRight
-                  ? { right: '-2px', bottom: '2px' }
-                  : { left: '-2px', bottom: '2px' },
-              },
-              {
-                size: 14,
-                delay: '0.3s',
-                duration: '0.6s',
-                anim: goRight ? 'smokeL3' : 'smokeR3',
-                style: goRight
-                  ? { right: '2px', bottom: '10px' }
-                  : { left: '2px', bottom: '10px' },
-              },
-            ].map(({ size, delay, duration, anim, style: puffStyle }, i) => (
-              <div
-                key={i}
-                style={{
-                  position: 'absolute',
-                  width: `${size}px`,
-                  height: `${size}px`,
-                  borderRadius: '50%',
-                  background:
-                    'radial-gradient(circle, rgba(230,200,255,0.75) 0%, rgba(147,51,234,0.45) 40%, transparent 72%)',
-                  filter: 'blur(4px)',
-                  animation: `${anim} ${duration} ease-out infinite ${delay}`,
-                  ...puffStyle,
-                }}
-              />
-            ))}
+            {/* ── SMOKE CLUSTER (72px wide, positioned trailing side) ── */}
+            <div
+              style={{
+                position: 'relative',
+                width: '72px',
+                height: '48px',
+                flexShrink: 0,
+                overflow: 'visible',
+              }}
+            >
+              {/* Puff 1 */}
+              <div style={{
+                position: 'absolute',
+                left: '28px', top: '14px',
+                width: '22px', height: '22px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(235,215,255,0.85) 0%, rgba(168,85,247,0.55) 45%, transparent 72%)',
+                filter: 'blur(4px)',
+                animation: `${goRight ? 'puffOutLeft' : 'puffOutRight'} 0.7s ease-out infinite 0s`,
+              }} />
+              {/* Puff 2 — larger, slower */}
+              <div style={{
+                position: 'absolute',
+                left: '20px', top: '18px',
+                width: '30px', height: '30px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(220,190,255,0.75) 0%, rgba(147,51,234,0.45) 40%, transparent 70%)',
+                filter: 'blur(6px)',
+                animation: `${goRight ? 'puffOutLeft2' : 'puffOutRight2'} 0.9s ease-out infinite 0.18s`,
+              }} />
+              {/* Puff 3 — small, fast */}
+              <div style={{
+                position: 'absolute',
+                left: '34px', top: '10px',
+                width: '16px', height: '16px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(245,230,255,0.9) 0%, rgba(192,132,252,0.6) 40%, transparent 75%)',
+                filter: 'blur(3px)',
+                animation: `${goRight ? 'puffOutLeft3' : 'puffOutRight3'} 0.55s ease-out infinite 0.35s`,
+              }} />
+            </div>
 
-            {/* === WHEEL SVG 48×48 === */}
+            {/* ── WHEEL SVG 48×48 ── */}
             <svg
               width="48"
               height="48"
               viewBox="0 0 100 100"
               style={{
+                flexShrink: 0,
                 display: 'block',
                 transform: goRight ? 'skewX(-10deg)' : 'skewX(10deg)',
-                filter: 'drop-shadow(0 3px 8px rgba(147,51,234,0.55))',
+                filter: 'drop-shadow(0 2px 10px rgba(147,51,234,0.6))',
               }}
             >
               <defs>
-                <linearGradient id="wsdSpokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient id="wsdSpoke" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#c084fc" />
-                  <stop offset="50%" stopColor="#9333ea" />
+                  <stop offset="55%" stopColor="#9333ea" />
                   <stop offset="100%" stopColor="#6b21a8" />
                 </linearGradient>
               </defs>
 
-              {/* Outer tyre - black rubber */}
-              <circle cx="50" cy="50" r="48" fill="#0d0d10" stroke="#09090b" strokeWidth="3" />
-              {/* Tread dashes */}
-              <circle cx="50" cy="50" r="43" fill="none" stroke="#1f1f24" strokeWidth="4" strokeDasharray="7 5" />
-              {/* Inner rim edge */}
-              <circle cx="50" cy="50" r="37" fill="#141418" stroke="#3f3f46" strokeWidth="2" />
+              {/* Black tyre */}
+              <circle cx="50" cy="50" r="48" fill="#0c0c0f" stroke="#09090b" strokeWidth="3" />
+              {/* Tread */}
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#1e1e22" strokeWidth="5" strokeDasharray="7 5" />
+              {/* Rim */}
+              <circle cx="50" cy="50" r="35" fill="#141418" stroke="#3f3f46" strokeWidth="2" />
 
-              {/* Spinning group (5 violet spokes + center) */}
-              <g
-                style={{
-                  transformOrigin: '50px 50px',
-                  animation: goRight
-                    ? 'wsdSpinCW 2s cubic-bezier(0.22,0.61,0.36,1) forwards'
-                    : 'wsdSpinCCW 2s cubic-bezier(0.22,0.61,0.36,1) forwards',
-                }}
-              >
-                {/* 5 spokes at 72° intervals */}
+              {/* Spinning group */}
+              <g style={{ transformOrigin: '50px 50px', animation: `${goRight ? 'rimCW' : 'rimCCW'} 2s cubic-bezier(0.22,0.61,0.36,1) forwards` }}>
                 {[0, 72, 144, 216, 288].map((deg) => (
                   <path
                     key={deg}
                     d="M47 46 L48 17 Q50 14 52 17 L53 46 Z"
-                    fill="url(#wsdSpokeGrad)"
+                    fill="url(#wsdSpoke)"
                     transform={`rotate(${deg} 50 50)`}
                   />
                 ))}
-                {/* Center hub ring */}
                 <circle cx="50" cy="50" r="13" fill="#09090b" stroke="#a855f7" strokeWidth="2.5" />
-                {/* Center cap */}
-                <circle cx="50" cy="50" r="6" fill="#a855f7" />
-                {/* Lug nuts */}
+                <circle cx="50" cy="50" r="6"  fill="#a855f7" />
                 {[0, 72, 144, 216, 288].map((deg) => (
-                  <circle
-                    key={deg}
-                    cx="50"
-                    cy="31"
-                    r="2.5"
-                    fill="#d4d4d8"
-                    transform={`rotate(${deg} 50 50)`}
-                  />
+                  <circle key={deg} cx="50" cy="31" r="2.5" fill="#d4d4d8" transform={`rotate(${deg} 50 50)`} />
                 ))}
               </g>
 
-              {/* Brake caliper (fixed, doesn't spin) */}
-              <path
-                d="M76 36 A28 28 0 0 0 76 64 L85 59 A37 37 0 0 1 85 41 Z"
-                fill="#4c1d95"
-                stroke="#7c3aed"
-                strokeWidth="1.5"
-              />
+              {/* Brake caliper (static) */}
+              <path d="M76 36 A28 28 0 0 0 76 64 L85 59 A37 37 0 0 1 85 41 Z" fill="#4c1d95" stroke="#7c3aed" strokeWidth="1.5" />
             </svg>
           </div>
         )}
