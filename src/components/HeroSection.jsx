@@ -22,8 +22,17 @@ export default function HeroSection({ onOpenPublishModal, onSearchScroll }) {
 
       {/* Hero Content directly on top of image */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="max-w-xl text-left space-y-6">
+        <div className="max-w-2xl text-left space-y-6">
           
+          {/* Logo principal bien grande sobre el hero */}
+          <div className="pt-2 pb-2">
+            <img
+              src="/logo.png"
+              alt="Sitio Automotor Logo Principal"
+              className="h-24 sm:h-32 lg:h-44 w-auto object-contain drop-shadow-2xl filter brightness-110"
+            />
+          </div>
+
           {/* Title */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] drop-shadow-xl">
             Todo el mundo <br />
