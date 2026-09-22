@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Gauge, Globe, Mail, Phone, MapPin } from 'lucide-react';
 
-export default function ProofTrustFooter({ cardTheme = 'violet' }) {
+export default function ProofTrustFooter({ cardTheme = 'dark' }) {
   const [logoError, setLogoError] = useState(false);
-  const isDark = cardTheme === 'dark';
 
   const metrics = [
     {
@@ -24,29 +23,23 @@ export default function ProofTrustFooter({ cardTheme = 'violet' }) {
   ];
 
   return (
-    <footer className="bg-white border-t border-slate-200 text-slate-600 pt-12 pb-8">
+    <footer className="bg-[#0D111A] border-t border-slate-800/80 text-slate-300 pt-12 pb-8 transition-colors">
       
       {/* 3 Metrics Row */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <div className={`grid grid-cols-1 md:grid-cols-3 gap-8 py-6 px-6 rounded-2xl border transition-colors ${
-          isDark
-            ? 'bg-[#0D121F]/95 backdrop-blur-md border-slate-800 text-white shadow-xl shadow-slate-950/40'
-            : 'bg-[#E4DAF8] border-purple-300/90 text-slate-900 shadow-md'
-        }`}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-6 px-6 rounded-2xl border border-slate-800/80 bg-slate-900/90 backdrop-blur-md text-white shadow-xl shadow-slate-950/50">
           {metrics.map((m, idx) => {
             const IconComp = m.icon;
             return (
               <div key={idx} className="flex items-center gap-4 justify-center md:justify-start">
-                <div className={`w-12 h-12 rounded-xl border flex items-center justify-center shadow-xs ${
-                  isDark ? 'bg-slate-800 border-slate-700 text-[#A78BFA]' : 'bg-white border-purple-200 text-[#6D28D9]'
-                }`}>
+                <div className="w-12 h-12 rounded-xl border border-purple-800/50 bg-purple-950/40 text-purple-400 flex items-center justify-center shadow-md">
                   <IconComp className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className={`text-base font-bold mb-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  <h4 className="text-base font-bold text-white mb-0.5">
                     {m.title}
                   </h4>
-                  <p className={`text-xs ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  <p className="text-xs text-slate-400">
                     {m.description}
                   </p>
                 </div>
@@ -58,7 +51,7 @@ export default function ProofTrustFooter({ cardTheme = 'violet' }) {
 
       {/* Footer Main */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-slate-200">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-slate-800/80">
           
           {/* Logo & Info */}
           <div className="space-y-3">
@@ -70,52 +63,52 @@ export default function ProofTrustFooter({ cardTheme = 'violet' }) {
                 className="h-10 w-auto object-contain rounded-lg"
               />
             ) : (
-              <span className="text-lg font-black tracking-tight text-slate-900">
-                SITIO <span className="text-[#6D28D9]">AUTOMOTOR</span>
+              <span className="text-lg font-black tracking-tight text-white">
+                SITIO <span className="text-[#8B5CF6]">AUTOMOTOR</span>
               </span>
             )}
-            <p className="text-xs text-slate-600 max-w-xs leading-relaxed">
+            <p className="text-xs text-slate-400 max-w-xs leading-relaxed font-medium">
               Marketplace automotor líder en Argentina. Conexión directa entre compradores, agencias y particulares verificados.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h5 className="text-xs font-bold uppercase text-slate-900 mb-3 tracking-wider">Categorías</h5>
-            <ul className="space-y-2 text-xs">
-              <li><a href="#categorias" className="hover:text-[#6D28D9] transition-colors">Autos</a></li>
-              <li><a href="#categorias" className="hover:text-[#6D28D9] transition-colors">Camionetas / SUVs</a></li>
-              <li><a href="#categorias" className="hover:text-[#6D28D9] transition-colors">Motos</a></li>
-              <li><a href="#categorias" className="hover:text-[#6D28D9] transition-colors">Camiones</a></li>
-              <li><a href="#categorias" className="hover:text-[#6D28D9] transition-colors">Náutica</a></li>
+            <h5 className="text-xs font-bold uppercase text-white mb-3 tracking-wider">Categorías</h5>
+            <ul className="space-y-2 text-xs font-medium text-slate-400">
+              <li><a href="#vehiculos" className="hover:text-purple-400 transition-colors">Autos Usados & 0km</a></li>
+              <li><a href="#vehiculos" className="hover:text-purple-400 transition-colors">Camionetas / SUVs</a></li>
+              <li><a href="#vehiculos" className="hover:text-purple-400 transition-colors">Motos</a></li>
+              <li><a href="#vehiculos" className="hover:text-purple-400 transition-colors">Camiones & Pesados</a></li>
+              <li><a href="#vehiculos" className="hover:text-purple-400 transition-colors">Náutica & Recreación</a></li>
             </ul>
           </div>
 
           {/* Monetization */}
           <div>
-            <h5 className="text-xs font-bold uppercase text-slate-900 mb-3 tracking-wider">Publicar</h5>
-            <ul className="space-y-2 text-xs">
-              <li><a href="#vender" className="hover:text-[#6D28D9] transition-colors">Plan Individual ($15.000)</a></li>
-              <li><a href="#vender" className="hover:text-[#6D28D9] transition-colors">Red de Agencias</a></li>
-              <li><a href="#vender" className="hover:text-[#6D28D9] transition-colors">Términos del Servicio</a></li>
-              <li><a href="#vender" className="hover:text-[#6D28D9] transition-colors">Preguntas Frecuentes</a></li>
+            <h5 className="text-xs font-bold uppercase text-white mb-3 tracking-wider">Publicar</h5>
+            <ul className="space-y-2 text-xs font-medium text-slate-400">
+              <li><a href="#vender" className="hover:text-purple-400 transition-colors">Particular (1 auto x 30 días)</a></li>
+              <li><a href="#vender" className="hover:text-purple-400 transition-colors">Red de Agencias (Plan Base / Pro)</a></li>
+              <li><a href="#vender" className="hover:text-purple-400 transition-colors">Mundo Automotor (Servicios & Repuestos)</a></li>
+              <li><a href="#contacto" className="hover:text-purple-400 transition-colors">Preguntas Frecuentes</a></li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h5 className="text-xs font-bold uppercase text-slate-900 mb-3 tracking-wider">Contacto</h5>
-            <ul className="space-y-2 text-xs">
+            <h5 className="text-xs font-bold uppercase text-white mb-3 tracking-wider">Contacto</h5>
+            <ul className="space-y-2 text-xs font-medium text-slate-400">
               <li className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-[#6D28D9]" />
+                <Mail className="w-3.5 h-3.5 text-purple-400" />
                 <span>contacto@sitioautomotor.com.ar</span>
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-[#6D28D9]" />
+                <Phone className="w-3.5 h-3.5 text-purple-400" />
                 <span>+54 (11) 5263-8000</span>
               </li>
               <li className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-[#6D28D9]" />
+                <MapPin className="w-3.5 h-3.5 text-purple-400" />
                 <span>Buenos Aires, Argentina</span>
               </li>
             </ul>
