@@ -28,13 +28,13 @@ export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavor
         <div className="flex items-center justify-between h-20">
           
           {/* Logo con frase desde public/logofrase.png */}
-          <div className="flex items-center cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <div className="flex items-center cursor-pointer py-1" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             {!logoError ? (
               <img
                 src="/logofrase.png"
                 alt="SA Sitio Automotor"
                 onError={() => setLogoError(true)}
-                className="h-10 sm:h-12 w-auto object-contain rounded-lg"
+                className="h-14 sm:h-16 lg:h-[72px] max-h-full w-auto object-contain rounded-lg transition-transform hover:scale-105"
               />
             ) : (
               <div className="flex items-center space-x-3">
