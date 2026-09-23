@@ -34,7 +34,7 @@ export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavor
                 src="/logofrase.png"
                 alt="SA Sitio Automotor"
                 onError={() => setLogoError(true)}
-                className="h-16 sm:h-[72px] lg:h-[76px] max-h-[76px] w-auto object-contain transition-transform hover:scale-105 drop-shadow-md py-0.5"
+                className="h-14 sm:h-[58px] lg:h-[64px] max-h-[64px] w-auto object-contain transition-transform hover:scale-105 drop-shadow-md py-1"
               />
             ) : (
               <div className="flex items-center space-x-3">
