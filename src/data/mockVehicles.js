@@ -38,6 +38,14 @@ export const CATEGORIES = [
     count: '65+ Unidades',
     iconName: 'Anchor',
     image: 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?q=80&w=1200&auto=format&fit=crop',
+  },
+  {
+    id: 'agro',
+    name: 'Agro',
+    subtitle: 'Tractores, Cosechadoras & Maquinaria',
+    count: '140+ Unidades',
+    iconName: 'Tractor',
+    image: 'https://images.unsplash.com/photo-1595246140625-573b715d11dc?q=80&w=1200&auto=format&fit=crop',
   }
 ];
 
@@ -494,6 +502,62 @@ export const MOCK_VEHICLES = [
     ],
     description: 'Tractor 6x4 de máxima potencia Volvo FH 540 HP. Caja I-Shift con modos de carga pesada, dirección dinámica VDS (Volvo Dynamic Steering), pantalla digital configurable y frenado de emergencia autónomo VEB+.',
     features: ['Volvo Dynamic Steering (VDS)', 'Motor 540 HP I-Shift', 'Freno VEB+ 510 CV', 'Cabina Globetrotter XL']
+  },
+  {
+    id: 'v17',
+    title: 'John Deere 6125E 4WD Cabinado',
+    category: 'agro',
+    categoryLabel: 'Agro',
+    brand: 'John Deere',
+    model: '6125E',
+    year: 2023,
+    mileage: '850 hs',
+    mileageNum: 850,
+    fuel: 'Diésel',
+    transmission: 'PowerReverser 12x12',
+    priceCurrency: 'USD',
+    price: 89000,
+    formattedPrice: 'USD 89.000',
+    location: 'Santa Fe, Venado Tuerto',
+    sellerType: 'Agencia Verificada',
+    sellerName: 'AgroMaq Santa Fe',
+    sellerWhatsApp: '5493462554433',
+    badge: 'Agro Destacado',
+    badgeColor: 'emerald',
+    image: 'https://images.unsplash.com/photo-1595246140625-573b715d11dc?q=80&w=1200&auto=format&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1595246140625-573b715d11dc?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'Tractor John Deere 6125E de 125 HP. Motor PowerTech 4.5L Turbo intercooler, transmisión 12x12 electrohidráulica PowerReverser, doble tracción (4WD) y cabina original con aire acondicionado.',
+    features: ['Motor PowerTech 125 HP', 'Transmisión PowerReverser 12x12', 'Cabina Climatizada Hi-Vision', 'Toma de Fuerza Independiente']
+  },
+  {
+    id: 'v18',
+    title: 'New Holland CR 7.90 Axial Drapper 35FT',
+    category: 'agro',
+    categoryLabel: 'Agro',
+    brand: 'New Holland',
+    model: 'CR 7.90',
+    year: 2022,
+    mileage: '1.200 hs',
+    mileageNum: 1200,
+    fuel: 'Diésel',
+    transmission: 'Hidrostática 4 velocidades',
+    priceCurrency: 'USD',
+    price: 310000,
+    formattedPrice: 'USD 310.000',
+    location: 'Cordoba, Marcos Juárez',
+    sellerType: 'Agencia Verificada',
+    sellerName: 'Maquinarias del Centro',
+    sellerWhatsApp: '5493472445566',
+    badge: 'Cosechadora',
+    badgeColor: 'amber',
+    image: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?q=80&w=1200&auto=format&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?q=80&w=1200&auto=format&fit=crop'
+    ],
+    description: 'Cosechadora axial New Holland CR 7.90 de doble rotor. Motor FPT Cursor 9 de 425 CV, piloto automático IntelliSteer, mapa de rinde en tiempo real y plataforma Drapper de 35 pies.',
+    features: ['Doble Rotor Axial Twin Rotor', 'Motor FPT 425 CV', 'Plataforma Drapper 35ft', 'Piloto Satelital IntelliSteer']
   }
 ];
 
@@ -509,6 +573,11 @@ export const BRAND_OPTIONS = [
   'Yamaha',
   'Peugeot',
   'Mercedes-Benz',
+  'John Deere',
+  'New Holland',
+  'Case IH',
+  'Pauny',
+  'Massey Ferguson',
   'Bermuda',
   'Volvo',
   'Sea-Doo',

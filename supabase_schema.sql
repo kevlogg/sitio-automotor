@@ -3,11 +3,48 @@
 -- Ejecutar este archivo completo en el SQL Editor de tu proyecto Supabase
 -- ====================================================================
 
+-- 0. TABLA DE PERFILES DE USUARIO (Particular / Agencia / Negocio Automotor)
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
+  full_name TEXT NOT NULL,
+  user_type TEXT DEFAULT 'particular' CHECK (user_type IN ('particular', 'agencia', 'negocio_automotor')),
+  phone_whatsapp TEXT,
+  city TEXT,
+  province TEXT,
+  location_details TEXT,
+  business_name TEXT,
+  rubro TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS location_details TEXT;
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir lectura publica de perfiles') THEN
+    CREATE POLICY "Permitir lectura publica de perfiles" ON public.profiles FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir crear y editar perfil propio') THEN
+    CREATE POLICY "Permitir crear y editar perfil propio" ON public.profiles FOR ALL USING (auth.uid() = id);
+  END IF;
+END $$;
+
+-- Vista de métricas para contar usuarios por cada tipo ('particular', 'agencia', 'negocio_automotor')
+CREATE OR REPLACE VIEW public.user_type_counts AS
+SELECT 
+  user_type,
+  COUNT(*) AS total_users,
+  COUNT(CASE WHEN created_at >= NOW() - INTERVAL '30 days' THEN 1 END) AS new_last_30_days
+FROM public.profiles
+GROUP BY user_type;
+
 -- 1. TABLA DE VEHÍCULOS
 CREATE TABLE IF NOT EXISTS public.vehicles (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
-  category TEXT NOT NULL, -- 'autos', 'camionetas', 'motos', 'camiones', 'nautica'
+  category TEXT NOT NULL, -- 'autos', 'camionetas', 'motos', 'camiones', 'nautica', 'agro'
   category_label TEXT NOT NULL,
   brand TEXT NOT NULL,
   model TEXT,

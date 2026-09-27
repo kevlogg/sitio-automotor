@@ -1,5 +1,5 @@
 import React from 'react';
-import { Car, Truck, Bike, Container, Anchor } from 'lucide-react';
+import { Car, Truck, Bike, Container, Anchor, Tractor } from 'lucide-react';
 import { CATEGORIES } from '../data/mockVehicles';
 import useScrollReveal from '../hooks/useScrollReveal';
 
@@ -8,14 +8,15 @@ const ICON_MAP = {
   Truck: Truck,
   Bike: Bike,
   Container: Container,
-  Anchor: Anchor
+  Anchor: Anchor,
+  Tractor: Tractor,
 };
 
 export default function CategoryExplorer({ cardTheme = 'violet', selectedCategory, onSelectCategory }) {
   const isDark = cardTheme === 'dark';
   const containerRef = useScrollReveal({ threshold: 0.1 });
 
-  const delays = ['delay-75', 'delay-150', 'delay-200', 'delay-300', 'delay-400'];
+  const delays = ['delay-75', 'delay-150', 'delay-200', 'delay-300', 'delay-400', 'delay-500'];
 
   return (
     <section id="categorias" ref={containerRef} className="py-12 bg-transparent">
@@ -26,8 +27,8 @@ export default function CategoryExplorer({ cardTheme = 'violet', selectedCategor
           Explorá por categoría
         </h2>
 
-        {/* 5 Vertical Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+        {/* 6 Vertical Cards Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
           {CATEGORIES.map((cat, idx) => {
             const IconComponent = ICON_MAP[cat.iconName] || Car;
             const isSelected = selectedCategory === cat.id;

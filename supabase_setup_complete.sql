@@ -13,11 +13,15 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   phone_whatsapp TEXT,
   city TEXT,
   province TEXT,
+  location_details TEXT,
   business_name TEXT,
   rubro TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Asegurar columna location_details si la tabla ya existía
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS location_details TEXT;
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
@@ -30,11 +34,21 @@ DO $$ BEGIN
   END IF;
 END $$;
 
+-- 0.1 VISTA Y MÉTRICAS DE TIPOS DE USUARIOS (Mide cantidad de usuarios por cada tipo)
+CREATE OR REPLACE VIEW public.user_type_counts AS
+SELECT 
+  user_type,
+  COUNT(*) AS total_users,
+  COUNT(CASE WHEN created_at >= NOW() - INTERVAL '30 days' THEN 1 END) AS new_last_30_days
+FROM public.profiles
+GROUP BY user_type;
+
+
 -- 1. TABLA DE VEHÍCULOS
 CREATE TABLE IF NOT EXISTS public.vehicles (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
-  category TEXT NOT NULL, -- 'autos', 'camionetas', 'motos', 'camiones', 'nautica'
+  category TEXT NOT NULL, -- 'autos', 'camionetas', 'motos', 'camiones', 'nautica', 'agro'
   category_label TEXT NOT NULL,
   brand TEXT NOT NULL,
   model TEXT,

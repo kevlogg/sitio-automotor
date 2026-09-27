@@ -68,7 +68,7 @@ export default function FeaturedVehiclesFeed({
                   {/* Top Left Badge */}
                   <div className="absolute top-2.5 left-2.5 z-10">
                     <span className="px-2 py-0.5 rounded bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider border border-white/20 hover:bg-purple-900/90 hover:border-purple-400 transition-colors duration-200">
-                      {item.category === 'autos' ? 'AUTO' : item.category === 'camionetas' ? 'CAMIONETA' : item.category === 'motos' ? 'MOTO' : item.category === 'camiones' ? 'CAMIÓN' : 'NÁUTICA'}
+                      {item.category === 'autos' ? 'AUTO' : item.category === 'camionetas' ? 'CAMIONETA' : item.category === 'motos' ? 'MOTO' : item.category === 'camiones' ? 'CAMIÓN' : item.category === 'nautica' ? 'NÁUTICA' : 'AGRO'}
                     </span>
                   </div>
 

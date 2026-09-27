@@ -3,12 +3,16 @@ import { X, Wrench, Building2, MapPin, Phone, CheckCircle2, Loader2, Sparkles, S
 import { supabase } from '../lib/supabase';
 
 export default function RegisterBusinessModal({ isOpen, onClose, onBusinessRegistered }) {
+  const [locationType, setLocationType] = useState('single'); // 'single' | 'multiple'
+
   const [formData, setFormData] = useState({
     rubroId: 'talleres',
+    customRubro: '',
     name: '',
     address: '',
     city: 'Rosario',
     province: 'Santa Fe',
+    locationDetails: '',
     phone: '',
     whatsapp: '',
   });
@@ -24,13 +28,29 @@ export default function RegisterBusinessModal({ isOpen, onClose, onBusinessRegis
     setLoading(true);
     setErrorMsg(null);
 
+    if (formData.rubroId === 'otro' && !formData.customRubro.trim()) {
+      setErrorMsg('Debes especificar la aclaración del rubro al elegir "Otro".');
+      setLoading(false);
+      return;
+    }
+
+    if (locationType === 'multiple' && !formData.locationDetails.trim()) {
+      setErrorMsg('Por favor detalla los lugares donde se ubica tu negocio o brinda servicio.');
+      setLoading(false);
+      return;
+    }
+
+    const finalCity = locationType === 'multiple' ? 'Varias ubicaciones' : formData.city;
+    const finalProvince = locationType === 'multiple' ? 'Varias provincias / Online' : formData.province;
+    const finalRubro = formData.rubroId === 'otro' ? `otro: ${formData.customRubro.trim()}` : formData.rubroId;
+
     try {
       const newService = {
-        rubro_id: formData.rubroId,
+        rubro_id: finalRubro,
         name: formData.name,
-        address: formData.address || null,
-        city: formData.city,
-        province: formData.province,
+        address: locationType === 'multiple' ? (formData.locationDetails || null) : (formData.address || null),
+        city: finalCity,
+        province: finalProvince,
         phone: formData.phone || null,
         whatsapp: formData.whatsapp || formData.phone,
         rating: 5.0,
@@ -78,6 +98,7 @@ export default function RegisterBusinessModal({ isOpen, onClose, onBusinessRegis
     { id: 'gruas', label: 'Grúas y auxilio' },
     { id: 'gestorias', label: 'Gestorías' },
     { id: 'audio-alarmas', label: 'Audio y alarmas' },
+    { id: 'otro', label: 'Otro (Especificar)' },
   ];
 
   return (
@@ -143,6 +164,22 @@ export default function RegisterBusinessModal({ isOpen, onClose, onBusinessRegis
               </select>
             </div>
 
+            {formData.rubroId === 'otro' && (
+              <div className="p-3.5 rounded-2xl bg-amber-950/40 border border-amber-500/40 space-y-1.5 animate-fadeIn">
+                <label className="block text-xs font-extrabold text-amber-300">
+                  Aclaración Obligatoria del Rubro *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej. Ploteo, Wrap, polarizados y calcomanías"
+                  value={formData.customRubro}
+                  onChange={(e) => setFormData({ ...formData, customRubro: e.target.value })}
+                  className="w-full px-3.5 py-2 bg-slate-900 border border-amber-500/50 rounded-xl text-xs text-white focus:border-amber-400 focus:outline-none"
+                />
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">Nombre Comercial del Negocio *</label>
               <input
@@ -155,41 +192,88 @@ export default function RegisterBusinessModal({ isOpen, onClose, onBusinessRegis
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Ciudad *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ej. Rosario"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:border-amber-500 focus:outline-none"
-                />
+            {/* Ubicación y Modo de Alcance */}
+            <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+              <label className="block text-xs font-bold text-slate-300">Ubicación / Cobertura *</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setLocationType('single')}
+                  className={`p-2 rounded-xl text-xs font-bold transition-all ${
+                    locationType === 'single'
+                      ? 'bg-amber-500 text-slate-950 shadow-md'
+                      : 'bg-slate-950 text-slate-400 border border-slate-800'
+                  }`}
+                >
+                  Lugar Específico
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLocationType('multiple')}
+                  className={`p-2 rounded-xl text-xs font-bold transition-all ${
+                    locationType === 'multiple'
+                      ? 'bg-amber-500 text-slate-950 shadow-md'
+                      : 'bg-slate-950 text-slate-400 border border-slate-800'
+                  }`}
+                >
+                  Varias Ubicaciones / Online
+                </button>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Provincia *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ej. Santa Fe"
-                  value={formData.province}
-                  onChange={(e) => setFormData({ ...formData, province: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:border-amber-500 focus:outline-none"
-                />
-              </div>
+
+              {locationType === 'single' ? (
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Ciudad *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ej. Rosario"
+                      value={formData.city}
+                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:border-amber-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Provincia *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ej. Santa Fe"
+                      value={formData.province}
+                      onChange={(e) => setFormData({ ...formData, province: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:border-amber-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1.5 pt-1 animate-fadeIn">
+                  <label className="block text-xs font-bold text-amber-300">
+                    Aclaración de lugares donde te ubicas u operas *
+                  </label>
+                  <textarea
+                    rows={2}
+                    required
+                    placeholder="Ej. Sucursales en Rosario y CABA / Servicio móvil a todo GBA"
+                    value={formData.locationDetails}
+                    onChange={(e) => setFormData({ ...formData, locationDetails: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-950 border border-amber-500/50 rounded-xl text-xs text-white focus:border-amber-400 focus:outline-none"
+                  ></textarea>
+                </div>
+              )}
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Dirección (Opcional)</label>
-              <input
-                type="text"
-                placeholder="Ej. Av. Pellegrini 1420"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:border-amber-500 focus:outline-none"
-              />
-            </div>
+            {locationType === 'single' && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Dirección (Opcional)</label>
+                <input
+                  type="text"
+                  placeholder="Ej. Av. Pellegrini 1420"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:border-amber-500 focus:outline-none"
+                />
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-3">
               <div>

@@ -31,7 +31,8 @@ export default function FloatingSearchBar({
     { value: 'camionetas', label: 'Camionetas / SUVs' },
     { value: 'motos', label: 'Motos' },
     { value: 'camiones', label: 'Camiones' },
-    { value: 'nautica', label: 'Náutica' }
+    { value: 'nautica', label: 'Náutica' },
+    { value: 'agro', label: 'Agro / Maquinaria' }
   ];
 
   const yearOptions = [

@@ -9,8 +9,9 @@ import FeaturedVehiclesFeed from './components/FeaturedVehiclesFeed';
 import VehicleDetailModal from './components/VehicleDetailModal';
 import PublishModal from './components/PublishModal';
 import FavoritesModal from './components/FavoritesModal';
-import AuthModal from './components/AuthModal';
+import AuthPage from './components/AuthPage';
 import RegisterBusinessModal from './components/RegisterBusinessModal';
+import BusinessDirectoryModal from './components/BusinessDirectoryModal';
 import ProofTrustFooter from './components/ProofTrustFooter';
 import PingPongVideo from './components/PingPongVideo';
 import WheelSectionDivider from './components/WheelSectionDivider';
@@ -18,6 +19,10 @@ import { MOCK_VEHICLES } from './data/mockVehicles';
 import { supabase } from './lib/supabase';
 
 export default function App() {
+  // Navigation View State: 'home' | 'auth'
+  const [currentView, setCurrentView] = useState('home');
+  const [authMode, setAuthMode] = useState('signup'); // 'login' | 'signup'
+
   // Vehicle state initialized with localStorage fallback
   const [vehicles, setVehicles] = useState(() => {
     try {
@@ -33,6 +38,23 @@ export default function App() {
     }
     return MOCK_VEHICLES;
   });
+
+  // Escuchar navegación por Hash (#auth, #login, #registro)
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash;
+      if (hash === '#login' || hash === '#ingresar') {
+        setAuthMode('login');
+        setCurrentView('auth');
+      } else if (hash === '#registro' || hash === '#signup' || hash === '#auth') {
+        setAuthMode('signup');
+        setCurrentView('auth');
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
 
   // Fetch live vehicles from Supabase Cloud on mount
   useEffect(() => {
@@ -71,7 +93,13 @@ export default function App() {
             description: v.description,
             features: v.features || []
           }));
-          setVehicles(formatted);
+          
+          // Combine live DB items with mock vehicles without duplicating IDs
+          setVehicles((prev) => {
+            const liveIds = new Set(formatted.map(f => f.id));
+            const filteredMock = prev.filter(p => !liveIds.has(p.id));
+            return [...formatted, ...filteredMock];
+          });
         }
       } catch (err) {
         console.warn('Conexión a Supabase usando fallback local:', err);
@@ -118,9 +146,8 @@ export default function App() {
 
   // User Authentication State
   const [currentUser, setCurrentUser] = useState(null); // { user, profile }
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalMode, setAuthModalMode] = useState('signup'); // 'login' | 'signup'
   const [registerBusinessModalOpen, setRegisterBusinessModalOpen] = useState(false);
+  const [businessDirectoryModalOpen, setBusinessDirectoryModalOpen] = useState(false);
 
   // Escuchar estado de autenticación en Supabase
   useEffect(() => {
@@ -179,9 +206,10 @@ export default function App() {
     showToast('Sesión cerrada correctamente');
   };
 
-  const handleOpenAuthModal = (mode = 'signup') => {
-    setAuthModalMode(mode);
-    setAuthModalOpen(true);
+  const handleOpenAuthPage = (mode = 'signup') => {
+    setAuthMode(mode);
+    setCurrentView('auth');
+    window.location.hash = mode === 'login' ? '#ingresar' : '#registro';
   };
 
   // Modal States
@@ -373,6 +401,25 @@ export default function App() {
     sortBy,
   ]);
 
+  // Render Dedicated Auth Page when currentView === 'auth'
+  if (currentView === 'auth') {
+    return (
+      <AuthPage
+        initialMode={authMode}
+        onAuthSuccess={(userSession) => {
+          setCurrentUser(userSession);
+          setCurrentView('home');
+          window.location.hash = '';
+          showToast(`¡Bienvenido/a, ${userSession.profile?.full_name || 'Usuario'}! 🎉`);
+        }}
+        onBackToHome={() => {
+          setCurrentView('home');
+          window.location.hash = '';
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-[#6D28D9] selection:text-white">
       {/* Toast Notification */}
@@ -388,7 +435,7 @@ export default function App() {
         onOpenPublishModal={() => setPublishModalOpen(true)}
         onOpenFavoritesModal={() => setFavoritesModalOpen(true)}
         currentUser={currentUser}
-        onOpenAuthModal={() => handleOpenAuthModal('signup')}
+        onOpenAuthModal={() => handleOpenAuthPage('signup')}
         onSignOut={handleSignOut}
       />
 
@@ -461,7 +508,7 @@ export default function App() {
                     onSelectRubro={(rubroId) => {
                       setActiveRubro(rubroId);
                       if (rubroId) {
-                        showToast(`Rubro seleccionado: ${rubroId}`);
+                        setBusinessDirectoryModalOpen(true);
                       }
                     }}
                     onOpenRegisterBusiness={() => setRegisterBusinessModalOpen(true)}
@@ -511,17 +558,7 @@ export default function App() {
         onClose={() => setPublishModalOpen(false)}
         onVehicleAdded={handleAddVehicle}
         currentUser={currentUser}
-        onRequireAuth={(mode) => handleOpenAuthModal(mode)}
-      />
-
-      <AuthModal
-        isOpen={authModalOpen}
-        initialMode={authModalMode}
-        onClose={() => setAuthModalOpen(false)}
-        onAuthSuccess={(userSession) => {
-          setCurrentUser(userSession);
-          showToast(`¡Bienvenido/a, ${userSession.profile?.full_name || 'Usuario'}! 🎉`);
-        }}
+        onRequireAuth={(mode) => handleOpenAuthPage(mode)}
       />
 
       <RegisterBusinessModal
@@ -530,6 +567,13 @@ export default function App() {
         onBusinessRegistered={(serviceData) => {
           showToast(`¡Tu negocio "${serviceData.name}" fue agregado a Mundo Automotor! 🚀`);
         }}
+      />
+
+      <BusinessDirectoryModal
+        isOpen={businessDirectoryModalOpen}
+        onClose={() => setBusinessDirectoryModalOpen(false)}
+        activeRubro={activeRubro}
+        onOpenRegisterBusiness={() => setRegisterBusinessModalOpen(true)}
       />
 
       <FavoritesModal

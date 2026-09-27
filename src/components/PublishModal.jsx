@@ -91,7 +91,7 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentU
       id: 'v-' + Date.now(),
       title: formData.title || `${formData.brand} ${formData.model || 'Vehículo'}`,
       category: formData.category,
-      categoryLabel: formData.category === 'autos' ? 'Autos' : formData.category === 'camionetas' ? 'Pick-ups' : formData.category === 'motos' ? 'Motos' : formData.category === 'camiones' ? 'Comerciales' : 'Náutica',
+      categoryLabel: formData.category === 'autos' ? 'Autos' : formData.category === 'camionetas' ? 'Pick-ups' : formData.category === 'motos' ? 'Motos' : formData.category === 'camiones' ? 'Comerciales' : formData.category === 'nautica' ? 'Náutica' : 'Agro',
       brand: formData.brand,
       model: formData.model,
       year: parseInt(formData.year, 10) || 2023,
@@ -247,6 +247,7 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentU
                   <option value="motos">Motos</option>
                   <option value="camiones">Camiones</option>
                   <option value="nautica">Náutica</option>
+                  <option value="agro">Agro / Maquinaria</option>
                 </select>
               </div>
 
