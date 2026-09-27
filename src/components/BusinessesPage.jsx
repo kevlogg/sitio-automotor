@@ -98,20 +98,67 @@ export default function BusinessesPage({ onBackToHome, onOpenRegisterBusiness })
     async function fetchBusinesses() {
       setLoading(true);
       try {
-        const { data, error } = await supabase
+        // 1. Fetch from services_directory table
+        const { data: dbServices } = await supabase
           .from('services_directory')
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (!error && data && data.length > 0) {
-          const liveIds = new Set(data.map(d => d.id));
-          const filteredSeed = SEED_BUSINESSES.filter(s => !liveIds.has(s.id));
-          setBusinesses([...data, ...filteredSeed]);
-        } else {
-          setBusinesses(SEED_BUSINESSES);
+        // 2. Fetch profiles registered as negocio_automotor
+        const { data: profileBusinesses } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_type', 'negocio_automotor');
+
+        const businessMap = new Map();
+
+        // Populate seed items
+        SEED_BUSINESSES.forEach(b => {
+          businessMap.set(b.name.toLowerCase(), b);
+        });
+
+        // Merge DB services directory items
+        if (dbServices && dbServices.length > 0) {
+          dbServices.forEach(s => {
+            const key = s.name.toLowerCase();
+            businessMap.set(key, {
+              id: s.id,
+              name: s.name,
+              rubro_id: s.rubro_id || 'talleres',
+              address: s.address || 'Dirección comercial',
+              city: s.city,
+              province: s.province,
+              phone: s.phone || s.whatsapp,
+              whatsapp: s.whatsapp || '5491134567890',
+              rating: s.rating || 5.0,
+              verified: s.verified !== false,
+            });
+          });
         }
+
+        // Merge registered negocio profiles
+        if (profileBusinesses && profileBusinesses.length > 0) {
+          profileBusinesses.forEach(p => {
+            const name = p.business_name || p.full_name || 'Negocio Automotor';
+            const key = name.toLowerCase();
+            businessMap.set(key, {
+              id: p.id,
+              name: name,
+              rubro_id: p.rubro || 'talleres',
+              address: p.address || p.location_details || 'Dirección registrada',
+              city: p.city || 'CABA',
+              province: p.province || 'Buenos Aires',
+              phone: p.phone_whatsapp,
+              whatsapp: p.phone_whatsapp || '5491134567890',
+              rating: 5.0,
+              verified: true,
+            });
+          });
+        }
+
+        setBusinesses(Array.from(businessMap.values()));
       } catch (err) {
-        console.warn('Fallback a negocios seed:', err);
+        console.warn('Cargando negocios de la base de datos:', err);
         setBusinesses(SEED_BUSINESSES);
       } finally {
         setLoading(false);

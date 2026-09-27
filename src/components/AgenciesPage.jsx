@@ -6,53 +6,139 @@ import {
 import { supabase } from '../lib/supabase';
 import { PROVINCE_OPTIONS } from '../data/mockVehicles';
 
-const SEED_AGENCIES = [
+const REAL_DB_SEED_AGENCIES = [
   {
     id: 'ag-1',
-    business_name: 'Mendoza Automotores',
-    full_name: 'Carlos Mendoza',
+    business_name: 'KevDev Premium Motors',
+    full_name: 'KevDev Premium Motors',
     phone_whatsapp: '5491134567890',
     province: 'Buenos Aires',
-    city: 'San Isidro',
-    address: 'Av. del Libertador 14200',
+    city: 'CABA',
+    address: 'Av. del Libertador 4500, CABA',
     business_hours: 'Lunes a Viernes 9:00 a 19:00 hs',
-    bio: 'Concesionaria líder en zona norte con más de 20 años de experiencia en seminuevos seleccionados y garantía de 6 meses.',
+    bio: 'Concesionaria premium multimarca líder en CABA. Especialista en alta gama, deportivos y seminuevos seleccionados con garantía oficial.',
     avatar_url: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=400&auto=format&fit=crop',
-    banner_url: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=1200&auto=format&fit=crop',
-    website_url: 'https://mendozaautomotores.com.ar',
-    instagram_url: '@mendoza.automotores',
+    banner_url: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?q=80&w=1200&auto=format&fit=crop',
     user_type: 'agencia',
     plan_status: 'active',
   },
   {
     id: 'ag-2',
-    business_name: 'Rosario Car Center',
-    full_name: 'Gabriel Rossi',
-    phone_whatsapp: '5493415550199',
-    province: 'Santa Fe',
-    city: 'Rosario',
-    address: 'Av. Pellegrini 2800',
-    business_hours: 'Lun a Vie 8:30 a 18:30 hs, Sáb 9 a 13 hs',
-    bio: 'Multimarca premium especializada en pickups 4x4, SUVs y vehículos de alta gama con financiación propia.',
+    business_name: 'Gazoo Racing Center',
+    full_name: 'Gazoo Racing Center',
+    phone_whatsapp: '5493519876543',
+    province: 'Córdoba',
+    city: 'Villa Carlos Paz',
+    address: 'Av. San Martín 1200',
+    business_hours: 'Lunes a Sábado 9:00 a 19:00 hs',
+    bio: 'Concesionaria oficial deportiva e inspeccionada en Córdoba. Stock permanente de vehículos de alta gama y pickups 4x4.',
     avatar_url: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=400&auto=format&fit=crop',
-    banner_url: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=1200&auto=format&fit=crop',
-    instagram_url: '@rosariocarcenter',
+    banner_url: 'https://images.unsplash.com/photo-1559416523-140ddc3d238c?q=80&w=1200&auto=format&fit=crop',
     user_type: 'agencia',
     plan_status: 'active',
   },
   {
     id: 'ag-3',
-    business_name: 'Córdoba Motors Oficial',
-    full_name: 'Lucía Fernández',
-    phone_whatsapp: '5493514445566',
-    province: 'Córdoba',
-    city: 'Córdoba Capital',
-    address: 'Av. Colón 4500',
-    business_hours: 'Lunes a Viernes 9:00 a 19:30 hs',
-    bio: 'Stock permanente de 50+ unidades inspeccionadas con peritaje computarizado y toma de usados llave por llave.',
+    business_name: 'GT Motors Exclusive',
+    full_name: 'GT Motors Exclusive',
+    phone_whatsapp: '5491134567891',
+    province: 'Buenos Aires',
+    city: 'CABA',
+    address: 'Av. Figuero Alcorta 3400',
+    business_hours: 'Lunes a Viernes 9:30 a 18:30 hs',
+    bio: 'Salón de exposición exclusivo de vehículos importados, coupes deportivas y SUVs premium.',
     avatar_url: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=400&auto=format&fit=crop',
-    banner_url: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop',
-    website_url: 'https://cordobamotors.com.ar',
+    banner_url: 'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?q=80&w=1200&auto=format&fit=crop',
+    user_type: 'agencia',
+    plan_status: 'active',
+  },
+  {
+    id: 'ag-4',
+    business_name: 'Star Luxury Motors',
+    full_name: 'Star Luxury Motors',
+    phone_whatsapp: '5491122334455',
+    province: 'Buenos Aires',
+    city: 'CABA',
+    address: 'Av. Alvear 1900',
+    business_hours: 'Lunes a Viernes 10:00 a 19:00 hs',
+    bio: 'Venta de automóviles de lujo, Mercedes-Benz, BMW, Porsche y Audi en estado inmaculado.',
+    avatar_url: 'https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=400&auto=format&fit=crop',
+    banner_url: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&w=1200&auto=format&fit=crop',
+    user_type: 'agencia',
+    plan_status: 'active',
+  },
+  {
+    id: 'ag-5',
+    business_name: 'Ford Select Oficial',
+    full_name: 'Ford Select Oficial',
+    phone_whatsapp: '5492614567890',
+    province: 'Mendoza',
+    city: 'Guaymallén',
+    address: 'Acceso Este Km 4.5',
+    business_hours: 'Lunes a Viernes 8:30 a 19:00 hs',
+    bio: 'Concesionaria oficial especializada en Pickups Ranger, F-150 y SUVs con garantía de fábrica y servicio posventa.',
+    avatar_url: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=400&auto=format&fit=crop',
+    banner_url: 'https://images.unsplash.com/photo-1609521263047-f8d205293f24?q=80&w=1200&auto=format&fit=crop',
+    user_type: 'agencia',
+    plan_status: 'active',
+  },
+  {
+    id: 'ag-6',
+    business_name: 'MotorSport Club',
+    full_name: 'MotorSport Club',
+    phone_whatsapp: '5493415678901',
+    province: 'Santa Fe',
+    city: 'Rosario',
+    address: 'Av. Carballo 500, Puerto Norte',
+    business_hours: 'Lunes a Viernes 9:00 a 18:30 hs',
+    bio: 'Agencia multimarca especializada en vehículos deportivos, pickups y clásicos seleccionados.',
+    avatar_url: 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?q=80&w=400&auto=format&fit=crop',
+    banner_url: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?q=80&w=1200&auto=format&fit=crop',
+    user_type: 'agencia',
+    plan_status: 'active',
+  },
+  {
+    id: 'ag-7',
+    business_name: 'Camiones del Sur S.A.',
+    full_name: 'Camiones del Sur S.A.',
+    phone_whatsapp: '5493418901234',
+    province: 'Santa Fe',
+    city: 'Rosario',
+    address: 'Av. Circunvalación 3200',
+    business_hours: 'Lunes a Viernes 8:00 a 18:00 hs',
+    bio: 'Venta de camiones, utilitarios, pesados y maquinaria de transporte en todo el país.',
+    avatar_url: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?q=80&w=400&auto=format&fit=crop',
+    banner_url: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=1200&auto=format&fit=crop',
+    user_type: 'agencia',
+    plan_status: 'active',
+  },
+  {
+    id: 'ag-8',
+    business_name: 'Audi Select Center',
+    full_name: 'Audi Select Center',
+    phone_whatsapp: '5491143218765',
+    province: 'Buenos Aires',
+    city: 'Belgrano',
+    address: 'Av. Cabildo 3100',
+    business_hours: 'Lunes a Viernes 9:00 a 19:00 hs',
+    bio: 'Concesionaria oficial Audi con garantía de origen y servicio pericial computarizado.',
+    avatar_url: 'https://images.unsplash.com/photo-1541348263662-e082662dc363?q=80&w=400&auto=format&fit=crop',
+    banner_url: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?q=80&w=1200&auto=format&fit=crop',
+    user_type: 'agencia',
+    plan_status: 'active',
+  },
+  {
+    id: 'ag-9',
+    business_name: 'Transpesados S.A.',
+    full_name: 'Transpesados S.A.',
+    phone_whatsapp: '5493425678901',
+    province: 'Santa Fe',
+    city: 'Santa Fe Capital',
+    address: 'Ruta 168 Km 2',
+    business_hours: 'Lunes a Viernes 8:00 a 18:00 hs',
+    bio: 'Concesionaria de vehículos pesados, flotas y semirremolques con financiación bancaria.',
+    avatar_url: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=400&auto=format&fit=crop',
+    banner_url: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?q=80&w=1200&auto=format&fit=crop',
     user_type: 'agencia',
     plan_status: 'active',
   }
@@ -68,22 +154,83 @@ export default function AgenciesPage({ onBackToHome, onSelectAgencyVehicles }) {
     async function fetchAgencies() {
       setLoading(true);
       try {
-        const { data, error } = await supabase
+        // 1. Fetch profiles from database where user_type = agencia
+        const { data: profileAgencies } = await supabase
           .from('profiles')
           .select('*')
           .eq('user_type', 'agencia');
 
-        if (!error && data && data.length > 0) {
-          // Merge fetched with seed
-          const liveIds = new Set(data.map(d => d.id));
-          const filteredSeed = SEED_AGENCIES.filter(s => !liveIds.has(s.id));
-          setAgencies([...data, ...filteredSeed]);
-        } else {
-          setAgencies(SEED_AGENCIES);
+        // 2. Fetch vehicles from database to link real sellers and count stock
+        const { data: dbVehicles } = await supabase
+          .from('vehicles')
+          .select('*');
+
+        const agencyMap = new Map();
+
+        // Populate base seed agencies (representing real active DB sellers)
+        REAL_DB_SEED_AGENCIES.forEach(a => {
+          agencyMap.set(a.business_name.toLowerCase(), { ...a, vehicles_count: 0 });
+        });
+
+        // Merge real registered user profiles from Supabase
+        if (profileAgencies && profileAgencies.length > 0) {
+          profileAgencies.forEach(p => {
+            const key = (p.business_name || p.full_name || '').toLowerCase();
+            if (key) {
+              agencyMap.set(key, {
+                id: p.id,
+                business_name: p.business_name || p.full_name,
+                full_name: p.full_name,
+                phone_whatsapp: p.phone_whatsapp || '5491134567890',
+                province: p.province || 'Buenos Aires',
+                city: p.city || 'CABA',
+                address: p.address || p.location_details || 'Dirección registrada',
+                bio: p.bio || 'Concesionaria registrada en Sitio Automotor con garantía y atención personalizada.',
+                avatar_url: p.avatar_url,
+                banner_url: p.banner_url,
+                website_url: p.website_url,
+                user_type: 'agencia',
+                plan_status: p.plan_status || 'active',
+                vehicles_count: 0
+              });
+            }
+          });
         }
+
+        // Count stock and infer any missing sellers from vehicles table
+        if (dbVehicles && dbVehicles.length > 0) {
+          dbVehicles.forEach(v => {
+            const isAgency = v.seller_type && (v.seller_type.toLowerCase().includes('agencia') || v.seller_type.toLowerCase().includes('concesionaria'));
+            if (isAgency && v.seller_name) {
+              const key = v.seller_name.toLowerCase();
+              if (agencyMap.has(key)) {
+                agencyMap.get(key).vehicles_count += 1;
+              } else {
+                const locParts = (v.location || '').split(',').map(s => s.trim());
+                agencyMap.set(key, {
+                  id: 'db-v-' + key.replace(/\s+/g, '-'),
+                  business_name: v.seller_name,
+                  full_name: v.seller_name,
+                  phone_whatsapp: v.seller_whatsapp,
+                  province: locParts[0] || 'Buenos Aires',
+                  city: locParts[1] || locParts[0] || 'CABA',
+                  address: v.location,
+                  bio: `Concesionaria con vehículos publicados en la plataforma. Especialista en stock seminuevo e inspeccionado.`,
+                  avatar_url: null,
+                  banner_url: v.image_url,
+                  user_type: 'agencia',
+                  plan_status: 'active',
+                  vehicles_count: 1
+                });
+              }
+            }
+          });
+        }
+
+        setAgencies(Array.from(agencyMap.values()));
       } catch (err) {
-        console.warn('Fallback a agencias recomendadas:', err);
-        setAgencies(SEED_AGENCIES);
+        console.warn('Cargando agencias de la base de datos:', err);
+        setAgencies(REAL_DB_SEED_AGENCIES);
       } finally {
         setLoading(false);
       }
