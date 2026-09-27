@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
-import { Heart, PlusCircle, Menu, X, User, LogOut, ShieldCheck, Building2, Car, Wrench } from 'lucide-react';
+import { PlusCircle, Menu, X, User, LogOut, Building2, Car, Wrench } from 'lucide-react';
 
-export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavoritesModal, currentUser, onOpenAuthModal, onOpenDashboard, onSignOut }) {
+export default function Navbar({
+  favoritesCount,
+  onOpenPublishModal,
+  onOpenFavoritesModal,
+  currentUser,
+  onOpenAuthModal,
+  onOpenDashboard,
+  onSignOut,
+  currentView = 'home',
+  onNavigate
+}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
 
   const navLinks = [
-    { name: 'Vehículos', href: '#vehiculos' },
-    { name: 'Agencias', href: '#agencias' },
-    { name: 'Servicios', href: '#servicios' },
-    { name: 'Quiénes somos', href: '#nosotros' },
+    { name: 'Vehículos', id: 'vehicles', href: '#vehiculos' },
+    { name: 'Agencias', id: 'agencies', href: '#agencias' },
+    { name: 'Negocios', id: 'businesses', href: '#negocios' },
   ];
 
   const getUserBadge = () => {
@@ -22,13 +31,28 @@ export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavor
 
   const badgeInfo = getUserBadge();
 
+  const handleNavClick = (viewId, href) => {
+    if (onNavigate) {
+      onNavigate(viewId);
+    } else {
+      window.location.hash = href;
+    }
+    setMobileMenuOpen(false);
+  };
+
   return (
     <header className="sticky top-0 z-50 bg-[#0D111A]/95 backdrop-blur-md border-b border-slate-800/80 transition-all duration-300 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
           {/* Logo con frase desde public/logofrase.png */}
-          <div className="flex items-center cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <div
+            className="flex items-center cursor-pointer"
+            onClick={() => {
+              if (onNavigate) onNavigate('home');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          >
             {!logoError ? (
               <img
                 src="/logofrase.png"
@@ -54,16 +78,23 @@ export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavor
           </div>
 
           {/* Links Centrales Desktop */}
-          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-3">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all"
-              >
-                {link.name}
-              </a>
-            ))}
+          <nav className="hidden lg:flex items-center space-x-2 xl:space-x-4">
+            {navLinks.map((link) => {
+              const isActive = currentView === link.id;
+              return (
+                <button
+                  key={link.name}
+                  onClick={() => handleNavClick(link.id, link.href)}
+                  className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-[#6D28D9] text-white shadow-md shadow-purple-900/40 border border-purple-400/40'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                  }`}
+                >
+                  {link.name}
+                </button>
+              );
+            })}
           </nav>
 
           {/* Acciones Derechas */}
@@ -138,16 +169,20 @@ export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavor
       {mobileMenuOpen && (
         <div className="md:hidden bg-[#0D111A] border-b border-slate-800 px-4 pt-3 pb-6 space-y-3 shadow-xl">
           <nav className="flex flex-col space-y-2">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800"
-              >
-                {link.name}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = currentView === link.id;
+              return (
+                <button
+                  key={link.name}
+                  onClick={() => handleNavClick(link.id, link.href)}
+                  className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                    isActive ? 'bg-[#6D28D9] text-white' : 'text-slate-300 hover:bg-slate-800'
+                  }`}
+                >
+                  {link.name}
+                </button>
+              );
+            })}
           </nav>
           <div className="pt-3 border-t border-slate-800">
             <button

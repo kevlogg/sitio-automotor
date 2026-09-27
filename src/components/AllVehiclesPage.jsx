@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  ArrowLeft, Search, ChevronDown, SlidersHorizontal, RotateCcw, 
-  Car, Heart, Eye, MessageCircle, PlusCircle, ShieldCheck, User, LogOut, Building2, Wrench
+  Search, ChevronDown, SlidersHorizontal, RotateCcw, 
+  Car, Heart, Eye, MessageCircle, ArrowLeft
 } from 'lucide-react';
 import { BRAND_OPTIONS, PROVINCE_OPTIONS } from '../data/mockVehicles';
 
@@ -12,11 +12,6 @@ export default function AllVehiclesPage({
   onOpenDetailModal,
   onWhatsAppContact,
   onBackToHome,
-  onOpenPublishModal,
-  currentUser,
-  onOpenAuthModal,
-  onOpenDashboard,
-  onSignOut,
   cardTheme = 'violet',
   initialCategory = 'all',
   initialSearch = ''
@@ -154,100 +149,46 @@ export default function AllVehiclesPage({
     sortBy,
   ]);
 
-  const getUserBadge = () => {
-    if (!currentUser?.profile) return null;
-    const type = currentUser.profile.user_type;
-    if (type === 'agencia') return { label: 'Agencia', icon: Building2, color: 'bg-purple-500/20 text-purple-300 border-purple-500/40' };
-    if (type === 'negocio_automotor') return { label: 'Negocio', icon: Wrench, color: 'bg-amber-500/20 text-amber-300 border-amber-500/40' };
-    return { label: 'Particular', icon: Car, color: 'bg-blue-500/20 text-blue-300 border-blue-500/40' };
-  };
-
-  const badgeInfo = getUserBadge();
-
   return (
-    <div className="min-h-screen bg-[#090D16] text-white flex flex-col selection:bg-[#6D28D9] selection:text-white">
-      {/* Header Superior */}
-      <header className="sticky top-0 z-40 border-b border-slate-800 bg-[#0F172A]/95 backdrop-blur-md shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onBackToHome}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all text-xs font-bold cursor-pointer"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Volver al inicio</span>
-            </button>
-            <div className="hidden md:flex items-center gap-2 border-l border-slate-800 pl-4">
-              <Car className="w-4 h-4 text-purple-400" />
-              <span className="text-sm font-black text-white">Catálogo Completo</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 cursor-pointer" onClick={onBackToHome}>
-            <img src="/logofrase.png" alt="Sitio Automotor" className="h-11 w-auto object-contain" />
-          </div>
-
-          <div className="flex items-center gap-3">
-            {currentUser ? (
-              <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-2xl px-3 py-1.5">
-                <button onClick={onOpenDashboard} className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer text-left">
-                  <div className="w-7 h-7 rounded-xl bg-[#6D28D9] text-white flex items-center justify-center font-bold text-xs shadow-md">
-                    {currentUser.profile?.full_name?.charAt(0) || 'U'}
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-white max-w-[110px] truncate">
-                      {currentUser.profile?.business_name || currentUser.profile?.full_name || 'Usuario'}
-                    </span>
-                    {badgeInfo && (
-                      <span className={`text-[9px] font-extrabold border px-1.5 py-0.2 rounded-md ${badgeInfo.color}`}>
-                        {badgeInfo.label} • Panel
-                      </span>
-                    )}
-                  </div>
-                </button>
-                <button onClick={onSignOut} className="p-1.5 rounded-lg hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors ml-1 cursor-pointer">
-                  <LogOut className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ) : (
-              <button onClick={onOpenAuthModal} className="px-3.5 py-2 rounded-xl border border-purple-500/40 bg-purple-950/30 hover:bg-purple-900/50 text-purple-200 font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer">
-                <User className="w-3.5 h-3.5 text-purple-400" />
-                <span>Ingresar</span>
-              </button>
-            )}
-
-            <button onClick={onOpenPublishModal} className="px-4 py-2.5 rounded-xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-bold text-xs shadow-lg shadow-purple-900/40 transition-all flex items-center gap-1.5 cursor-pointer border border-purple-500/30">
-              <PlusCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">+ Publicar vehículo</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="bg-[#F8FAFC] text-slate-900 min-h-screen py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         
-        {/* Banner de Título */}
-        <div className="rounded-3xl bg-gradient-to-r from-[#1E1138] via-[#0F172A] to-slate-900 border border-purple-900/50 p-6 sm:p-8 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        {/* Breadcrumb / Back button */}
+        <div className="flex items-center justify-between">
+          <button
+            onClick={onBackToHome}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-slate-900 hover:border-slate-300 font-bold text-xs shadow-sm transition-all cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4 text-[#6D28D9]" />
+            <span>Volver al Inicio</span>
+          </button>
+
+          <span className="text-xs font-bold text-slate-500">
+            Mostrando {filteredVehicles.length} de {vehicles.length} vehículos
+          </span>
+        </div>
+
+        {/* Banner de Título Claro */}
+        <div className="rounded-3xl bg-gradient-to-r from-[#1E1138] via-[#261647] to-[#0D111A] text-white p-6 sm:p-8 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-black uppercase tracking-wider block w-fit mb-2">
+            <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-400/30 text-xs font-black uppercase tracking-wider block w-fit mb-2">
               🚗 Catálogo Oficial de Vehículos
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
               Todos los Vehículos Publicados
             </h1>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-purple-200/80 mt-1">
               Encontrá autos, camionetas, motos, comerciales, náutica y maquinaria agrícola en todo el país.
             </p>
           </div>
 
-          <div className="px-4 py-2.5 rounded-2xl bg-purple-950/70 border border-purple-500/40 text-purple-200 text-xs font-black font-mono shadow-md">
-            {filteredVehicles.length} {filteredVehicles.length === 1 ? 'vehículo disponible' : 'vehículos disponibles'}
+          <div className="px-4 py-2.5 rounded-2xl bg-purple-950/80 border border-purple-400/40 text-purple-200 text-xs font-black font-mono shadow-md whitespace-nowrap">
+            {filteredVehicles.length} {filteredVehicles.length === 1 ? 'unidad disponible' : 'unidades disponibles'}
           </div>
         </div>
 
         {/* Buscador y Filtro Idéntico al de Inicio */}
-        <div className="bg-gradient-to-br from-[#261647] via-[#1E1138] to-[#160B2B] border border-purple-700/70 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4">
+        <div className="bg-gradient-to-br from-[#261647] via-[#1E1138] to-[#160B2B] border border-purple-700/70 rounded-3xl p-5 sm:p-6 shadow-2xl text-white space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-purple-800/60">
             <h3 className="text-base font-extrabold text-white flex items-center gap-2">
               <SlidersHorizontal className="w-5 h-5 text-purple-400" />
@@ -262,7 +203,7 @@ export default function AllVehiclesPage({
           </div>
 
           <div className="space-y-3">
-            {/* Fila Principal: Búsqueda por texto, Categoría, Marca y Botón Buscar */}
+            {/* Fila Principal */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
               <div className="lg:col-span-4">
                 <label className="block text-[11px] font-semibold text-purple-200 mb-1">Búsqueda por nombre o modelo</label>
@@ -325,7 +266,7 @@ export default function AllVehiclesPage({
               </div>
             </div>
 
-            {/* Fila Secundaria: Año, Ubicación, Rango de Precio y Ordenamiento */}
+            {/* Fila Secundaria */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 pt-2 border-t border-purple-800/40">
               <div className="lg:col-span-3">
                 <label className="block text-[11px] font-semibold text-purple-200 mb-1">Año mínimo</label>
@@ -401,16 +342,16 @@ export default function AllVehiclesPage({
 
         {/* Grid de Vehículos */}
         {filteredVehicles.length === 0 ? (
-          <div className="py-20 text-center space-y-4 bg-[#0F172A] border border-slate-800 rounded-3xl">
-            <Car className="w-12 h-12 text-purple-400/50 mx-auto" />
-            <h3 className="text-xl font-extrabold text-white">No se encontraron vehículos</h3>
-            <p className="text-xs text-slate-400 max-w-md mx-auto">
+          <div className="py-20 text-center space-y-4 bg-white border border-slate-200 rounded-3xl shadow-sm">
+            <Car className="w-12 h-12 text-purple-500/50 mx-auto" />
+            <h3 className="text-xl font-extrabold text-slate-900">No se encontraron vehículos</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto">
               Probá cambiando la búsqueda o limpiando los filtros seleccionados para ver más unidades disponibles.
             </p>
             {hasActiveFilters && (
               <button
                 onClick={handleResetFilters}
-                className="px-6 py-3 rounded-2xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-extrabold text-xs transition-all cursor-pointer"
+                className="px-6 py-3 rounded-2xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-extrabold text-xs transition-all cursor-pointer shadow-md"
               >
                 Limpiar todos los filtros
               </button>
@@ -425,7 +366,7 @@ export default function AllVehiclesPage({
               return (
                 <div
                   key={item.id}
-                  className="group rounded-2xl border overflow-hidden flex flex-col justify-between hover:-translate-y-1.5 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-purple-950/70 bg-gradient-to-br from-[#261647] via-[#1E1138] to-[#160B2B] border-purple-700/70 hover:border-purple-400 text-white"
+                  className="group rounded-2xl border overflow-hidden flex flex-col justify-between hover:-translate-y-1.5 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-purple-950/40 bg-gradient-to-br from-[#261647] via-[#1E1138] to-[#160B2B] border-purple-700/70 hover:border-purple-400 text-white"
                 >
                   <div className="relative aspect-video overflow-hidden bg-slate-900 cursor-pointer" onClick={() => onOpenDetailModal(item)}>
                     <img

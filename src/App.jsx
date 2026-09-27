@@ -17,11 +17,13 @@ import ProofTrustFooter from './components/ProofTrustFooter';
 import PingPongVideo from './components/PingPongVideo';
 import WheelSectionDivider from './components/WheelSectionDivider';
 import AllVehiclesPage from './components/AllVehiclesPage';
+import AgenciesPage from './components/AgenciesPage';
+import BusinessesPage from './components/BusinessesPage';
 import { MOCK_VEHICLES } from './data/mockVehicles';
 import { supabase } from './lib/supabase';
 
 export default function App() {
-  // Navigation View State: 'home' | 'auth' | 'dashboard' | 'vehicles'
+  // Navigation View State: 'home' | 'auth' | 'dashboard' | 'vehicles' | 'agencies' | 'businesses'
   const [currentView, setCurrentView] = useState('home');
   const [authMode, setAuthMode] = useState('signup'); // 'login' | 'signup'
   const [catalogCategory, setCatalogCategory] = useState('all');
@@ -43,7 +45,7 @@ export default function App() {
     return MOCK_VEHICLES;
   });
 
-  // Escuchar navegación por Hash (#auth, #login, #registro, #panel, #dashboard, #vehiculos, #catalogo)
+  // Escuchar navegación por Hash (#auth, #login, #registro, #panel, #dashboard, #vehiculos, #agencias, #negocios)
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash;
@@ -57,6 +59,10 @@ export default function App() {
         setCurrentView('dashboard');
       } else if (hash === '#vehiculos' || hash === '#catalogo' || hash === '#todos-los-autos') {
         setCurrentView('vehicles');
+      } else if (hash === '#agencias' || hash === '#concesionarias') {
+        setCurrentView('agencies');
+      } else if (hash === '#negocios' || hash === '#servicios' || hash === '#directorio') {
+        setCurrentView('businesses');
       }
     };
     handleHash();
@@ -102,7 +108,6 @@ export default function App() {
             features: v.features || []
           }));
           
-          // Combine live DB items with mock vehicles without duplicating IDs
           setVehicles((prev) => {
             const liveIds = new Set(formatted.map(f => f.id));
             const filteredMock = prev.filter(p => !liveIds.has(p.id));
@@ -157,7 +162,6 @@ export default function App() {
   const [registerBusinessModalOpen, setRegisterBusinessModalOpen] = useState(false);
   const [businessDirectoryModalOpen, setBusinessDirectoryModalOpen] = useState(false);
 
-  // Escuchar estado de autenticación en Supabase
   // Escuchar estado de autenticación en Supabase y persistir perfil
   useEffect(() => {
     async function getInitialSession() {
@@ -256,11 +260,14 @@ export default function App() {
     window.location.hash = mode === 'login' ? '#ingresar' : '#registro';
   };
 
-  const handleNavigateToAllVehicles = (cat = 'all', search = '') => {
+  const handleNavigate = (viewId, cat = 'all', search = '') => {
     setCatalogCategory(cat);
     setCatalogSearch(search);
-    setCurrentView('vehicles');
-    window.location.hash = '#vehiculos';
+    setCurrentView(viewId);
+    if (viewId === 'vehicles') window.location.hash = '#vehiculos';
+    else if (viewId === 'agencies') window.location.hash = '#agencias';
+    else if (viewId === 'businesses') window.location.hash = '#negocios';
+    else window.location.hash = '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -299,7 +306,6 @@ export default function App() {
     window.open(url, '_blank');
     showToast(`Iniciando contacto por WhatsApp con ${vehicle.sellerName}...`);
 
-    // Track lead in Supabase cloud asynchronously
     try {
       if (typeof vehicle.id === 'string' && vehicle.id.length > 20) {
         await supabase.from('leads').insert([
@@ -328,7 +334,6 @@ export default function App() {
       console.error('Error al guardar aviso en localStorage:', err);
     }
 
-    // Insert into Supabase Table
     try {
       const { error } = await supabase.from('vehicles').insert([
         {
@@ -379,7 +384,6 @@ export default function App() {
   // Filtered & Sorted Vehicles Computation
   const filteredVehicles = useMemo(() => {
     const list = vehicles.filter((v) => {
-      // Search term filter
       if (searchTerm.trim() !== '') {
         const term = searchTerm.toLowerCase();
         const matchesTitle = v.title ? v.title.toLowerCase().includes(term) : false;
@@ -388,28 +392,23 @@ export default function App() {
         if (!matchesTitle && !matchesBrand && !matchesModel) return false;
       }
 
-      // Quick Tab filter
       if (activeTab !== 'all' && v.category !== activeTab) {
         return false;
       }
 
-      // Category filter
       if (selectedCategory !== 'all' && v.category !== selectedCategory) {
         return false;
       }
 
-      // Brand filter
       if (selectedBrand !== 'all' && v.brand.toLowerCase() !== selectedBrand.toLowerCase()) {
         return false;
       }
 
-      // Year filter
       if (selectedYear !== 'all') {
         const minYear = parseInt(selectedYear, 10);
         if (v.year < minYear) return false;
       }
 
-      // Location filter fix
       if (selectedLocation !== 'all') {
         if (selectedLocation.includes(',')) {
           if (!v.location.toLowerCase().includes(selectedLocation.toLowerCase())) return false;
@@ -419,12 +418,10 @@ export default function App() {
         }
       }
 
-      // Min Price Filter
       if (minPrice !== '' && !isNaN(Number(minPrice))) {
         if (v.price < Number(minPrice)) return false;
       }
 
-      // Max Price Filter
       if (maxPrice !== '' && !isNaN(Number(maxPrice))) {
         if (v.price > Number(maxPrice)) return false;
       }
@@ -432,7 +429,6 @@ export default function App() {
       return true;
     });
 
-    // Sort Result
     if (sortBy === 'price-asc') {
       list.sort((a, b) => a.price - b.price);
     } else if (sortBy === 'price-desc') {
@@ -498,53 +494,6 @@ export default function App() {
     );
   }
 
-  // Render Dedicated All Vehicles Catalog Page when currentView === 'vehicles'
-  if (currentView === 'vehicles') {
-    return (
-      <>
-        <AllVehiclesPage
-          vehicles={vehicles}
-          favorites={favorites}
-          onToggleFavorite={handleToggleFavorite}
-          onOpenDetailModal={(v) => setDetailVehicle(v)}
-          onWhatsAppContact={handleWhatsAppContact}
-          onBackToHome={() => {
-            setCurrentView('home');
-            window.location.hash = '';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-          onOpenPublishModal={() => setPublishModalOpen(true)}
-          currentUser={currentUser}
-          onOpenAuthModal={() => handleOpenAuthPage('signup')}
-          onOpenDashboard={() => {
-            setCurrentView('dashboard');
-            window.location.hash = '#panel';
-          }}
-          onSignOut={handleSignOut}
-          cardTheme={cardTheme}
-          initialCategory={catalogCategory}
-          initialSearch={catalogSearch}
-        />
-
-        <VehicleDetailModal
-          vehicle={detailVehicle}
-          onClose={() => setDetailVehicle(null)}
-          isFavorite={detailVehicle ? favorites.includes(detailVehicle.id) : false}
-          onToggleFavorite={handleToggleFavorite}
-          onWhatsAppContact={handleWhatsAppContact}
-        />
-
-        <PublishModal
-          isOpen={publishModalOpen}
-          onClose={() => setPublishModalOpen(false)}
-          onVehicleAdded={handleAddVehicle}
-          currentUser={currentUser}
-          onRequireAuth={(mode) => handleOpenAuthPage(mode)}
-        />
-      </>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-[#6D28D9] selection:text-white">
       {/* Toast Notification */}
@@ -554,7 +503,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Navbar */}
+      {/* Navbar Consistente en todas las páginas */}
       <Navbar
         favoritesCount={favorites.length}
         onOpenPublishModal={() => setPublishModalOpen(true)}
@@ -566,115 +515,144 @@ export default function App() {
           window.location.hash = '#panel';
         }}
         onSignOut={handleSignOut}
+        currentView={currentView}
+        onNavigate={handleNavigate}
       />
 
-      {/* Main Content */}
+      {/* Main Content por Vista */}
       <main className="flex-1">
-        {/* Left Aligned Hero Section */}
-        <HeroSection
-          onOpenPublishModal={() => setPublishModalOpen(true)}
-          onSearchScroll={handleSearchScroll}
-        />
-
-        {/* Section 2 Downwards - Video Background (rueda.mp4 Ping-Pong Loop) */}
-        <div className="relative w-full overflow-hidden">
-          {/* Background Video Layer with Boomerang / Ping-Pong Effect */}
-          <PingPongVideo
-            src="/rueda.mp4"
-            className="w-full h-full object-cover opacity-35 filter saturate-110 brightness-95"
-            overlayClassName="absolute inset-0 bg-gradient-to-b from-[#F8FAFC]/90 via-[#F8FAFC]/50 to-[#F8FAFC]/90 pointer-events-none"
-          />
-
-          {/* Content Layer on Top of Video */}
-          <div className="relative z-10 space-y-4">
-            {/* Floating Search Bar with Price & Sort */}
-            <FloatingSearchBar
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              selectedCategory={selectedCategory}
-              setSelectedCategory={(cat) => {
-                setSelectedCategory(cat);
-                if (cat !== 'all') setActiveTab(cat);
-              }}
-              selectedBrand={selectedBrand}
-              setSelectedBrand={setSelectedBrand}
-              selectedYear={selectedYear}
-              setSelectedYear={setSelectedYear}
-              selectedLocation={selectedLocation}
-              setSelectedLocation={setSelectedLocation}
-              minPrice={minPrice}
-              setMinPrice={setMinPrice}
-              maxPrice={maxPrice}
-              setMaxPrice={setMaxPrice}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-              onSearchSubmit={handleSearchScroll}
-              cardTheme={cardTheme}
+        {currentView === 'home' && (
+          <>
+            <HeroSection
+              onOpenPublishModal={() => setPublishModalOpen(true)}
+              onSearchScroll={handleSearchScroll}
             />
 
-            {/* Category Explorer */}
-            <CategoryExplorer
-              cardTheme={cardTheme}
-              selectedCategory={selectedCategory}
-              onSelectCategory={(catId) => {
-                setSelectedCategory(catId);
-                setActiveTab(catId);
-                handleSearchScroll();
-              }}
-            />
+            <div className="relative w-full overflow-hidden">
+              <PingPongVideo
+                src="/rueda.mp4"
+                className="w-full h-full object-cover opacity-35 filter saturate-110 brightness-95"
+                overlayClassName="absolute inset-0 bg-gradient-to-b from-[#F8FAFC]/90 via-[#F8FAFC]/50 to-[#F8FAFC]/90 pointer-events-none"
+              />
 
-            {/* Section Cut Divider: Rolling Wheel & Smoke */}
-            <WheelSectionDivider />
+              <div className="relative z-10 space-y-4">
+                <FloatingSearchBar
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  selectedCategory={selectedCategory}
+                  setSelectedCategory={(cat) => {
+                    setSelectedCategory(cat);
+                    if (cat !== 'all') setActiveTab(cat);
+                  }}
+                  selectedBrand={selectedBrand}
+                  setSelectedBrand={setSelectedBrand}
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                  selectedLocation={selectedLocation}
+                  setSelectedLocation={setSelectedLocation}
+                  minPrice={minPrice}
+                  setMinPrice={setMinPrice}
+                  maxPrice={maxPrice}
+                  setMaxPrice={setMaxPrice}
+                  sortBy={sortBy}
+                  setSortBy={setSortBy}
+                  onSearchSubmit={handleSearchScroll}
+                  cardTheme={cardTheme}
+                />
 
-            {/* Main Feed Section with Mundo Automotor Sidebar */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                {/* Sidebar Column */}
-                <div className="lg:col-span-3 lg:sticky lg:top-24 z-20">
-                  <MundoAutomotorSidebar
-                    cardTheme={cardTheme}
-                    activeRubro={activeRubro}
-                    onSelectRubro={(rubroId) => {
-                      setActiveRubro(rubroId);
-                      if (rubroId) {
-                        setBusinessDirectoryModalOpen(true);
-                      }
-                    }}
-                    onOpenRegisterBusiness={() => setRegisterBusinessModalOpen(true)}
-                  />
+                <CategoryExplorer
+                  cardTheme={cardTheme}
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={(catId) => {
+                    setSelectedCategory(catId);
+                    setActiveTab(catId);
+                    handleSearchScroll();
+                  }}
+                />
+
+                <WheelSectionDivider />
+
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <div className="lg:col-span-3 lg:sticky lg:top-24 z-20">
+                      <MundoAutomotorSidebar
+                        cardTheme={cardTheme}
+                        activeRubro={activeRubro}
+                        onSelectRubro={(rubroId) => {
+                          setActiveRubro(rubroId);
+                          if (rubroId) {
+                            setBusinessDirectoryModalOpen(true);
+                          }
+                        }}
+                        onOpenRegisterBusiness={() => setRegisterBusinessModalOpen(true)}
+                      />
+                    </div>
+
+                    <div className="lg:col-span-9">
+                      <FeaturedVehiclesFeed
+                        cardTheme={cardTheme}
+                        vehicles={filteredVehicles}
+                        favorites={favorites}
+                        onToggleFavorite={handleToggleFavorite}
+                        onOpenDetailModal={(v) => setDetailVehicle(v)}
+                        onWhatsAppContact={handleWhatsAppContact}
+                        onNavigateToAllVehicles={() => handleNavigate('vehicles', 'all', searchTerm)}
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                {/* Featured Feed Column */}
-                <div className="lg:col-span-9">
-                  <FeaturedVehiclesFeed
-                    cardTheme={cardTheme}
-                    vehicles={filteredVehicles}
-                    favorites={favorites}
-                    onToggleFavorite={handleToggleFavorite}
-                    onOpenDetailModal={(v) => setDetailVehicle(v)}
-                    onWhatsAppContact={handleWhatsAppContact}
-                    onNavigateToAllVehicles={() => handleNavigateToAllVehicles('all', searchTerm)}
-                  />
-                </div>
+                <WheelSectionDivider />
+
+                <MonetizationSection cardTheme={cardTheme} onOpenPublishModal={() => setPublishModalOpen(true)} />
+
+                <WheelSectionDivider />
               </div>
             </div>
+          </>
+        )}
 
-            {/* Section Cut Divider: Rolling Wheel & Smoke */}
-            <WheelSectionDivider />
+        {currentView === 'vehicles' && (
+          <AllVehiclesPage
+            vehicles={vehicles}
+            favorites={favorites}
+            onToggleFavorite={handleToggleFavorite}
+            onOpenDetailModal={(v) => setDetailVehicle(v)}
+            onWhatsAppContact={handleWhatsAppContact}
+            onBackToHome={() => handleNavigate('home')}
+            onOpenPublishModal={() => setPublishModalOpen(true)}
+            currentUser={currentUser}
+            onOpenAuthModal={() => handleOpenAuthPage('signup')}
+            onOpenDashboard={() => {
+              setCurrentView('dashboard');
+              window.location.hash = '#panel';
+            }}
+            onSignOut={handleSignOut}
+            cardTheme={cardTheme}
+            initialCategory={catalogCategory}
+            initialSearch={catalogSearch}
+          />
+        )}
 
-            {/* Monetization / Vender Section */}
-            <MonetizationSection cardTheme={cardTheme} onOpenPublishModal={() => setPublishModalOpen(true)} />
-            
-            {/* Section Cut Divider: Rolling Wheel & Smoke */}
-            <WheelSectionDivider />
-          </div>
-        </div>
+        {currentView === 'agencies' && (
+          <AgenciesPage
+            onBackToHome={() => handleNavigate('home')}
+            onSelectAgencyVehicles={(agencyName) => handleNavigate('vehicles', 'all', agencyName)}
+          />
+        )}
+
+        {currentView === 'businesses' && (
+          <BusinessesPage
+            onBackToHome={() => handleNavigate('home')}
+            onOpenRegisterBusiness={() => setRegisterBusinessModalOpen(true)}
+          />
+        )}
       </main>
 
-      {/* Proof & Trust Footer */}
+      {/* Footer Consistente en todas las páginas */}
       <ProofTrustFooter cardTheme={cardTheme} />
 
-      {/* Modals */}
+      {/* Modals compartidos */}
       <VehicleDetailModal
         vehicle={detailVehicle}
         onClose={() => setDetailVehicle(null)}
