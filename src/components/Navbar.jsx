@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Heart, PlusCircle, Menu, X, User, LogOut, ShieldCheck, Building2, Car, Wrench } from 'lucide-react';
 
-export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavoritesModal, currentUser, onOpenAuthModal, onSignOut }) {
+export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavoritesModal, currentUser, onOpenAuthModal, onOpenDashboard, onSignOut }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
 
@@ -69,11 +69,15 @@ export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavor
           {/* Acciones Derechas */}
           <div className="hidden md:flex items-center space-x-3">
             
-            {/* Estado de Sesión */}
+            {/* Estado de Sesión / Botón Mi Panel Admin */}
             {currentUser ? (
               <div className="flex items-center gap-2 bg-slate-900/90 border border-slate-800 rounded-2xl px-3 py-1.5">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-xl bg-[#6D28D9] text-white flex items-center justify-center font-bold text-xs">
+                <button
+                  onClick={onOpenDashboard}
+                  className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer text-left"
+                  title="Abrir Mi Panel Admin"
+                >
+                  <div className="w-7 h-7 rounded-xl bg-[#6D28D9] text-white flex items-center justify-center font-bold text-xs shadow-md">
                     {currentUser.profile?.full_name?.charAt(0) || 'U'}
                   </div>
                   <div className="flex flex-col">
@@ -82,11 +86,12 @@ export default function Navbar({ favoritesCount, onOpenPublishModal, onOpenFavor
                     </span>
                     {badgeInfo && (
                       <span className={`text-[9px] font-extrabold border px-1.5 py-0.2 rounded-md ${badgeInfo.color}`}>
-                        {badgeInfo.label}
+                        {badgeInfo.label} • Panel
                       </span>
                     )}
                   </div>
-                </div>
+                </button>
+
                 <button
                   onClick={onSignOut}
                   title="Cerrar sesión"

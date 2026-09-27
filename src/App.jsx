@@ -10,6 +10,7 @@ import VehicleDetailModal from './components/VehicleDetailModal';
 import PublishModal from './components/PublishModal';
 import FavoritesModal from './components/FavoritesModal';
 import AuthPage from './components/AuthPage';
+import UserDashboardPage from './components/UserDashboardPage';
 import RegisterBusinessModal from './components/RegisterBusinessModal';
 import BusinessDirectoryModal from './components/BusinessDirectoryModal';
 import ProofTrustFooter from './components/ProofTrustFooter';
@@ -19,7 +20,7 @@ import { MOCK_VEHICLES } from './data/mockVehicles';
 import { supabase } from './lib/supabase';
 
 export default function App() {
-  // Navigation View State: 'home' | 'auth'
+  // Navigation View State: 'home' | 'auth' | 'dashboard'
   const [currentView, setCurrentView] = useState('home');
   const [authMode, setAuthMode] = useState('signup'); // 'login' | 'signup'
 
@@ -39,7 +40,7 @@ export default function App() {
     return MOCK_VEHICLES;
   });
 
-  // Escuchar navegación por Hash (#auth, #login, #registro)
+  // Escuchar navegación por Hash (#auth, #login, #registro, #panel, #dashboard)
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash;
@@ -49,6 +50,8 @@ export default function App() {
       } else if (hash === '#registro' || hash === '#signup' || hash === '#auth') {
         setAuthMode('signup');
         setCurrentView('auth');
+      } else if (hash === '#panel' || hash === '#dashboard') {
+        setCurrentView('dashboard');
       }
     };
     handleHash();
@@ -420,6 +423,30 @@ export default function App() {
     );
   }
 
+  // Render Dedicated User Admin Dashboard Page when currentView === 'dashboard'
+  if (currentView === 'dashboard' && currentUser) {
+    return (
+      <UserDashboardPage
+        currentUser={currentUser}
+        onUpdateUser={(updatedUser) => {
+          setCurrentUser(updatedUser);
+          showToast('Perfil actualizado correctamente 🎉');
+        }}
+        onBackToHome={() => {
+          setCurrentView('home');
+          window.location.hash = '';
+        }}
+        onSignOut={handleSignOut}
+        onOpenPublishModal={() => setPublishModalOpen(true)}
+        vehicles={vehicles}
+        favorites={favorites}
+        onToggleFavorite={handleToggleFavorite}
+        onOpenDetailModal={(v) => setDetailVehicle(v)}
+        onWhatsAppContact={handleWhatsAppContact}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-[#6D28D9] selection:text-white">
       {/* Toast Notification */}
@@ -436,6 +463,10 @@ export default function App() {
         onOpenFavoritesModal={() => setFavoritesModalOpen(true)}
         currentUser={currentUser}
         onOpenAuthModal={() => handleOpenAuthPage('signup')}
+        onOpenDashboard={() => {
+          setCurrentView('dashboard');
+          window.location.hash = '#panel';
+        }}
         onSignOut={handleSignOut}
       />
 

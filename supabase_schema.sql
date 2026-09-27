@@ -15,11 +15,27 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   location_details TEXT,
   business_name TEXT,
   rubro TEXT,
+  address TEXT,
+  website_url TEXT,
+  instagram_url TEXT,
+  facebook_url TEXT,
+  business_hours TEXT,
+  bio TEXT,
+  avatar_url TEXT,
+  banner_url TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS location_details TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS website_url TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS instagram_url TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS facebook_url TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS business_hours TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS bio TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS banner_url TEXT;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 DO $$ BEGIN
