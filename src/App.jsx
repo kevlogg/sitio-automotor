@@ -153,8 +153,21 @@ export default function App() {
   const [businessDirectoryModalOpen, setBusinessDirectoryModalOpen] = useState(false);
 
   // Escuchar estado de autenticación en Supabase
+  // Escuchar estado de autenticación en Supabase y persistir perfil
   useEffect(() => {
     async function getInitialSession() {
+      try {
+        const cachedSession = localStorage.getItem('sa_session_profile');
+        if (cachedSession) {
+          const parsed = JSON.parse(cachedSession);
+          if (parsed && parsed.profile) {
+            setCurrentUser(parsed);
+          }
+        }
+      } catch (e) {
+        console.warn('Cache read err:', e);
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase
@@ -163,15 +176,25 @@ export default function App() {
           .eq('id', user.id)
           .maybeSingle();
 
-        setCurrentUser({
+        const resolvedType = profile?.user_type || user.user_metadata?.user_type || user.raw_user_meta_data?.user_type || 'particular';
+        const finalUserSession = {
           user,
-          profile: profile || {
+          profile: profile ? { ...profile, user_type: resolvedType } : {
             id: user.id,
             email: user.email,
             full_name: user.user_metadata?.full_name || 'Usuario',
-            user_type: user.user_metadata?.user_type || 'particular',
+            user_type: resolvedType,
+            phone_whatsapp: user.user_metadata?.phone_whatsapp || '',
+            business_name: user.user_metadata?.business_name || '',
           },
-        });
+        };
+
+        setCurrentUser(finalUserSession);
+        try {
+          localStorage.setItem('sa_session_profile', JSON.stringify(finalUserSession));
+        } catch (e) {
+          console.warn('Cache save err:', e);
+        }
       }
     }
     getInitialSession();
@@ -184,17 +207,30 @@ export default function App() {
           .eq('id', session.user.id)
           .maybeSingle();
 
-        setCurrentUser({
+        const resolvedType = profile?.user_type || session.user.user_metadata?.user_type || session.user.raw_user_meta_data?.user_type || 'particular';
+        const finalUserSession = {
           user: session.user,
-          profile: profile || {
+          profile: profile ? { ...profile, user_type: resolvedType } : {
             id: session.user.id,
             email: session.user.email,
             full_name: session.user.user_metadata?.full_name || 'Usuario',
-            user_type: session.user.user_metadata?.user_type || 'particular',
+            user_type: resolvedType,
+            phone_whatsapp: session.user.user_metadata?.phone_whatsapp || '',
+            business_name: session.user.user_metadata?.business_name || '',
           },
-        });
+        };
+
+        setCurrentUser(finalUserSession);
+        try {
+          localStorage.setItem('sa_session_profile', JSON.stringify(finalUserSession));
+        } catch (e) {
+          console.warn('Cache save err:', e);
+        }
       } else {
         setCurrentUser(null);
+        try {
+          localStorage.removeItem('sa_session_profile');
+        } catch (e) {}
       }
     });
 

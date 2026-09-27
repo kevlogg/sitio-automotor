@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   User, Building2, Wrench, Car, Phone, MapPin, Globe, 
   Clock, PlusCircle, CheckCircle2, AlertCircle, Loader2, ArrowLeft, LogOut, 
-  Eye, Edit3, Trash2, ShieldCheck, Sparkles, Store, Image, Heart, BarChart3, Layers, Share2
+  Eye, Edit3, Trash2, ShieldCheck, Sparkles, Store, Image, Heart, BarChart3, Layers, Share2, X, Check
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../data/locationData';
@@ -13,6 +13,7 @@ export default function UserDashboardPage({ currentUser, onUpdateUser, onBackToH
 
   const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'vehicles' | 'business' | 'favorites'
   const [locationType, setLocationType] = useState(profile.location_details ? 'multiple' : 'single');
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Form State for Profile Settings
   const [formData, setFormData] = useState({
@@ -339,35 +340,37 @@ export default function UserDashboardPage({ currentUser, onUpdateUser, onBackToH
 
               <form onSubmit={handleSaveProfile} className="space-y-5">
                 
-                {/* 0. Cambiar / Seleccionar Tipo de Perfil */}
-                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
-                  <label className="block text-xs font-bold text-slate-300">
-                    Tipo de Cuenta u Operación *
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { id: 'particular', label: 'Particular', icon: Car, color: 'bg-blue-500/20 text-blue-300 border-blue-500/40' },
-                      { id: 'agencia', label: 'Agencia', icon: Building2, color: 'bg-purple-500/20 text-purple-300 border-purple-500/40' },
-                      { id: 'negocio_automotor', label: 'Negocio', icon: Wrench, color: 'bg-amber-500/20 text-amber-300 border-amber-500/40' },
-                    ].map((item) => {
-                      const IconComp = item.icon;
-                      const isSel = userType === item.id;
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setUserType(item.id)}
-                          className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                            isSel
-                              ? `${item.color} shadow-lg ring-2 ring-purple-500/50 scale-[1.02]`
-                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
-                          }`}
-                        >
-                          <IconComp className="w-3.5 h-3.5" />
-                          <span>{item.label}</span>
-                        </button>
-                      );
-                    })}
+                {/* 0. Plan y Membresía Actual (Control de Cobros) */}
+                <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-950 via-slate-900 to-purple-950/40 border border-purple-500/30 space-y-3 shadow-lg">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-3 rounded-2xl border ${getBadgeColor()}`}>
+                        <TypeIcon className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Plan y Membresía Actual</span>
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-black">Activo</span>
+                        </div>
+                        <h4 className="text-base font-black text-white mt-0.5">
+                          {userType === 'agencia' ? 'Plan Agencia Pro' : userType === 'negocio_automotor' ? 'Plan Comercio Automotor' : 'Plan Particular Standard'}
+                        </h4>
+                        <p className="text-xs text-slate-400">
+                          {userType === 'agencia' && '$45.000 / mes • Publicaciones Ilimitadas + Insignia Verificada'}
+                          {userType === 'negocio_automotor' && '$25.000 / mes • Ficha destacada en Mundo Automotor'}
+                          {userType === 'particular' && '$15.000 / publicación • 30 días de visibilidad'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowUpgradeModal(true)}
+                      className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs shadow-md shadow-purple-900/30 transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+                      <span>Cambiar / Upgradear Plan</span>
+                    </button>
                   </div>
                 </div>
 
@@ -984,6 +987,231 @@ export default function UserDashboardPage({ currentUser, onUpdateUser, onBackToH
         )}
 
       </div>
+
+      {/* MODAL DE CAMBIO Y UPGRADE DE PLANES */}
+      {showUpgradeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
+          <div className="relative w-full max-w-4xl bg-[#0F172A] border border-purple-900/50 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 overflow-y-auto max-h-[90vh]">
+            <button
+              onClick={() => setShowUpgradeModal(false)}
+              className="absolute top-5 right-5 p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center space-y-2 max-w-xl mx-auto">
+              <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-black uppercase tracking-wider inline-flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Control de Suscripciones & Membresías
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                Elegí el Plan Ideal para tu Operación
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-400">
+                Los cambios de cuenta comercial o particular están regulados para garantizar las ventajas y cobros correspondientes a cada rubro.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+              
+              {/* PLAN 1: PARTICULAR */}
+              <div className={`rounded-3xl p-6 border flex flex-col justify-between space-y-6 transition-all ${
+                userType === 'particular'
+                  ? 'bg-slate-900 border-blue-500/50 ring-2 ring-blue-500/30 shadow-xl'
+                  : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+              }`}>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-1 rounded-xl bg-blue-500/20 text-blue-300 text-xs font-black flex items-center gap-1 border border-blue-500/30">
+                      <Car className="w-3.5 h-3.5" /> Particular
+                    </span>
+                    {userType === 'particular' && (
+                      <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                        Plan Actual
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-black text-white">$15.000</span>
+                      <span className="text-xs text-slate-400 font-bold">/ publicación</span>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-1">Para vendedores particulares de 1 auto o moto.</p>
+                  </div>
+
+                  <ul className="space-y-2 text-xs text-slate-300">
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                      <span>30 días de publicación visible</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                      <span>Consultas directas a tu WhatsApp</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                      <span>Galería de fotos y ficha técnica</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <button
+                  type="button"
+                  disabled={userType === 'particular'}
+                  onClick={() => {
+                    const msg = `Hola! Soy ${formData.fullName || 'Usuario'} (Email: ${currentUser?.user?.email}) y solicito pasar mi plan a Particular.`;
+                    window.open(`https://wa.me/5491134567890?text=${encodeURIComponent(msg)}`, '_blank');
+                  }}
+                  className={`w-full py-3 rounded-2xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+                    userType === 'particular'
+                      ? 'bg-slate-800 text-slate-500 cursor-default'
+                      : 'bg-slate-800 hover:bg-slate-700 text-white cursor-pointer'
+                  }`}
+                >
+                  {userType === 'particular' ? 'Tu Plan Actual' : 'Solicitar Plan Particular'}
+                </button>
+              </div>
+
+              {/* PLAN 2: AGENCIA PRO (RECOMENDADO) */}
+              <div className={`rounded-3xl p-6 border relative flex flex-col justify-between space-y-6 transition-all ${
+                userType === 'agencia'
+                  ? 'bg-gradient-to-b from-purple-950/60 to-slate-900 border-purple-500 ring-2 ring-purple-500/50 shadow-2xl'
+                  : 'bg-slate-900/80 border-purple-900/50 hover:border-purple-500/40'
+              }`}>
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-[#6D28D9] text-white text-[10px] font-black tracking-wider shadow-md uppercase">
+                  ⭐ Más Popular Concesionarias
+                </div>
+
+                <div className="space-y-4 pt-1">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-1 rounded-xl bg-purple-500/20 text-purple-300 text-xs font-black flex items-center gap-1 border border-purple-500/30">
+                      <Building2 className="w-3.5 h-3.5" /> Agencia Pro
+                    </span>
+                    {userType === 'agencia' && (
+                      <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                        Plan Actual
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-black text-white">$45.000</span>
+                      <span className="text-xs text-slate-400 font-bold">/ mes</span>
+                    </div>
+                    <p className="text-xs text-purple-300 mt-1">Suscripción mensual para concesionarias y agencias.</p>
+                  </div>
+
+                  <ul className="space-y-2 text-xs text-slate-300">
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+                      <span className="font-extrabold text-white">Publicaciones Ilimitadas</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+                      <span>Insignia de Agencia Verificada</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+                      <span>Perfil público con Banner y Logo</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+                      <span>Link institucional de inventario</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const msg = `Hola! Soy ${formData.businessName || formData.fullName || 'Usuario'} (Email: ${currentUser?.user?.email}) y quiero contratar/upgradear al plan AGENCIA PRO ($45.000/mes).`;
+                    window.open(`https://wa.me/5491134567890?text=${encodeURIComponent(msg)}`, '_blank');
+                  }}
+                  className={`w-full py-3.5 rounded-2xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg ${
+                    userType === 'agencia'
+                      ? 'bg-purple-900/60 text-purple-200 border border-purple-500/50'
+                      : 'bg-[#6D28D9] hover:bg-[#5B21B6] text-white shadow-purple-900/50'
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4 text-amber-300" />
+                  <span>{userType === 'agencia' ? 'Mantener / Renovar Plan Agencia' : 'Solicitar Upgrade Agencia Pro'}</span>
+                </button>
+              </div>
+
+              {/* PLAN 3: NEGOCIO AUTOMOTOR */}
+              <div className={`rounded-3xl p-6 border flex flex-col justify-between space-y-6 transition-all ${
+                userType === 'negocio_automotor'
+                  ? 'bg-slate-900 border-amber-500/50 ring-2 ring-amber-500/30 shadow-xl'
+                  : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+              }`}>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 text-xs font-black flex items-center gap-1 border border-amber-500/30">
+                      <Wrench className="w-3.5 h-3.5" /> Negocio Automotor
+                    </span>
+                    {userType === 'negocio_automotor' && (
+                      <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                        Plan Actual
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-black text-white">$25.000</span>
+                      <span className="text-xs text-slate-400 font-bold">/ mes</span>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-1">Para talleres, repuestos, detailing y servicios.</p>
+                  </div>
+
+                  <ul className="space-y-2 text-xs text-slate-300">
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                      <span className="font-extrabold text-white">Ficha en Mundo Automotor</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                      <span>Rubro específico o aclaración personalizada</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                      <span>Ubicaciones múltiples o venta online</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                      <span>Buscador y mapa por ciudad/provincia</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const msg = `Hola! Soy ${formData.businessName || formData.fullName || 'Usuario'} (Email: ${currentUser?.user?.email}) y quiero contratar/upgradear al plan NEGOCIO AUTOMOTOR ($25.000/mes).`;
+                    window.open(`https://wa.me/5491134567890?text=${encodeURIComponent(msg)}`, '_blank');
+                  }}
+                  className={`w-full py-3.5 rounded-2xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    userType === 'negocio_automotor'
+                      ? 'bg-amber-900/60 text-amber-200 border border-amber-500/50'
+                      : 'bg-amber-600 hover:bg-amber-500 text-white shadow-lg'
+                  }`}
+                >
+                  <Wrench className="w-4 h-4" />
+                  <span>{userType === 'negocio_automotor' ? 'Mantener / Renovar Plan Negocio' : 'Solicitar Upgrade Negocio'}</span>
+                </button>
+              </div>
+
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 text-center">
+              <p className="text-xs text-slate-400">
+                💡 <strong className="text-white">¿Tenés dudas o querés una factura A/B para tu empresa?</strong> Escribinos por WhatsApp o llamanos al área comercial para habilitar tu plan al instante.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
