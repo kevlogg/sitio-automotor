@@ -172,7 +172,17 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
       if (error) throw error;
 
       if (data.user) {
-        // Guardar o actualizar en la tabla profiles
+        // 1. Iniciar sesión inmediatamente para activar el token JWT / RLS
+        try {
+          await supabase.auth.signInWithPassword({
+            email: formData.email,
+            password: formData.password,
+          });
+        } catch (signInErr) {
+          console.warn('Auto sign-in tras signUp:', signInErr);
+        }
+
+        // 2. Guardar o actualizar en la tabla profiles con la sesión activa
         await supabase.from('profiles').upsert({
           id: data.user.id,
           email: formData.email,
@@ -186,7 +196,7 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
           rubro: finalRubro || null,
         });
 
-        // Si es un negocio automotor, también lo registramos en services_directory
+        // 3. Si es un negocio automotor, también lo registramos en services_directory
         if (userType === 'negocio_automotor' && formData.businessName) {
           await supabase.from('services_directory').insert([{
             rubro_id: formData.rubro === 'otro' ? 'otro' : formData.rubro,
@@ -198,34 +208,27 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
           }]);
         }
 
-      // Intentar ingresar inmediatamente sin requerir confirmación de email
-      try {
-        await supabase.auth.signInWithPassword({
+        setSuccessMsg(`¡Cuenta de ${userType === 'agencia' ? 'Agencia' : userType === 'negocio_automotor' ? 'Negocio' : 'Particular'} registrada e iniciada exitosamente! Bienvenido/a a Sitio Automotor.`);
+        
+        const createdProfile = {
+          id: data.user.id,
           email: formData.email,
-          password: formData.password,
-        });
-      } catch (signInErr) {
-        console.warn('Auto sign-in tras signUp:', signInErr);
-      }
+          full_name: formData.fullName,
+          user_type: userType,
+          phone_whatsapp: formData.phoneWhatsApp,
+          city: finalCity,
+          province: finalProvince,
+          location_details: finalLocationDetails,
+          business_name: formData.businessName,
+          rubro: finalRubro,
+        };
 
-      setSuccessMsg('¡Cuenta registrada e iniciada exitosamente! Bienvenido/a a Sitio Automotor.');
-      setTimeout(() => {
-        onAuthSuccess({
-          user: data.user || { id: 'usr-' + Date.now(), email: formData.email },
-          profile: {
-            id: data.user?.id || 'usr-' + Date.now(),
-            email: formData.email,
-            full_name: formData.fullName,
-            user_type: userType,
-            phone_whatsapp: formData.phoneWhatsApp,
-            city: finalCity,
-            province: finalProvince,
-            location_details: finalLocationDetails,
-            business_name: formData.businessName,
-            rubro: finalRubro,
-          },
-        });
-      }, 1000);
+        setTimeout(() => {
+          onAuthSuccess({
+            user: data.user,
+            profile: createdProfile,
+          });
+        }, 1000);
       }
     } catch (err) {
       setErrorMsg(err.message || 'Error al crear la cuenta. Por favor reintenta.');

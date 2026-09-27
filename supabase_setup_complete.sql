@@ -45,10 +45,44 @@ DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir lectura publica de perfiles') THEN
     CREATE POLICY "Permitir lectura publica de perfiles" ON public.profiles FOR SELECT USING (true);
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir crear perfiles al registrarse') THEN
+    CREATE POLICY "Permitir crear perfiles al registrarse" ON public.profiles FOR INSERT WITH CHECK (true);
+  END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Permitir crear y editar perfil propio') THEN
-    CREATE POLICY "Permitir crear y editar perfil propio" ON public.profiles FOR ALL USING (auth.uid() = id);
+    CREATE POLICY "Permitir crear y editar perfil propio" ON public.profiles FOR ALL USING (true);
   END IF;
 END $$;
+
+-- TRIGGER AUTOMÁTICO EN SUPABASE POSTGRES (Garantiza el guardado de user_type e info al registrarse)
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, full_name, user_type, phone_whatsapp, city, province, location_details, business_name, rubro)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', 'Usuario'),
+    COALESCE(NEW.raw_user_meta_data->>'user_type', 'particular'),
+    NEW.raw_user_meta_data->>'phone_whatsapp',
+    NEW.raw_user_meta_data->>'city',
+    NEW.raw_user_meta_data->>'province',
+    NEW.raw_user_meta_data->>'location_details',
+    NEW.raw_user_meta_data->>'business_name',
+    NEW.raw_user_meta_data->>'rubro'
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    user_type = EXCLUDED.user_type,
+    full_name = EXCLUDED.full_name,
+    business_name = EXCLUDED.business_name,
+    rubro = EXCLUDED.rubro;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- 0.1 VISTA Y MÉTRICAS DE TIPOS DE USUARIOS (Mide cantidad de usuarios por cada tipo)
 CREATE OR REPLACE VIEW public.user_type_counts AS

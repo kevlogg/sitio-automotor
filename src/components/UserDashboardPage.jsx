@@ -9,7 +9,7 @@ import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../data/locationData';
 
 export default function UserDashboardPage({ currentUser, onUpdateUser, onBackToHome, onSignOut, onOpenPublishModal, vehicles, favorites, onToggleFavorite, onOpenDetailModal, onWhatsAppContact }) {
   const profile = currentUser?.profile || {};
-  const userType = profile.user_type || 'particular';
+  const [userType, setUserType] = useState(profile.user_type || 'particular');
 
   const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'vehicles' | 'business' | 'favorites'
   const [locationType, setLocationType] = useState(profile.location_details ? 'multiple' : 'single');
@@ -339,6 +339,38 @@ export default function UserDashboardPage({ currentUser, onUpdateUser, onBackToH
 
               <form onSubmit={handleSaveProfile} className="space-y-5">
                 
+                {/* 0. Cambiar / Seleccionar Tipo de Perfil */}
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                  <label className="block text-xs font-bold text-slate-300">
+                    Tipo de Cuenta u Operación *
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: 'particular', label: 'Particular', icon: Car, color: 'bg-blue-500/20 text-blue-300 border-blue-500/40' },
+                      { id: 'agencia', label: 'Agencia', icon: Building2, color: 'bg-purple-500/20 text-purple-300 border-purple-500/40' },
+                      { id: 'negocio_automotor', label: 'Negocio', icon: Wrench, color: 'bg-amber-500/20 text-amber-300 border-amber-500/40' },
+                    ].map((item) => {
+                      const IconComp = item.icon;
+                      const isSel = userType === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setUserType(item.id)}
+                          className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                            isSel
+                              ? `${item.color} shadow-lg ring-2 ring-purple-500/50 scale-[1.02]`
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          <IconComp className="w-3.5 h-3.5" />
+                          <span>{item.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 {/* 1. Datos Personales / Nombre Fantasía */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
