@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import {
   Wrench, Phone, MapPin, Globe, Clock, CheckCircle2, AlertCircle, Loader2,
   ArrowLeft, LogOut, Eye, Edit3, ShieldCheck, Sparkles, Heart, X, Check,
-  Star, TrendingUp, Zap, Share2, BarChart3, PlusCircle, Camera, List
+  Zap, BarChart3, List, CreditCard
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../../data/locationData';
+import { submitPaymentClaim } from '../../lib/planUtils';
 
 const RUBROS = [
   { value: 'repuestos', label: 'Repuestos' },
@@ -23,7 +24,6 @@ const RUBROS = [
   { value: 'otro', label: 'Otro (Especificar)' },
 ];
 
-// Simple stat card
 function StatCard({ label, value, color }) {
   return (
     <div className={`p-5 rounded-2xl bg-[#0F172A] border ${color} space-y-1`}>
@@ -39,6 +39,12 @@ export default function DashboardNegocio({
   const profile = currentUser?.profile || {};
   const [activeTab, setActiveTab] = useState('perfil');
   const [locationType, setLocationType] = useState(profile.location_details ? 'multiple' : 'single');
+
+  // Plan state
+  const planStatus = profile.plan_status || null;
+  const currentPlanKey = profile.current_plan || null;
+  const [submittingPayment, setSubmittingPayment] = useState(false);
+  const [paymentClaimResult, setPaymentClaimResult] = useState({});
 
   const [formData, setFormData] = useState({
     fullName: profile.full_name || '',
@@ -58,7 +64,6 @@ export default function DashboardNegocio({
     bannerUrl: profile.banner_url || '',
     rubro: profile.rubro && !profile.rubro.startsWith('Otro:') ? profile.rubro : (profile.rubro ? 'otro' : 'talleres'),
     customRubro: profile.rubro?.startsWith('Otro:') ? profile.rubro.replace('Otro:', '').trim() : '',
-    services: profile.services || '',  // JSON string of service list or free text
   });
 
   const [saving, setSaving] = useState(false);
@@ -152,6 +157,28 @@ export default function DashboardNegocio({
     }
   };
 
+  const handlePaymentClaim = async (planKey) => {
+    setSubmittingPayment(true);
+    try {
+      await submitPaymentClaim({
+        userId: currentUser.user.id,
+        userEmail: currentUser.user.email,
+        userName: formData.businessName || formData.fullName || 'Sin nombre',
+        userType: 'negocio_automotor',
+        planKey,
+      });
+      onUpdateUser({
+        ...currentUser,
+        profile: { ...profile, plan_status: 'pending', current_plan: planKey },
+      });
+      setPaymentClaimResult(prev => ({ ...prev, [planKey]: 'success' }));
+    } catch (e) {
+      setPaymentClaimResult(prev => ({ ...prev, [planKey]: 'error' }));
+    } finally {
+      setSubmittingPayment(false);
+    }
+  };
+
   const myFavorites = vehicles.filter(v => favorites.includes(v.id));
   const rubroLabel = RUBROS.find(r => r.value === formData.rubro)?.label || formData.rubro;
 
@@ -160,7 +187,7 @@ export default function DashboardNegocio({
     { id: 'servicios', label: 'Servicios', icon: List },
     { id: 'estadisticas', label: 'Estadísticas', icon: BarChart3 },
     { id: 'favoritos', label: `Guardados (${myFavorites.length})`, icon: Heart },
-    { id: 'planes', label: 'Mi Plan', icon: Sparkles },
+    { id: 'planes', label: planStatus === 'pending' ? 'Plan — Pendiente' : planStatus === 'active' ? 'Mi Plan ✓' : 'Contratar Plan', icon: Sparkles },
   ];
 
   return (
@@ -179,11 +206,9 @@ export default function DashboardNegocio({
               <span className="text-sm font-black text-white">Panel de Negocio Automotor</span>
             </div>
           </div>
-
           <div className="flex items-center gap-3 cursor-pointer" onClick={onBackToHome}>
             <img src="/logofrase.png" alt="Sitio Automotor" className="h-11 w-auto object-contain" />
           </div>
-
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-2xl px-3 py-1.5">
               <div className="w-7 h-7 rounded-xl bg-amber-600 text-white flex items-center justify-center font-black text-xs overflow-hidden">
@@ -203,7 +228,7 @@ export default function DashboardNegocio({
 
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
-        {/* Hero Banner Negocio */}
+        {/* Hero Banner */}
         <div className="relative rounded-3xl bg-gradient-to-r from-amber-950/60 via-[#0F172A] to-slate-900 border border-amber-900/40 p-6 sm:p-8 shadow-2xl overflow-hidden">
           <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
           {formData.bannerUrl && (
@@ -228,7 +253,14 @@ export default function DashboardNegocio({
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                   {formData.businessName || formData.fullName || 'Tu Negocio'} 🔧
                 </h1>
-                <p className="text-xs text-slate-300">{formData.businessHours || 'Configurá tus horarios de atención'}</p>
+                {!planStatus && (
+                  <p className="text-xs text-amber-300 font-bold flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Sin plan activo. <button onClick={() => setActiveTab('planes')} className="underline cursor-pointer">Contratar plan</button> para aparecer en el directorio.
+                  </p>
+                )}
+                {planStatus === 'pending' && <p className="text-xs text-amber-300 font-bold flex items-center gap-2"><Clock className="w-3.5 h-3.5" /> Solicitud pendiente de verificación.</p>}
+                {planStatus === 'active' && <p className="text-xs text-emerald-300 font-bold">✅ Ficha activa en el directorio.</p>}
               </div>
             </div>
             <div className="flex items-center gap-2 bg-amber-950/50 border border-amber-500/30 rounded-2xl px-4 py-3">
@@ -284,7 +316,6 @@ export default function DashboardNegocio({
               )}
 
               <form onSubmit={handleSaveProfile} className="space-y-5">
-                {/* Nombre Responsable y Comercio */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1.5">Nombre del Responsable *</label>
@@ -300,7 +331,6 @@ export default function DashboardNegocio({
                   </div>
                 </div>
 
-                {/* Rubro */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1.5">Rubro Principal *</label>
@@ -317,7 +347,6 @@ export default function DashboardNegocio({
                   </div>
                 </div>
 
-                {/* Aclaración Rubro Otro */}
                 {formData.rubro === 'otro' && (
                   <div className="p-3.5 rounded-2xl bg-amber-950/40 border border-amber-500/40 space-y-1.5">
                     <label className="block text-xs font-extrabold text-amber-300">Aclaración Obligatoria del Rubro *</label>
@@ -327,7 +356,6 @@ export default function DashboardNegocio({
                   </div>
                 )}
 
-                {/* Horarios y Dirección */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1.5">Horarios de Atención</label>
@@ -343,7 +371,6 @@ export default function DashboardNegocio({
                   </div>
                 </div>
 
-                {/* Ubicación */}
                 <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
                   <label className="block text-xs font-bold text-slate-300">Ubicación del Negocio *</label>
                   <div className="grid grid-cols-2 gap-2">
@@ -400,7 +427,6 @@ export default function DashboardNegocio({
                   )}
                 </div>
 
-                {/* Redes Sociales */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-400 mb-1">Sitio Web</label>
@@ -422,7 +448,6 @@ export default function DashboardNegocio({
                   </div>
                 </div>
 
-                {/* Descripción de Servicios */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">Descripción de Servicios y Productos</label>
                   <textarea rows={4}
@@ -431,7 +456,6 @@ export default function DashboardNegocio({
                     className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:border-amber-500 focus:outline-none" />
                 </div>
 
-                {/* Logo y Banner */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1.5">URL de Logo del Local</label>
@@ -461,7 +485,6 @@ export default function DashboardNegocio({
                   <Eye className="w-4 h-4" /> Ficha en Mundo Automotor
                 </span>
               </div>
-
               <div className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl">
                 <div className="h-24 bg-gradient-to-r from-amber-900 via-orange-900 to-slate-900 relative">
                   {formData.bannerUrl ? (
@@ -510,14 +533,14 @@ export default function DashboardNegocio({
           <div className="space-y-6">
             <div>
               <h3 className="text-xl font-black text-white">Catálogo de Servicios</h3>
-              <p className="text-xs text-slate-400 mt-1">Listá los servicios que ofrecés con precios opcionales para que los clientes sepan qué esperarte.</p>
+              <p className="text-xs text-slate-400 mt-1">Listá los servicios que ofrecés con precios opcionales.</p>
             </div>
             <div className="bg-[#0F172A] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
               <div className="text-center py-10 space-y-4">
                 <List className="w-10 h-10 text-amber-600/50 mx-auto" />
                 <p className="text-white font-black">Catálogo de Servicios</p>
                 <p className="text-xs text-slate-400 max-w-md mx-auto">
-                  En breve podrás cargar servicios individuales con precios opcionales (ej. "Cambio de aceite y filtro — desde $12.000"). 
+                  En breve podrás cargar servicios individuales con precios opcionales.
                   <strong className="text-amber-300"> Próximamente disponible.</strong>
                 </p>
                 <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-300 max-w-md mx-auto">
@@ -533,7 +556,7 @@ export default function DashboardNegocio({
           <div className="space-y-6">
             <div>
               <h3 className="text-xl font-black text-white">Estadísticas del Perfil</h3>
-              <p className="text-xs text-slate-400 mt-1">Métricas de visibilidad y rendimiento de tu ficha en Mundo Automotor.</p>
+              <p className="text-xs text-slate-400 mt-1">Métricas de visibilidad de tu ficha en Mundo Automotor.</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <StatCard label="Visitas al perfil" value="—" color="border-amber-500/30" />
@@ -544,14 +567,11 @@ export default function DashboardNegocio({
             <div className="bg-[#0F172A] border border-slate-800 rounded-3xl p-8 text-center space-y-3">
               <BarChart3 className="w-10 h-10 text-slate-700 mx-auto" />
               <p className="text-white font-black">Estadísticas detalladas próximamente</p>
-              <p className="text-xs text-slate-400 max-w-md mx-auto">
-                El dashboard de métricas mostrará visitas al perfil, clics en WhatsApp y posicionamiento en búsquedas por zona/rubro.
-              </p>
             </div>
           </div>
         )}
 
-        {/* TAB: GUARDADOS / FAVORITOS */}
+        {/* TAB: GUARDADOS */}
         {activeTab === 'favoritos' && (
           <div className="space-y-6">
             <h3 className="text-xl font-black text-white">Vehículos Guardados</h3>
@@ -591,120 +611,123 @@ export default function DashboardNegocio({
         {/* TAB: PLANES */}
         {activeTab === 'planes' && (
           <div className="space-y-8">
-            {/* Plan actual */}
-            <div className="p-6 rounded-3xl bg-gradient-to-r from-amber-950/60 via-[#0F172A] to-slate-900 border border-amber-900/40 shadow-xl">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-2xl bg-amber-500/20 border border-amber-500/40">
-                    <Wrench className="w-7 h-7 text-amber-300" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Tu Plan Actual</span>
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-black">Activo</span>
-                    </div>
-                    <h4 className="text-lg font-black text-white">Plan Negocio Automotor — (Consultá tu nivel)</h4>
-                    <p className="text-xs text-slate-400">Base: $49.000/mes · Pro: $99.000/mes (perfil optimizado + beneficios)</p>
-                  </div>
+            {/* Estado actual del plan */}
+            {!planStatus ? (
+              <div className="p-6 rounded-3xl bg-gradient-to-r from-amber-950/60 via-[#0F172A] to-slate-900 border border-amber-700/40 shadow-xl flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="p-3 rounded-2xl bg-amber-500/20 border border-amber-500/40">
+                  <Sparkles className="w-7 h-7 text-amber-300" />
+                </div>
+                <div>
+                  <h4 className="text-lg font-black text-white">No tenés ningún plan activo</h4>
+                  <p className="text-xs text-slate-400 mt-0.5">Elegí el plan de Negocio Automotor para aparecer en el directorio de Mundo Automotor.</p>
                 </div>
               </div>
-            </div>
+            ) : planStatus === 'pending' ? (
+              <div className="p-6 rounded-3xl bg-amber-950/40 border border-amber-500/40 shadow-xl flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="p-3 rounded-2xl bg-amber-500/20 border border-amber-500/40">
+                  <Clock className="w-7 h-7 text-amber-300" />
+                </div>
+                <div>
+                  <h4 className="text-lg font-black text-white">Solicitud Pendiente de Verificación</h4>
+                  <p className="text-xs text-slate-400 mt-0.5">Declaraste el pago. El equipo verificará y activará tu ficha en breve.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 rounded-3xl bg-emerald-950/40 border border-emerald-500/40 shadow-xl flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="p-3 rounded-2xl bg-emerald-500/20 border border-emerald-500/40">
+                  <CheckCircle2 className="w-7 h-7 text-emerald-300" />
+                </div>
+                <div>
+                  <h4 className="text-lg font-black text-white">Plan de Negocio Activo ✓</h4>
+                  <p className="text-xs text-slate-400 mt-0.5">Tu ficha está activa y visible en el directorio de Mundo Automotor.</p>
+                </div>
+              </div>
+            )}
 
-            <div className="text-center space-y-2">
+            <div className="text-center space-y-1">
               <h2 className="text-2xl font-black text-white">Planes para Negocios Automotores</h2>
               <p className="text-sm text-slate-400">Gestioná tu visibilidad en el directorio de Mundo Automotor.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-              {/* Plan Base */}
-              <div className="rounded-3xl p-7 border bg-slate-900/80 border-amber-900/50 hover:border-amber-500/40 flex flex-col justify-between space-y-6 transition-all">
-                <div className="space-y-4">
-                  <span className="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 text-xs font-black flex items-center gap-1 border border-amber-500/30 w-fit">
-                    <Wrench className="w-3.5 h-3.5" /> Negocio Base
-                  </span>
-                  <div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-4xl font-black text-white">$49.000</span>
-                      <span className="text-xs text-slate-400 font-bold">/ mes</span>
+              {[
+                { key: 'negocio_base', title: 'Negocio Base', price: '$49.000', note: 'Ficha activa en el directorio de Mundo Automotor', features: ['Ficha en directorio de Negocios','Rubro categorizado y filtrable','Horarios y dirección','WhatsApp de contacto directo','Descripción de servicios','Logo del negocio'], disabled: ['Perfil optimizado y beneficios destacados'], isHighlighted: false },
+                { key: 'negocio_pro', title: 'Negocio Pro', price: '$99.000', note: 'Perfil optimizado + beneficios destacados', features: [{text:'Perfil optimizado y destacado',bold:true},{text:'Beneficios y posicionamiento premium',bold:true},'Todo lo del plan Base','Banner de portada del local','Estadísticas de visitas','Posicionamiento prioritario por zona'], disabled: [], isHighlighted: true },
+              ].map(plan => (
+                <div key={plan.key} className={`rounded-3xl p-7 border relative flex flex-col justify-between space-y-6 transition-all ${
+                  plan.isHighlighted
+                    ? 'bg-gradient-to-b from-amber-950/50 to-slate-900 border-amber-500 ring-2 ring-amber-500/40 shadow-2xl'
+                    : 'bg-slate-900/80 border-amber-900/50 hover:border-amber-500/40'
+                }`}>
+                  {plan.isHighlighted && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-0.5 rounded-full bg-amber-600 text-white text-[10px] font-black tracking-wider shadow-md uppercase whitespace-nowrap">
+                      ⭐ Pro — Perfil Optimizado
                     </div>
-                    <p className="text-xs text-amber-300 mt-1 font-bold">Ficha activa en el directorio de Mundo Automotor</p>
-                  </div>
-                  <ul className="space-y-2.5 text-xs text-slate-300">
-                    {[
-                      'Ficha en directorio de Negocios',
-                      'Rubro categorizado y filtrable',
-                      'Horarios y dirección del local',
-                      'WhatsApp de contacto directo',
-                      'Descripción de servicios',
-                      'Logo del negocio',
-                    ].map(item => (
-                      <li key={item} className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                    <li className="flex items-start gap-2 opacity-40"><X className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" /><span>Perfil optimizado y beneficios destacados</span></li>
-                  </ul>
-                </div>
-                <button
-                  onClick={() => {
-                    const msg = `Hola! Soy ${formData.businessName || formData.fullName || 'Usuario'} (Email: ${currentUser?.user?.email}) y quiero contratar/renovar el plan NEGOCIO BASE ($49.000/mes).`;
-                    window.open(`https://wa.me/5491134567890?text=${encodeURIComponent(msg)}`, '_blank');
-                  }}
-                  className="w-full py-4 rounded-2xl bg-amber-700 hover:bg-amber-600 text-white text-xs font-black flex items-center justify-center gap-2 cursor-pointer shadow-lg transition-all">
-                  <Wrench className="w-4 h-4" />
-                  Contratar / Renovar Plan Base
-                </button>
-              </div>
-
-              {/* Plan Pro */}
-              <div className="rounded-3xl p-7 border relative bg-gradient-to-b from-amber-950/50 to-slate-900 border-amber-500 ring-2 ring-amber-500/40 flex flex-col justify-between space-y-6 shadow-2xl">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-0.5 rounded-full bg-amber-600 text-white text-[10px] font-black tracking-wider shadow-md uppercase whitespace-nowrap">
-                  ⭐ Pro — Perfil Optimizado
-                </div>
-                <div className="space-y-4 pt-2">
-                  <span className="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 text-xs font-black flex items-center gap-1 border border-amber-500/30 w-fit">
-                    <Zap className="w-3.5 h-3.5" /> Negocio Pro
-                  </span>
-                  <div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-4xl font-black text-white">$99.000</span>
-                      <span className="text-xs text-slate-400 font-bold">/ mes</span>
+                  )}
+                  <div className="space-y-4 pt-1">
+                    <div className="flex items-center justify-between">
+                      <span className="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 text-xs font-black flex items-center gap-1.5 border border-amber-500/30">
+                        {plan.isHighlighted ? <Zap className="w-3.5 h-3.5" /> : <Wrench className="w-3.5 h-3.5" />}
+                        {plan.title}
+                      </span>
+                      {currentPlanKey === plan.key && planStatus === 'pending' && (
+                        <span className="text-[10px] font-black text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30 flex items-center gap-1"><Clock className="w-3 h-3" /> Pendiente</span>
+                      )}
+                      {currentPlanKey === plan.key && planStatus === 'active' && (
+                        <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">✓ Activo</span>
+                      )}
                     </div>
-                    <p className="text-xs text-amber-300 mt-1 font-bold">Perfil optimizado + beneficios destacados</p>
+                    <div>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-4xl font-black text-white">{plan.price}</span>
+                        <span className="text-xs text-slate-400 font-bold">/ mes</span>
+                      </div>
+                      <p className="text-xs text-amber-300 mt-1 font-bold">{plan.note}</p>
+                    </div>
+                    <ul className="space-y-2 text-xs text-slate-300">
+                      {plan.features.map((item, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <Check className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                          <span className={typeof item === 'object' && item.bold ? 'font-extrabold text-white' : ''}>{typeof item === 'object' ? item.text : item}</span>
+                        </li>
+                      ))}
+                      {plan.disabled.map(item => (
+                        <li key={item} className="flex items-start gap-2 opacity-40">
+                          <X className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" /><span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <ul className="space-y-2.5 text-xs text-slate-300">
-                    {[
-                      { text: 'Perfil optimizado y destacado', bold: true },
-                      { text: 'Beneficios y posicionamiento premium', bold: true },
-                      'Todo lo del plan Base',
-                      'Banner de portada del local',
-                      'Catálogo de servicios detallado',
-                      'Estadísticas de visitas al perfil',
-                      'Posicionamiento prioritario por zona',
-                    ].map((item, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-                        <span className={typeof item === 'object' && item.bold ? 'font-extrabold text-white' : ''}>{typeof item === 'object' ? item.text : item}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="space-y-2">
+                    {paymentClaimResult[plan.key] === 'success' ? (
+                      <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300 font-bold flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                        ¡Solicitud enviada! El equipo verificará tu pago y activará el plan.
+                      </div>
+                    ) : planStatus === 'pending' && currentPlanKey === plan.key ? (
+                      <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 font-bold flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                        Solicitud enviada. Esperando verificación del equipo.
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handlePaymentClaim(plan.key)}
+                        disabled={submittingPayment}
+                        className={`w-full py-4 rounded-2xl text-xs font-black flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 ${
+                          plan.isHighlighted ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-xl' : 'bg-amber-700 hover:bg-amber-600 text-white shadow-lg'
+                        }`}>
+                        {submittingPayment ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
+                        Ya pagué en efectivo / transferencia
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <button
-                  onClick={() => {
-                    const msg = `Hola! Soy ${formData.businessName || formData.fullName || 'Usuario'} (Email: ${currentUser?.user?.email}) y quiero contratar/upgradear al plan NEGOCIO PRO ($99.000/mes, perfil optimizado).`;
-                    window.open(`https://wa.me/5491134567890?text=${encodeURIComponent(msg)}`, '_blank');
-                  }}
-                  className="w-full py-4 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-black flex items-center justify-center gap-2 cursor-pointer shadow-xl transition-all">
-                  <Sparkles className="w-4 h-4" />
-                  Contratar / Upgradear a Pro
-                </button>
-              </div>
+              ))}
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-900/90 border border-amber-900/30 text-center">
               <p className="text-xs text-slate-400">
-                💡 <strong className="text-white">Los Negocios Automotores son un directorio completamente independiente al de compra-venta de autos.</strong> Si también querés vender vehículos, necesitás un plan de Agencia.
+                💡 <strong className="text-white">¿Cómo funciona?</strong> Realizá el pago al equipo comercial, luego hacé clic en <strong className="text-amber-300">"Ya pagué"</strong>. El equipo activará tu ficha en menos de 24 hs. <strong className="text-slate-300">Recordá: los Negocios Automotores son un directorio de servicios, independiente de la compra-venta de autos.</strong>
               </p>
             </div>
           </div>
