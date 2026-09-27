@@ -95,6 +95,7 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentU
 
     const newVehicle = {
       id: 'v-' + Date.now(),
+      userId: currentUser?.user?.id || null,
       title: formData.title || `${formData.brand} ${formData.model || 'Vehículo'}`,
       category: formData.category,
       categoryLabel: formData.category === 'autos' ? 'Autos' : formData.category === 'camionetas' ? 'Pick-ups' : formData.category === 'motos' ? 'Motos' : formData.category === 'camiones' ? 'Comerciales' : formData.category === 'nautica' ? 'Náutica' : 'Agro',

@@ -292,6 +292,7 @@ export default function App() {
         await supabase.from('leads').insert([
           {
             vehicle_id: vehicle.id,
+            user_id: currentUser?.user?.id || null,
             seller_whatsapp: cleanPhone
           }
         ]);
@@ -318,6 +319,7 @@ export default function App() {
     try {
       const { error } = await supabase.from('vehicles').insert([
         {
+          user_id: newVehicle.userId || currentUser?.user?.id || null,
           title: newVehicle.title,
           category: newVehicle.category,
           category_label: newVehicle.categoryLabel,

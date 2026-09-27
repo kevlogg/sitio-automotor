@@ -147,6 +147,23 @@ export default function DashboardNegocio({
 
       const { error } = await supabase.from('profiles').upsert(updatedProfile);
       if (error) console.warn('Upsert warning:', error.message);
+
+      // Sincronizar automáticamente en la tabla services_directory
+      try {
+        await supabase.from('services_directory').upsert({
+          user_id: currentUser.user.id,
+          name: formData.businessName,
+          rubro_id: formData.rubro === 'otro' ? 'otro' : formData.rubro,
+          city: finalCity,
+          province: finalProvince,
+          address: formData.address || null,
+          whatsapp: formData.phoneWhatsApp,
+          verified: true,
+        }, { onConflict: 'user_id' });
+      } catch (dirErr) {
+        console.warn('Sync a services_directory omitido:', dirErr);
+      }
+
       onUpdateUser({ ...currentUser, profile: updatedProfile });
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);

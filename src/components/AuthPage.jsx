@@ -199,6 +199,7 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
         // 3. Si es un negocio automotor, también lo registramos en services_directory
         if (userType === 'negocio_automotor' && formData.businessName) {
           await supabase.from('services_directory').insert([{
+            user_id: data.user.id,
             rubro_id: formData.rubro === 'otro' ? 'otro' : formData.rubro,
             name: formData.businessName,
             city: finalCity,
