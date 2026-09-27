@@ -16,13 +16,16 @@ import BusinessDirectoryModal from './components/BusinessDirectoryModal';
 import ProofTrustFooter from './components/ProofTrustFooter';
 import PingPongVideo from './components/PingPongVideo';
 import WheelSectionDivider from './components/WheelSectionDivider';
+import AllVehiclesPage from './components/AllVehiclesPage';
 import { MOCK_VEHICLES } from './data/mockVehicles';
 import { supabase } from './lib/supabase';
 
 export default function App() {
-  // Navigation View State: 'home' | 'auth' | 'dashboard'
+  // Navigation View State: 'home' | 'auth' | 'dashboard' | 'vehicles'
   const [currentView, setCurrentView] = useState('home');
   const [authMode, setAuthMode] = useState('signup'); // 'login' | 'signup'
+  const [catalogCategory, setCatalogCategory] = useState('all');
+  const [catalogSearch, setCatalogSearch] = useState('');
 
   // Vehicle state initialized with localStorage fallback
   const [vehicles, setVehicles] = useState(() => {
@@ -40,7 +43,7 @@ export default function App() {
     return MOCK_VEHICLES;
   });
 
-  // Escuchar navegación por Hash (#auth, #login, #registro, #panel, #dashboard)
+  // Escuchar navegación por Hash (#auth, #login, #registro, #panel, #dashboard, #vehiculos, #catalogo)
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash;
@@ -52,6 +55,8 @@ export default function App() {
         setCurrentView('auth');
       } else if (hash === '#panel' || hash === '#dashboard') {
         setCurrentView('dashboard');
+      } else if (hash === '#vehiculos' || hash === '#catalogo' || hash === '#todos-los-autos') {
+        setCurrentView('vehicles');
       }
     };
     handleHash();
@@ -249,6 +254,14 @@ export default function App() {
     setAuthMode(mode);
     setCurrentView('auth');
     window.location.hash = mode === 'login' ? '#ingresar' : '#registro';
+  };
+
+  const handleNavigateToAllVehicles = (cat = 'all', search = '') => {
+    setCatalogCategory(cat);
+    setCatalogSearch(search);
+    setCurrentView('vehicles');
+    window.location.hash = '#vehiculos';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Modal States
@@ -485,6 +498,53 @@ export default function App() {
     );
   }
 
+  // Render Dedicated All Vehicles Catalog Page when currentView === 'vehicles'
+  if (currentView === 'vehicles') {
+    return (
+      <>
+        <AllVehiclesPage
+          vehicles={vehicles}
+          favorites={favorites}
+          onToggleFavorite={handleToggleFavorite}
+          onOpenDetailModal={(v) => setDetailVehicle(v)}
+          onWhatsAppContact={handleWhatsAppContact}
+          onBackToHome={() => {
+            setCurrentView('home');
+            window.location.hash = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onOpenPublishModal={() => setPublishModalOpen(true)}
+          currentUser={currentUser}
+          onOpenAuthModal={() => handleOpenAuthPage('signup')}
+          onOpenDashboard={() => {
+            setCurrentView('dashboard');
+            window.location.hash = '#panel';
+          }}
+          onSignOut={handleSignOut}
+          cardTheme={cardTheme}
+          initialCategory={catalogCategory}
+          initialSearch={catalogSearch}
+        />
+
+        <VehicleDetailModal
+          vehicle={detailVehicle}
+          onClose={() => setDetailVehicle(null)}
+          isFavorite={detailVehicle ? favorites.includes(detailVehicle.id) : false}
+          onToggleFavorite={handleToggleFavorite}
+          onWhatsAppContact={handleWhatsAppContact}
+        />
+
+        <PublishModal
+          isOpen={publishModalOpen}
+          onClose={() => setPublishModalOpen(false)}
+          onVehicleAdded={handleAddVehicle}
+          currentUser={currentUser}
+          onRequireAuth={(mode) => handleOpenAuthPage(mode)}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-[#6D28D9] selection:text-white">
       {/* Toast Notification */}
@@ -593,6 +653,7 @@ export default function App() {
                     onToggleFavorite={handleToggleFavorite}
                     onOpenDetailModal={(v) => setDetailVehicle(v)}
                     onWhatsAppContact={handleWhatsAppContact}
+                    onNavigateToAllVehicles={() => handleNavigateToAllVehicles('all', searchTerm)}
                   />
                 </div>
               </div>
