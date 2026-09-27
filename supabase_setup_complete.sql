@@ -78,6 +78,10 @@ BEGIN
   ON CONFLICT (id) DO UPDATE SET
     user_type = EXCLUDED.user_type,
     full_name = EXCLUDED.full_name,
+    phone_whatsapp = EXCLUDED.phone_whatsapp,
+    city = EXCLUDED.city,
+    province = EXCLUDED.province,
+    location_details = EXCLUDED.location_details,
     business_name = EXCLUDED.business_name,
     rubro = EXCLUDED.rubro;
   RETURN NEW;
@@ -189,21 +193,40 @@ ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.plan_payment_requests ENABLE ROW LEVEL SECURITY;
 
 DO $$ BEGIN
+  -- Vehículos Policies
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='vehicles' AND policyname = 'Permitir lectura publica de vehículos activos') THEN
-    CREATE POLICY "Permitir lectura publica de vehículos activos" ON public.vehicles FOR SELECT USING (status = 'active');
+    CREATE POLICY "Permitir lectura publica de vehículos activos" ON public.vehicles FOR SELECT USING (status = 'active' OR auth.uid() = user_id);
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='vehicles' AND policyname = 'Permitir publicar vehículos de forma publica') THEN
     CREATE POLICY "Permitir publicar vehículos de forma publica" ON public.vehicles FOR INSERT WITH CHECK (true);
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='vehicles' AND policyname = 'Permitir editar vehiculo propio') THEN
+    CREATE POLICY "Permitir editar vehiculo propio" ON public.vehicles FOR UPDATE USING (auth.uid() = user_id OR user_id IS NULL);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='vehicles' AND policyname = 'Permitir eliminar vehiculo propio') THEN
+    CREATE POLICY "Permitir eliminar vehiculo propio" ON public.vehicles FOR DELETE USING (auth.uid() = user_id OR user_id IS NULL);
+  END IF;
+
+  -- Directorio Policies
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='services_directory' AND policyname = 'Permitir lectura publica del directorio de servicios') THEN
     CREATE POLICY "Permitir lectura publica del directorio de servicios" ON public.services_directory FOR SELECT USING (true);
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='services_directory' AND policyname = 'Permitir registrar negocios de forma publica') THEN
     CREATE POLICY "Permitir registrar negocios de forma publica" ON public.services_directory FOR INSERT WITH CHECK (true);
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='services_directory' AND policyname = 'Permitir editar negocio propio') THEN
+    CREATE POLICY "Permitir editar negocio propio" ON public.services_directory FOR UPDATE USING (auth.uid() = user_id OR user_id IS NULL);
+  END IF;
+
+  -- Leads Policies
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='leads' AND policyname = 'Permitir registrar leads por WhatsApp') THEN
     CREATE POLICY "Permitir registrar leads por WhatsApp" ON public.leads FOR INSERT WITH CHECK (true);
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='leads' AND policyname = 'Permitir ver leads propios') THEN
+    CREATE POLICY "Permitir ver leads propios" ON public.leads FOR SELECT USING (auth.uid() = user_id OR auth.uid() IS NOT NULL);
+  END IF;
+
+  -- Payment Requests Policies
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='plan_payment_requests' AND policyname = 'Users insert own payment requests') THEN
     CREATE POLICY "Users insert own payment requests" ON public.plan_payment_requests FOR INSERT WITH CHECK (auth.uid() = user_id);
   END IF;
