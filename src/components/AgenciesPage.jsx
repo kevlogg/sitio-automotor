@@ -172,7 +172,7 @@ export default function AgenciesPage({ onBackToHome, onSelectAgencyVehicles }) {
           agencyMap.set(a.business_name.toLowerCase(), { ...a, vehicles_count: 0 });
         });
 
-        // Merge real registered user profiles from Supabase
+        // Merge real registered user profiles from Supabase (ONLY IF plan_status === 'active')
         if (profileAgencies && profileAgencies.length > 0) {
           profileAgencies.forEach(p => {
             const key = (p.business_name || p.full_name || '').toLowerCase();
@@ -190,7 +190,7 @@ export default function AgenciesPage({ onBackToHome, onSelectAgencyVehicles }) {
                 banner_url: p.banner_url,
                 website_url: p.website_url,
                 user_type: 'agencia',
-                plan_status: p.plan_status || 'active',
+                plan_status: p.plan_status, // Respect exact DB plan_status (null/pending/active)
                 vehicles_count: 0
               });
             }
@@ -205,32 +205,17 @@ export default function AgenciesPage({ onBackToHome, onSelectAgencyVehicles }) {
               const key = v.seller_name.toLowerCase();
               if (agencyMap.has(key)) {
                 agencyMap.get(key).vehicles_count += 1;
-              } else {
-                const locParts = (v.location || '').split(',').map(s => s.trim());
-                agencyMap.set(key, {
-                  id: 'db-v-' + key.replace(/\s+/g, '-'),
-                  business_name: v.seller_name,
-                  full_name: v.seller_name,
-                  phone_whatsapp: v.seller_whatsapp,
-                  province: locParts[0] || 'Buenos Aires',
-                  city: locParts[1] || locParts[0] || 'CABA',
-                  address: v.location,
-                  bio: `Concesionaria con vehículos publicados en la plataforma. Especialista en stock seminuevo e inspeccionado.`,
-                  avatar_url: null,
-                  banner_url: v.image_url,
-                  user_type: 'agencia',
-                  plan_status: 'active',
-                  vehicles_count: 1
-                });
               }
             }
           });
         }
 
-        setAgencies(Array.from(agencyMap.values()));
+        // STRICT FILTER: Only show agencies with active plan contracted
+        const activeAgenciesOnly = Array.from(agencyMap.values()).filter(a => a.plan_status === 'active');
+        setAgencies(activeAgenciesOnly);
       } catch (err) {
         console.warn('Cargando agencias de la base de datos:', err);
-        setAgencies(REAL_DB_SEED_AGENCIES);
+        setAgencies(REAL_DB_SEED_AGENCIES.filter(a => a.plan_status === 'active'));
       } finally {
         setLoading(false);
       }

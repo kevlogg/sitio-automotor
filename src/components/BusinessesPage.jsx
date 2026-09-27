@@ -98,45 +98,44 @@ export default function BusinessesPage({ onBackToHome, onOpenRegisterBusiness })
     async function fetchBusinesses() {
       setLoading(true);
       try {
-        // 1. Fetch from services_directory table
+        // 1. Fetch from services_directory table (where plan_status = active)
         const { data: dbServices } = await supabase
           .from('services_directory')
           .select('*')
           .order('created_at', { ascending: false });
 
-        // 2. Fetch profiles registered as negocio_automotor
+        // 2. Fetch profiles registered as negocio_automotor with active plan
         const { data: profileBusinesses } = await supabase
           .from('profiles')
           .select('*')
-          .eq('user_type', 'negocio_automotor');
+          .eq('user_type', 'negocio_automotor')
+          .eq('plan_status', 'active');
 
         const businessMap = new Map();
 
-        // Populate seed items
-        SEED_BUSINESSES.forEach(b => {
-          businessMap.set(b.name.toLowerCase(), b);
-        });
-
-        // Merge DB services directory items
+        // Merge DB services directory items that are marked active
         if (dbServices && dbServices.length > 0) {
           dbServices.forEach(s => {
-            const key = s.name.toLowerCase();
-            businessMap.set(key, {
-              id: s.id,
-              name: s.name,
-              rubro_id: s.rubro_id || 'talleres',
-              address: s.address || 'Dirección comercial',
-              city: s.city,
-              province: s.province,
-              phone: s.phone || s.whatsapp,
-              whatsapp: s.whatsapp || '5491134567890',
-              rating: s.rating || 5.0,
-              verified: s.verified !== false,
-            });
+            if (s.plan_status === 'active') {
+              const key = s.name.toLowerCase();
+              businessMap.set(key, {
+                id: s.id,
+                name: s.name,
+                rubro_id: s.rubro_id || 'talleres',
+                address: s.address || 'Dirección comercial',
+                city: s.city,
+                province: s.province,
+                phone: s.phone || s.whatsapp,
+                whatsapp: s.whatsapp || '5491134567890',
+                rating: s.rating || 5.0,
+                verified: s.verified !== false,
+                plan_status: 'active',
+              });
+            }
           });
         }
 
-        // Merge registered negocio profiles
+        // Merge registered negocio profiles with ACTIVE plan only
         if (profileBusinesses && profileBusinesses.length > 0) {
           profileBusinesses.forEach(p => {
             const name = p.business_name || p.full_name || 'Negocio Automotor';
@@ -152,14 +151,17 @@ export default function BusinessesPage({ onBackToHome, onOpenRegisterBusiness })
               whatsapp: p.phone_whatsapp || '5491134567890',
               rating: 5.0,
               verified: true,
+              plan_status: 'active',
             });
           });
         }
 
-        setBusinesses(Array.from(businessMap.values()));
+        // STRICT FILTER: Only show businesses with plan_status === 'active'
+        const activeBusinessesOnly = Array.from(businessMap.values()).filter(b => b.plan_status === 'active');
+        setBusinesses(activeBusinessesOnly);
       } catch (err) {
         console.warn('Cargando negocios de la base de datos:', err);
-        setBusinesses(SEED_BUSINESSES);
+        setBusinesses([]);
       } finally {
         setLoading(false);
       }

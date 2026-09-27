@@ -71,9 +71,19 @@ export default function App() {
   }, []);
 
   // Fetch live vehicles from Supabase Cloud on mount
+  // Fetch live vehicles from Supabase Cloud on mount (ONLY FROM USERS WITH ACTIVE PLAN)
   useEffect(() => {
     async function fetchSupabaseVehicles() {
       try {
+        // 1. Fetch active profiles to verify active plans
+        const { data: activeProfiles } = await supabase
+          .from('profiles')
+          .select('id, plan_status')
+          .eq('plan_status', 'active');
+
+        const activeUserIds = new Set((activeProfiles || []).map(p => p.id));
+
+        // 2. Fetch vehicles from database
         const { data, error } = await supabase
           .from('vehicles')
           .select('*')
@@ -81,7 +91,14 @@ export default function App() {
           .order('created_at', { ascending: false });
 
         if (!error && data && data.length > 0) {
-          const formatted = data.map((v) => ({
+          // Filter out vehicles from users without active plan
+          const activeVehiclesOnly = data.filter((v) => {
+            if (v.plan_status === 'active') return true;
+            if (v.user_id) return activeUserIds.has(v.user_id);
+            return true; // Seed items with null user_id
+          });
+
+          const formatted = activeVehiclesOnly.map((v) => ({
             id: v.id,
             title: v.title,
             category: v.category,
@@ -105,7 +122,9 @@ export default function App() {
             image: v.image_url,
             images: v.images && v.images.length > 0 ? v.images : [v.image_url],
             description: v.description,
-            features: v.features || []
+            features: v.features || [],
+            userId: v.user_id,
+            planStatus: v.plan_status || (v.user_id ? (activeUserIds.has(v.user_id) ? 'active' : 'inactive') : 'active'),
           }));
           
           setVehicles((prev) => {
