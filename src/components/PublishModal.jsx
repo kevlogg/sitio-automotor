@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, CheckCircle2, Upload, PlusCircle, Loader2, ImagePlus, Lock, User, ArrowRight, Building2, Car } from 'lucide-react';
-import { PROVINCE_OPTIONS } from '../data/mockVehicles';
 import { uploadVehicleImage } from '../lib/supabase';
+import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../data/locationData';
 
 export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentUser, onRequireAuth }) {
   const [formData, setFormData] = useState({
@@ -16,7 +16,9 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentU
     transmission: 'Automática',
     price: '',
     priceCurrency: 'USD',
-    location: 'Buenos Aires, CABA',
+    province: 'Buenos Aires',
+    city: ARGENTINA_LOCATION_DATA['Buenos Aires'][0],
+    customCity: '',
     sellerType: 'Particular Verificado',
     sellerName: '',
     sellerWhatsApp: '',
@@ -87,6 +89,10 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentU
     const mainImage = uploadedUrls.length > 0 ? uploadedUrls[0] : defaultImage;
     const allImages = uploadedUrls.length > 0 ? uploadedUrls : [defaultImage];
 
+    const isCustomCity = formData.city.startsWith('Otra') || formData.city.startsWith('Otro');
+    const displayCity = isCustomCity ? (formData.customCity || 'Otra Localidad') : formData.city;
+    const finalLocation = `${formData.province}, ${displayCity}`;
+
     const newVehicle = {
       id: 'v-' + Date.now(),
       title: formData.title || `${formData.brand} ${formData.model || 'Vehículo'}`,
@@ -102,7 +108,7 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentU
       priceCurrency: formData.priceCurrency,
       price: parseInt(formData.price, 10) || 25000,
       formattedPrice: `${formData.priceCurrency} ${parseInt(formData.price || 25000, 10).toLocaleString('es-AR')}`,
-      location: formData.location,
+      location: finalLocation,
       sellerType: formData.sellerType,
       sellerName: formData.sellerName || 'Usuario Vendedor',
       sellerWhatsApp: formData.sellerWhatsApp || '5491112345678',
@@ -334,17 +340,60 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentU
 
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Ubicación / Provincia</label>
-              <select
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-xs focus:border-[#6D28D9] focus:bg-white focus:outline-none cursor-pointer"
-              >
-                {PROVINCE_OPTIONS.filter(p => p !== 'Todas las ubicaciones').map(p => (
-                  <option key={p} value={p}>{p}</option>
-                ))}
-              </select>
+            <div className="space-y-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+              <label className="block text-xs font-bold text-slate-800">Ubicación del Vehículo *</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* 1. PROVINCIA PRIMERO */}
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">1. Provincia *</label>
+                  <select
+                    value={formData.province}
+                    onChange={(e) => {
+                      const newProv = e.target.value;
+                      const cities = ARGENTINA_LOCATION_DATA[newProv] || [];
+                      setFormData((prev) => ({
+                        ...prev,
+                        province: newProv,
+                        city: cities[0] || '',
+                        customCity: '',
+                      }));
+                    }}
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-xs focus:border-[#6D28D9] focus:outline-none cursor-pointer"
+                  >
+                    {PROVINCES_LIST.map((p) => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 2. CIUDAD SEGUNDO */}
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">2. Ciudad / Localidad *</label>
+                  <select
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-xs focus:border-[#6D28D9] focus:outline-none cursor-pointer"
+                  >
+                    {(ARGENTINA_LOCATION_DATA[formData.province] || ['Otra ciudad / localidad']).map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {(formData.city.startsWith('Otra') || formData.city.startsWith('Otro')) && (
+                <div className="pt-1 animate-fadeIn">
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">Especificá el nombre de tu ciudad o localidad *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej. Villa General Belgrano, Tandil..."
+                    value={formData.customCity}
+                    onChange={(e) => setFormData({ ...formData, customCity: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-white border border-purple-300 rounded-xl text-slate-900 text-xs focus:border-[#6D28D9] focus:outline-none"
+                  />
+                </div>
+              )}
             </div>
 
             <div>

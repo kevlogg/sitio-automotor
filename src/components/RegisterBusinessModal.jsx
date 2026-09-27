@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Wrench, Building2, MapPin, Phone, CheckCircle2, Loader2, Sparkles, Store } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../data/locationData';
 
 export default function RegisterBusinessModal({ isOpen, onClose, onBusinessRegistered }) {
   const [locationType, setLocationType] = useState('single'); // 'single' | 'multiple'
@@ -10,8 +11,9 @@ export default function RegisterBusinessModal({ isOpen, onClose, onBusinessRegis
     customRubro: '',
     name: '',
     address: '',
-    city: 'Rosario',
     province: 'Santa Fe',
+    city: ARGENTINA_LOCATION_DATA['Santa Fe'][0],
+    customCity: '',
     locationDetails: '',
     phone: '',
     whatsapp: '',
@@ -40,7 +42,16 @@ export default function RegisterBusinessModal({ isOpen, onClose, onBusinessRegis
       return;
     }
 
-    const finalCity = locationType === 'multiple' ? 'Varias ubicaciones' : formData.city;
+    const isCustomCity = formData.city.startsWith('Otra') || formData.city.startsWith('Otro');
+    if (locationType === 'single' && isCustomCity && !formData.customCity.trim()) {
+      setErrorMsg('Por favor especifica el nombre de tu ciudad o localidad.');
+      setLoading(false);
+      return;
+    }
+
+    const finalCity = locationType === 'multiple' 
+      ? 'Varias ubicaciones' 
+      : (isCustomCity ? formData.customCity.trim() : formData.city);
     const finalProvince = locationType === 'multiple' ? 'Varias provincias / Online' : formData.province;
     const finalRubro = formData.rubroId === 'otro' ? `otro: ${formData.customRubro.trim()}` : formData.rubroId;
 
@@ -221,29 +232,65 @@ export default function RegisterBusinessModal({ isOpen, onClose, onBusinessRegis
               </div>
 
               {locationType === 'single' ? (
-                <div className="grid grid-cols-2 gap-3 pt-1">
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Ciudad *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ej. Rosario"
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:border-amber-500 focus:outline-none"
-                    />
+                <div className="space-y-3 pt-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* 1. PROVINCIA PRIMERO */}
+                    <div>
+                      <label className="block text-[11px] font-bold text-amber-300 mb-1">1. Provincia *</label>
+                      <select
+                        value={formData.province}
+                        onChange={(e) => {
+                          const newProv = e.target.value;
+                          const cities = ARGENTINA_LOCATION_DATA[newProv] || [];
+                          setFormData((prev) => ({
+                            ...prev,
+                            province: newProv,
+                            city: cities[0] || '',
+                            customCity: '',
+                          }));
+                        }}
+                        className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:border-amber-500 focus:outline-none cursor-pointer"
+                      >
+                        {PROVINCES_LIST.map((prov) => (
+                          <option key={prov} value={prov}>
+                            {prov}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* 2. CIUDAD SEGUNDO */}
+                    <div>
+                      <label className="block text-[11px] font-bold text-amber-300 mb-1">2. Ciudad / Localidad *</label>
+                      <select
+                        value={formData.city}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                        className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:border-amber-500 focus:outline-none cursor-pointer"
+                      >
+                        {(ARGENTINA_LOCATION_DATA[formData.province] || ['Otra ciudad / localidad']).map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Provincia *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ej. Santa Fe"
-                      value={formData.province}
-                      onChange={(e) => setFormData({ ...formData, province: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:border-amber-500 focus:outline-none"
-                    />
-                  </div>
+
+                  {(formData.city.startsWith('Otra') || formData.city.startsWith('Otro')) && (
+                    <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/40 space-y-1 animate-fadeIn">
+                      <label className="block text-[11px] font-bold text-amber-300">
+                        Especificá el nombre de tu ciudad o localidad *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Ej. Villa General Belgrano, El Chaltén..."
+                        value={formData.customCity}
+                        onChange={(e) => setFormData({ ...formData, customCity: e.target.value })}
+                        className="w-full px-3 py-2 bg-slate-950 border border-amber-500/50 rounded-xl text-xs text-white focus:border-amber-400 focus:outline-none"
+                      />
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-1.5 pt-1 animate-fadeIn">
