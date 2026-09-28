@@ -93,8 +93,7 @@ export default function HeroSection({ onOpenPublishModal, onSearchScroll }) {
           </div>
 
         </div>
-      </div>"
-
+      </div>
     </section>
   );
 }

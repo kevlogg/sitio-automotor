@@ -113,6 +113,11 @@ export default function BusinessesPage({ onBackToHome, onOpenRegisterBusiness })
 
         const businessMap = new Map();
 
+        // Populate seed businesses first
+        SEED_BUSINESSES.forEach(b => {
+          businessMap.set(b.name.toLowerCase(), { ...b, plan_status: 'active' });
+        });
+
         // Merge DB services directory items that are marked active
         if (dbServices && dbServices.length > 0) {
           dbServices.forEach(s => {
