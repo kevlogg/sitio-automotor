@@ -31,6 +31,8 @@ const SUPER_ADMIN_EMAILS = [
   'loggia.1996@gmail.com',
   'admin@sitioautomotor.com',
   'kevdev@sitioautomotor.com',
+  'arielcariati@gmail.com',
+  'gestioncobranzasbv@gmail.com',
 ];
 
 // ── Estilos ──────────────────────────────────────────────────────────────────
