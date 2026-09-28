@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Building2, Phone, MapPin, Globe, Clock, PlusCircle, CheckCircle2,
   AlertCircle, Loader2, ArrowLeft, LogOut, Eye, Edit3, Trash2,
-  ShieldCheck, Sparkles, Heart, X, Check, Car, TrendingUp, Zap, Share2, CreditCard
+  ShieldCheck, Sparkles, Heart, X, Check, Car, TrendingUp, Zap, Share2, CreditCard, Mail
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../../data/locationData';
@@ -24,6 +24,7 @@ export default function DashboardAgencia({
 
   const [formData, setFormData] = useState({
     fullName: profile.full_name || '',
+    email: profile.email || currentUser?.user?.email || '',
     businessName: profile.business_name || '',
     phoneWhatsApp: profile.phone_whatsapp || '',
     province: profile.province || 'Buenos Aires',
@@ -45,11 +46,13 @@ export default function DashboardAgencia({
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
-    if (currentUser?.profile) {
-      const p = currentUser.profile;
+    if (currentUser?.profile || currentUser?.user) {
+      const p = currentUser?.profile || {};
+      const u = currentUser?.user || {};
       setFormData(prev => ({
         ...prev,
         fullName: p.full_name || prev.fullName,
+        email: p.email || u.email || prev.email,
         businessName: p.business_name || prev.businessName,
         phoneWhatsApp: p.phone_whatsapp || prev.phoneWhatsApp,
         province: p.province || prev.province,
@@ -89,7 +92,7 @@ export default function DashboardAgencia({
     try {
       const updatedProfile = {
         id: currentUser.user.id,
-        email: currentUser.user.email,
+        email: formData.email || currentUser.user.email,
         full_name: formData.fullName,
         user_type: 'agencia',
         business_name: formData.businessName,
@@ -305,6 +308,16 @@ export default function DashboardAgencia({
                   </div>
                 </div>
 
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Correo Electrónico (Email) *</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                    <input type="email" required placeholder="agencia@ejemplo.com"
+                      value={formData.email} onChange={e => handleChange('email', e.target.value)}
+                      className="w-full pl-10 pr-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:border-purple-500 focus:outline-none" />
+                  </div>
+                </div>
+
                 {/* Ubicación */}
                 <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
                   <label className="block text-xs font-bold text-slate-300">Ubicación de la Agencia *</label>
@@ -459,6 +472,10 @@ export default function DashboardAgencia({
                         <span>{locationType === 'multiple' ? (formData.locationDetails || 'Varias sucursales') : `${formData.province}, ${formData.city}`}</span>
                       </div>
                       {formData.businessHours && <div className="flex items-center gap-2"><Clock className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" /><span>{formData.businessHours}</span></div>}
+                      <div className="flex items-center gap-2 text-slate-300 font-mono">
+                        <Mail className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
+                        <span>{formData.email || 'No ingresado'}</span>
+                      </div>
                       <div className="flex items-center gap-2 text-emerald-400 font-bold font-mono">
                         <Phone className="w-3.5 h-3.5 flex-shrink-0" />
                         <span>{formData.phoneWhatsApp || 'No ingresado'}</span>

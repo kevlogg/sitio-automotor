@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Car, Phone, MapPin, PlusCircle, CheckCircle2, AlertCircle, Loader2,
   ArrowLeft, LogOut, Eye, Edit3, Trash2, ShieldCheck, Sparkles,
-  Heart, X, Check, Building2, TrendingUp, Zap, Clock, CreditCard, Send
+  Heart, X, Check, Building2, TrendingUp, Zap, Clock, CreditCard, Send, Mail
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../../data/locationData';
@@ -122,6 +122,7 @@ export default function DashboardParticular({
 
   const [formData, setFormData] = useState({
     fullName: profile.full_name || '',
+    email: profile.email || currentUser?.user?.email || '',
     phoneWhatsApp: profile.phone_whatsapp || '',
     province: profile.province || 'Buenos Aires',
     city: profile.city || ARGENTINA_LOCATION_DATA['Buenos Aires'][0],
@@ -136,11 +137,13 @@ export default function DashboardParticular({
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
-    if (currentUser?.profile) {
-      const p = currentUser.profile;
+    if (currentUser?.profile || currentUser?.user) {
+      const p = currentUser?.profile || {};
+      const u = currentUser?.user || {};
       setFormData(prev => ({
         ...prev,
         fullName: p.full_name || prev.fullName,
+        email: p.email || u.email || prev.email,
         phoneWhatsApp: p.phone_whatsapp || prev.phoneWhatsApp,
         province: p.province || prev.province,
         city: p.city || prev.city,
@@ -175,7 +178,7 @@ export default function DashboardParticular({
     try {
       const updatedProfile = {
         id: currentUser.user.id,
-        email: currentUser.user.email,
+        email: formData.email || currentUser.user.email,
         full_name: formData.fullName,
         user_type: 'particular',
         phone_whatsapp: formData.phoneWhatsApp,
@@ -371,6 +374,16 @@ export default function DashboardParticular({
                   </div>
                 </div>
 
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Correo Electrónico (Email) *</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                    <input type="email" required placeholder="tuemail@ejemplo.com" value={formData.email}
+                      onChange={e => handleChange('email', e.target.value)}
+                      className="w-full pl-10 pr-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:border-blue-500 focus:outline-none" />
+                  </div>
+                </div>
+
                 <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
                   <label className="block text-xs font-bold text-slate-300">Ubicación *</label>
                   <div className="grid grid-cols-2 gap-2">
@@ -470,6 +483,10 @@ export default function DashboardParticular({
                     <MapPin className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
                     <span>{locationType === 'multiple' ? (formData.locationDetails || 'Varias ubicaciones') : `${formData.province}, ${formData.city.startsWith('Otra') ? formData.customCity || 'Otra ciudad' : formData.city}`}</span>
                   </div>
+                  <div className="flex items-center gap-2 text-slate-300 font-mono">
+                    <Mail className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                    <span>Email: {formData.email || 'No ingresado'}</span>
+                  </div>
                   <div className="flex items-center gap-2 text-emerald-400 font-bold font-mono">
                     <Phone className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>WhatsApp: {formData.phoneWhatsApp || 'No ingresado'}</span>
@@ -478,7 +495,7 @@ export default function DashboardParticular({
               </div>
               <div className="p-3 rounded-2xl bg-blue-950/40 border border-blue-500/30 text-xs text-blue-300 flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5 text-blue-400" />
-                <span>Las consultas sobre tus publicaciones llegan directamente a tu WhatsApp.</span>
+                <span>Las consultas sobre tus publicaciones llegan directamente a tu WhatsApp y Correo.</span>
               </div>
             </div>
           </div>
