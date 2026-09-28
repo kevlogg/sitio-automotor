@@ -563,26 +563,25 @@ export default function App() {
       {/* Main Content por Vista */}
       <main className="flex-1">
         {currentView === 'home' && (
-          <>
-            <HeroSection
-              onOpenPublishModal={() => setPublishModalOpen(true)}
-              onSearchScroll={handleSearchScroll}
+          <div className="relative w-full overflow-hidden bg-[#FAF7F2]">
+            {/* Checkered Racing Pattern Background Overlay in Brand Violet */}
+            <div 
+              className="absolute inset-0 opacity-[0.06] pointer-events-none"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='36' height='36' viewBox='0 0 36 36' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h18v18H0V0zm18 18h18v18H18V18z' fill='%236D28D9' fill-opacity='1'/%3E%3C/svg%3E")`,
+                backgroundSize: '28px 28px'
+              }}
             />
+            {/* Soft Glow Radial Accent */}
+            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-purple-200/20 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="relative w-full overflow-hidden bg-[#FAF7F2] border-y border-amber-900/10">
-              {/* Checkered Racing Pattern Background Overlay in Brand Violet */}
-              <div 
-                className="absolute inset-0 opacity-[0.06] pointer-events-none"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='36' height='36' viewBox='0 0 36 36' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h18v18H0V0zm18 18h18v18H18V18z' fill='%236D28D9' fill-opacity='1'/%3E%3C/svg%3E")`,
-                  backgroundSize: '28px 28px'
-                }}
+            <div className="relative z-10 space-y-4">
+              <HeroSection
+                onOpenPublishModal={() => setPublishModalOpen(true)}
+                onSearchScroll={handleSearchScroll}
               />
-              {/* Soft Glow Radial Accent */}
-              <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-purple-200/20 rounded-full blur-3xl pointer-events-none" />
 
-              <div className="relative z-10 space-y-4">
-                <FloatingSearchBar
+              <FloatingSearchBar
                   searchTerm={searchTerm}
                   setSearchTerm={setSearchTerm}
                   selectedCategory={selectedCategory}
@@ -660,8 +659,7 @@ export default function App() {
                 <WheelSectionDivider />
               </div>
             </div>
-          </>
-        )}
+          )}
 
         {currentView === 'vehicles' && (
           <AllVehiclesPage

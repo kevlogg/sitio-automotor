@@ -28,20 +28,23 @@ export default function HeroSection({ onOpenPublishModal, onSearchScroll }) {
   return (
     <section id="hero" className="relative w-full min-h-[520px] lg:min-h-[580px] flex items-center overflow-hidden py-12">
       
-      {/* Full Width Daylight Fleet Background Image - Multi-Vehicle Showcase */}
-      <div className="absolute inset-0 z-0">
+      {/* Full Width Daylight Fleet Background Image - Seamless Mask Fade to Continuous Checkered Bg */}
+      <div 
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{
+          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 35%, rgba(0,0,0,0.6) 65%, rgba(0,0,0,0.15) 88%, rgba(0,0,0,0) 100%)',
+          maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 35%, rgba(0,0,0,0.6) 65%, rgba(0,0,0,0.15) 88%, rgba(0,0,0,0) 100%)'
+        }}
+      >
         <img
           src={heroImageUrl}
           alt="Sitio Automotor Flota Vehicular Completa de Día"
-          className="w-full h-full object-cover object-center opacity-100 brightness-105 contrast-105"
+          className="w-full h-full object-cover object-center brightness-105 contrast-105"
           onError={() => setHeroImageUrl('/hero_daylight_fleet.png')}
         />
 
-        {/* Soft Left Gradient Overlay for Maximum Text Contrast (Directly on Image, No Card) */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-900/40 to-transparent w-full lg:w-2/3 pointer-events-none"></div>
-
-        {/* Smooth Difuminado Fade at the Bottom Transitioning Seamlessly to Cream #FAF7F2 */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-t from-[#FAF7F2] via-[#FAF7F2]/80 via-[#FAF7F2]/30 to-transparent pointer-events-none"></div>
+        {/* Soft Left Gradient Overlay for Maximum Text Contrast */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-900/45 to-transparent w-full lg:w-2/3"></div>
       </div>
 
       {/* Logo principal en el margen superior derecho del hero */}
