@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 export default function HeroSection({ onOpenPublishModal, onSearchScroll }) {
-  const [heroImageUrl, setHeroImageUrl] = useState('/hero_daylight_fleet.png');
+  const [heroImageUrl, setHeroImageUrl] = useState(
+    // Carga rápida desde localStorage como caché, luego Supabase overrides
+    localStorage.getItem('sa_hero_image_url') || '/hero_daylight_fleet.png'
+  );
 
-  // Leer imagen del hero configurada por el SuperAdmin
   useEffect(() => {
-    try {
-      const customUrl = localStorage.getItem('sa_hero_image_url');
-      if (customUrl && customUrl.trim()) {
-        setHeroImageUrl(customUrl.trim());
-      }
-    } catch {}
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('site_settings')
+          .select('value')
+          .eq('id', 'hero_image_url')
+          .maybeSingle();
+        if (data?.value?.trim()) {
+          setHeroImageUrl(data.value.trim());
+          localStorage.setItem('sa_hero_image_url', data.value.trim());
+        }
+      } catch {}
+    })();
   }, []);
+
 
   return (
     <section id="hero" className="relative w-full min-h-[520px] lg:min-h-[580px] flex items-center overflow-hidden py-12">
