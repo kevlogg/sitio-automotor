@@ -11,6 +11,7 @@ import PublishModal from './components/PublishModal';
 import FavoritesModal from './components/FavoritesModal';
 import AuthPage from './components/AuthPage';
 import UserDashboardPage from './components/UserDashboardPage';
+import SuperAdminPage from './components/SuperAdminPage';
 import RegisterBusinessModal from './components/RegisterBusinessModal';
 import BusinessDirectoryModal from './components/BusinessDirectoryModal';
 import ProofTrustFooter from './components/ProofTrustFooter';
@@ -23,7 +24,7 @@ import { MOCK_VEHICLES } from './data/mockVehicles';
 import { supabase } from './lib/supabase';
 
 export default function App() {
-  // Navigation View State: 'home' | 'auth' | 'dashboard' | 'vehicles' | 'agencies' | 'businesses'
+  // Navigation View State: 'home' | 'auth' | 'dashboard' | 'vehicles' | 'agencies' | 'businesses' | 'superadmin'
   const [currentView, setCurrentView] = useState('home');
   const [authMode, setAuthMode] = useState('signup'); // 'login' | 'signup'
   const [catalogCategory, setCatalogCategory] = useState('all');
@@ -63,6 +64,8 @@ export default function App() {
         setCurrentView('agencies');
       } else if (hash === '#negocios' || hash === '#servicios' || hash === '#directorio') {
         setCurrentView('businesses');
+      } else if (hash === '#superadmin' || hash === '#admin-total') {
+        setCurrentView('superadmin');
       }
     };
     handleHash();
@@ -286,6 +289,7 @@ export default function App() {
     if (viewId === 'vehicles') window.location.hash = '#vehiculos';
     else if (viewId === 'agencies') window.location.hash = '#agencias';
     else if (viewId === 'businesses') window.location.hash = '#negocios';
+    else if (viewId === 'superadmin') window.location.hash = '#superadmin';
     else window.location.hash = '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -513,6 +517,20 @@ export default function App() {
     );
   }
 
+  // Render SuperAdmin Panel when currentView === 'superadmin'
+  if (currentView === 'superadmin') {
+    return (
+      <SuperAdminPage
+        currentUser={currentUser}
+        onBackToHome={() => {
+          setCurrentView('home');
+          window.location.hash = '';
+        }}
+        onSignOut={handleSignOut}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-[#6D28D9] selection:text-white">
       {/* Toast Notification */}
@@ -532,6 +550,10 @@ export default function App() {
         onOpenDashboard={() => {
           setCurrentView('dashboard');
           window.location.hash = '#panel';
+        }}
+        onOpenSuperAdmin={() => {
+          setCurrentView('superadmin');
+          window.location.hash = '#superadmin';
         }}
         onSignOut={handleSignOut}
         currentView={currentView}
@@ -669,7 +691,14 @@ export default function App() {
       </main>
 
       {/* Footer Consistente en todas las páginas */}
-      <ProofTrustFooter cardTheme={cardTheme} />
+      <ProofTrustFooter
+        cardTheme={cardTheme}
+        onOpenSuperAdmin={() => {
+          setCurrentView('superadmin');
+          window.location.hash = '#superadmin';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
 
       {/* Modals compartidos */}
       <VehicleDetailModal

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PlusCircle, Menu, X, User, LogOut, Building2, Car, Wrench } from 'lucide-react';
+import { PlusCircle, Menu, X, User, LogOut, Building2, Car, Wrench, Shield } from 'lucide-react';
 
 export default function Navbar({
   favoritesCount,
@@ -8,6 +8,7 @@ export default function Navbar({
   currentUser,
   onOpenAuthModal,
   onOpenDashboard,
+  onOpenSuperAdmin,
   onSignOut,
   currentView = 'home',
   onNavigate
@@ -130,6 +131,17 @@ export default function Navbar({
                 >
                   <LogOut className="w-3.5 h-3.5" />
                 </button>
+
+                {/* SuperAdmin link — solo visible si tiene acceso */}
+                {onOpenSuperAdmin && (
+                  <button
+                    onClick={onOpenSuperAdmin}
+                    title="Panel SuperAdmin"
+                    className="p-1.5 rounded-lg hover:bg-violet-500/20 text-slate-700 hover:text-violet-400 transition-colors cursor-pointer"
+                  >
+                    <Shield className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
             ) : (
               <button

@@ -1,16 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 
 export default function HeroSection({ onOpenPublishModal, onSearchScroll }) {
+  const [heroImageUrl, setHeroImageUrl] = useState('/hero_daylight_fleet.png');
+
+  // Leer imagen del hero configurada por el SuperAdmin
+  useEffect(() => {
+    try {
+      const customUrl = localStorage.getItem('sa_hero_image_url');
+      if (customUrl && customUrl.trim()) {
+        setHeroImageUrl(customUrl.trim());
+      }
+    } catch {}
+  }, []);
+
   return (
     <section id="hero" className="relative w-full min-h-[520px] lg:min-h-[580px] flex items-center overflow-hidden py-12">
       
       {/* Full Width Daylight Fleet Background Image - Multi-Vehicle Showcase */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/hero_daylight_fleet.png"
+          src={heroImageUrl}
           alt="Sitio Automotor Flota Vehicular Completa de Día"
           className="w-full h-full object-cover object-center opacity-100 brightness-105 contrast-105"
+          onError={() => setHeroImageUrl('/hero_daylight_fleet.png')}
         />
 
         {/* Soft Left Gradient Overlay for Maximum Text Contrast (Directly on Image, No Card) */}
@@ -74,3 +87,4 @@ export default function HeroSection({ onOpenPublishModal, onSearchScroll }) {
     </section>
   );
 }
+
