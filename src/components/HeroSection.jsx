@@ -40,8 +40,8 @@ export default function HeroSection({ onOpenPublishModal, onSearchScroll }) {
         {/* Soft Left Gradient Overlay for Maximum Text Contrast (Directly on Image, No Card) */}
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-900/40 to-transparent w-full lg:w-2/3 pointer-events-none"></div>
 
-        {/* Smooth Difuminado Fade at the Bottom Transitioning Seamlessly to #F8FAFC */}
-        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#F8FAFC] to-transparent pointer-events-none"></div>
+        {/* Smooth Difuminado Fade at the Bottom Transitioning Seamlessly to Cream #FAF7F2 */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-t from-[#FAF7F2] via-[#FAF7F2]/80 via-[#FAF7F2]/30 to-transparent pointer-events-none"></div>
       </div>
 
       {/* Logo principal en el margen superior derecho del hero */}
