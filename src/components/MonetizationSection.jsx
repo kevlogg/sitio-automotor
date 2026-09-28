@@ -26,7 +26,7 @@ export default function MonetizationSection({
             ¿Qué querés hacer en <span className="text-[#6D28D9]">Sitio Automotor</span>?
           </h2>
           <p className="text-sm sm:text-base text-slate-600 font-semibold leading-relaxed">
-            Elegí la opción según tu objetivo. Tanto si vendés tu auto particular, gestionás el stock de tu agencia o querés hacer crecer tu comercio automotor.
+            Elegí la opción según tu objetivo: vender tu auto particular, gestionar el stock de tu agencia o hacer crecer tu negocio automotor.
           </p>
         </div>
 
@@ -118,7 +118,7 @@ export default function MonetizationSection({
                   <span className="text-3xl font-black font-mono text-white">Planes Pro</span>
                   <span className="text-xs text-slate-400 font-medium">desde $90.000/mes</span>
                 </div>
-                <p className="text-[11px] text-blue-300 font-bold">Ficha verificada con stock ilimitado</p>
+                <p className="text-[11px] text-blue-300 font-bold">Ficha verificada con catálogo de inventario</p>
               </div>
 
               <ul className="space-y-2.5 text-xs text-slate-200">
@@ -175,24 +175,24 @@ export default function MonetizationSection({
 
               <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-3xl font-black font-mono text-amber-400">Gratis</span>
-                  <span className="text-xs text-amber-200/80 font-medium">registro inicial</span>
+                  <span className="text-3xl font-black font-mono text-[#F59E0B]">$49.000</span>
+                  <span className="text-xs text-amber-200/80 font-medium">/ mes</span>
                 </div>
-                <p className="text-[11px] text-amber-300 font-bold">Aparecé en el directorio de tu ciudad</p>
+                <p className="text-[11px] text-amber-300 font-bold">Ficha activa en el directorio Mundo Automotor</p>
               </div>
 
               <ul className="space-y-2.5 text-xs text-amber-100">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <span>Ficha en el directorio oficial Mundo Automotor</span>
+                  <span>Ficha visible en el directorio oficial de Mundo Automotor</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <span>Conexión directa con clientes de tu zona</span>
+                  <span>Conexión directa con clientes de tu provincia y ciudad</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <span>Botón directo de consultas a tu WhatsApp</span>
+                  <span>Botón directo de consultas a tu WhatsApp comercial</span>
                 </li>
               </ul>
             </div>
@@ -203,7 +203,7 @@ export default function MonetizationSection({
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs shadow-lg shadow-amber-900/40 flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-98 border border-amber-300/40"
               >
                 <Sparkles className="w-4 h-4 text-amber-200" />
-                <span>Sumar mi negocio gratis</span>
+                <span>Registrar mi Comercio</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -222,7 +222,7 @@ export default function MonetizationSection({
                 Proceso 100% digital, directo y transparente
               </h4>
               <p className="text-xs text-slate-500 font-semibold mt-0.5">
-                Elegí tu perfil ➔ Cargá tus fotos o datos ➔ Recibí consultas directo a tu WhatsApp
+                Elegí tu perfil ➔ Registrá tus datos y plan ➔ Recibí consultas directo a tu WhatsApp
               </p>
             </div>
           </div>
@@ -238,7 +238,7 @@ export default function MonetizationSection({
               onClick={onOpenRegisterBusiness}
               className="flex-1 lg:flex-none px-6 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-md cursor-pointer transition-all whitespace-nowrap"
             >
-              Sumar Comercio Gratis
+              Registrar Comercio
             </button>
           </div>
         </div>

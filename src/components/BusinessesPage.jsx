@@ -252,7 +252,7 @@ export default function BusinessesPage({ onBackToHome, onOpenRegisterBusiness })
               className="px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs shadow-lg shadow-amber-900/30 flex items-center gap-2 border border-amber-300/40 cursor-pointer transition-all hover:scale-105 whitespace-nowrap"
             >
               <Sparkles className="w-4 h-4 text-amber-200" />
-              <span>+ Sumar mi Negocio Gratis</span>
+              <span>+ Sumar mi Comercio</span>
             </button>
           )}
         </div>

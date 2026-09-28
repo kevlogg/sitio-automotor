@@ -239,7 +239,7 @@ export default function BusinessDirectoryModal({ isOpen, onClose, activeRubro, o
             className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold text-xs shadow-md flex items-center gap-1.5 cursor-pointer hover:scale-105 transition-transform"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-            <span>Sumar mi negocio gratis</span>
+            <span>Sumar mi Comercio</span>
           </button>
         </div>
       </div>
