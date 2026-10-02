@@ -20,12 +20,30 @@ import WheelSectionDivider from './components/WheelSectionDivider';
 import AllVehiclesPage from './components/AllVehiclesPage';
 import AgenciesPage from './components/AgenciesPage';
 import BusinessesPage from './components/BusinessesPage';
+import ComingSoonPage from './components/ComingSoonPage';
 import { MOCK_VEHICLES } from './data/mockVehicles';
 import { supabase } from './lib/supabase';
 
 export default function App() {
-  // Navigation View State: 'home' | 'auth' | 'dashboard' | 'vehicles' | 'agencies' | 'businesses' | 'superadmin'
-  const [currentView, setCurrentView] = useState('home');
+  // Navigation View State: 'coming-soon' | 'home' | 'auth' | 'dashboard' | 'vehicles' | 'agencies' | 'businesses' | 'superadmin'
+  const [currentView, setCurrentView] = useState(() => {
+    const hash = window.location.hash.toLowerCase();
+    const path = window.location.pathname.toLowerCase();
+    const params = new URLSearchParams(window.location.search);
+    const viewParam = params.get('page') || params.get('view');
+    
+    if (hash === '#inicio' || hash === '#home' || path === '/inicio' || viewParam === 'inicio') {
+      return 'home';
+    }
+    if (hash === '#vehiculos' || hash === '#catalogo' || path === '/vehiculos') return 'vehicles';
+    if (hash === '#agencias' || hash === '#concesionarias' || path === '/agencias') return 'agencies';
+    if (hash === '#negocios' || hash === '#servicios' || path === '/negocios') return 'businesses';
+    if (hash === '#superadmin' || path === '/superadmin') return 'superadmin';
+    if (hash === '#panel' || hash === '#dashboard' || path === '/panel') return 'dashboard';
+    if (hash === '#registro' || hash === '#ingresar' || hash === '#auth' || path === '/auth') return 'auth';
+
+    return 'coming-soon';
+  });
   const [authMode, setAuthMode] = useState('signup'); // 'login' | 'signup'
   const [catalogCategory, setCatalogCategory] = useState('all');
   const [catalogSearch, setCatalogSearch] = useState('');
@@ -46,11 +64,19 @@ export default function App() {
     return MOCK_VEHICLES;
   });
 
-  // Escuchar navegación por Hash (#auth, #login, #registro, #panel, #dashboard, #vehiculos, #agencias, #negocios)
+  // Escuchar navegación por Hash (#inicio, #auth, #login, #registro, #panel, #dashboard, #vehiculos, #agencias, #negocios, #proximamente)
   useEffect(() => {
-    const handleHash = () => {
-      const hash = window.location.hash;
-      if (hash === '#login' || hash === '#ingresar') {
+    const handleUrl = () => {
+      const hash = window.location.hash.toLowerCase();
+      const path = window.location.pathname.toLowerCase();
+      const params = new URLSearchParams(window.location.search);
+      const viewParam = params.get('page') || params.get('view');
+
+      if (hash === '#inicio' || hash === '#home' || path === '/inicio' || viewParam === 'inicio') {
+        setCurrentView('home');
+      } else if (hash === '#proximamente' || hash === '#coming-soon') {
+        setCurrentView('coming-soon');
+      } else if (hash === '#login' || hash === '#ingresar') {
         setAuthMode('login');
         setCurrentView('auth');
       } else if (hash === '#registro' || hash === '#signup' || hash === '#auth') {
@@ -66,11 +92,17 @@ export default function App() {
         setCurrentView('businesses');
       } else if (hash === '#superadmin' || hash === '#admin-total') {
         setCurrentView('superadmin');
+      } else if (hash === '' && (path === '/' || path === '')) {
+        setCurrentView('coming-soon');
       }
     };
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
+    handleUrl();
+    window.addEventListener('hashchange', handleUrl);
+    window.addEventListener('popstate', handleUrl);
+    return () => {
+      window.removeEventListener('hashchange', handleUrl);
+      window.removeEventListener('popstate', handleUrl);
+    };
   }, []);
 
   // Fetch live vehicles from Supabase Cloud on mount
@@ -286,7 +318,9 @@ export default function App() {
     setCatalogCategory(cat);
     setCatalogSearch(search);
     setCurrentView(viewId);
-    if (viewId === 'vehicles') window.location.hash = '#vehiculos';
+    if (viewId === 'home') window.location.hash = '#inicio';
+    else if (viewId === 'coming-soon') window.location.hash = '#proximamente';
+    else if (viewId === 'vehicles') window.location.hash = '#vehiculos';
     else if (viewId === 'agencies') window.location.hash = '#agencias';
     else if (viewId === 'businesses') window.location.hash = '#negocios';
     else if (viewId === 'superadmin') window.location.hash = '#superadmin';
@@ -473,6 +507,15 @@ export default function App() {
     maxPrice,
     sortBy,
   ]);
+
+  // Render Dedicated Coming Soon Page when currentView === 'coming-soon'
+  if (currentView === 'coming-soon') {
+    return (
+      <ComingSoonPage
+        onGoToInicio={() => handleNavigate('home')}
+      />
+    );
+  }
 
   // Render Dedicated Auth Page when currentView === 'auth'
   if (currentView === 'auth') {
