@@ -4,6 +4,7 @@ import HeroSection from './components/HeroSection';
 import FloatingSearchBar from './components/FloatingSearchBar';
 import CategoryExplorer from './components/CategoryExplorer';
 import MundoAutomotorSidebar from './components/MundoAutomotorSidebar';
+import Sidebar from './components/Sidebar';
 import MonetizationSection from './components/MonetizationSection';
 import FeaturedVehiclesFeed from './components/FeaturedVehiclesFeed';
 import VehicleDetailModal from './components/VehicleDetailModal';
@@ -603,8 +604,30 @@ export default function App() {
         onNavigate={handleNavigate}
       />
 
-      {/* Main Content por Vista */}
-      <main className="flex-1">
+      {/* Main Content por Vista con Sidebar Izquierdo Completo */}
+      <div className="flex-1 flex max-w-[1700px] w-full mx-auto">
+        
+        {/* Barra Lateral Izquierda (Mundo Automotor / Categorías) */}
+        <div className="hidden lg:block shrink-0">
+          <Sidebar
+            selectedCategory={selectedCategory}
+            onSelectCategory={(catId) => {
+              setSelectedCategory(catId);
+              setActiveTab(catId);
+              handleSearchScroll();
+            }}
+            selectedService={activeRubro}
+            onSelectService={(rubroId) => {
+              setActiveRubro(rubroId);
+              if (rubroId) {
+                setBusinessDirectoryModalOpen(true);
+              }
+            }}
+          />
+        </div>
+
+        {/* Vista Principal */}
+        <main className="flex-1 min-w-0">
         {currentView === 'home' && (
           <div className="relative w-full overflow-hidden bg-[#FAF7F2]">
             {/* Checkered Racing Pattern Background Overlay in Brand Violet */}
@@ -740,6 +763,7 @@ export default function App() {
           />
         )}
       </main>
+      </div>
 
       {/* Footer Consistente en todas las páginas */}
       <ProofTrustFooter
