@@ -13,22 +13,14 @@ const ICON_MAP = {
 };
 
 export default function CategoryExplorer({ cardTheme = 'violet', selectedCategory, onSelectCategory }) {
-  const isDark = cardTheme === 'dark';
   const containerRef = useScrollReveal({ threshold: 0.1 });
-
   const delays = ['delay-75', 'delay-150', 'delay-200', 'delay-300', 'delay-400', 'delay-500'];
 
   return (
-    <section id="categorias" ref={containerRef} className="py-12 bg-transparent">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Centered Title */}
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 text-center mb-8 tracking-tight reveal-on-scroll">
-          Explorá por categoría
-        </h2>
-
-        {/* 6 Vertical Cards Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
+    <section id="categorias" ref={containerRef} className="w-full bg-transparent">
+      
+      {/* 6 Larger Category Cards without Shadow Overlays */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {CATEGORIES.map((cat, idx) => {
             const IconComponent = ICON_MAP[cat.iconName] || Car;
             const isSelected = selectedCategory === cat.id;
@@ -38,43 +30,32 @@ export default function CategoryExplorer({ cardTheme = 'violet', selectedCategor
               <div
                 key={cat.id}
                 onClick={() => onSelectCategory(isSelected ? 'all' : cat.id)}
-                className={`group rounded-2xl border overflow-hidden cursor-pointer flex flex-col reveal-on-scroll ${delayClass} transition-all duration-300 hover:-translate-y-1.5 shadow-xl hover:shadow-2xl hover:shadow-purple-950/70 ${
-                  isDark
-                    ? `bg-[#180E2E]/95 backdrop-blur-md hover:bg-[#231442] hover:border-purple-500 ${
-                        isSelected ? 'border-purple-400 ring-2 ring-purple-500/50 bg-[#281549]' : 'border-purple-900/60'
-                      }`
-                    : `bg-gradient-to-br from-[#261647] via-[#1E1138] to-[#160B2B] border-purple-700/70 hover:border-purple-400 hover:from-[#311C5B] hover:to-[#21113E] ${
-                        isSelected ? 'border-purple-400 ring-2 ring-purple-400/50 bg-[#2D1B54]' : ''
-                      }`
+                className={`group relative h-32 sm:h-40 lg:h-44 rounded-2xl overflow-hidden cursor-pointer reveal-on-scroll ${delayClass} transition-all duration-300 hover:-translate-y-1 border ${
+                  isSelected
+                    ? 'border-purple-600 ring-4 ring-purple-500/40 scale-[1.02]'
+                    : 'border-slate-300/80 hover:border-purple-500'
                 }`}
               >
-                {/* Top Image Container with overflow-hidden & smooth zoom */}
-                <div className="h-36 overflow-hidden bg-slate-900">
-                  <img
-                    src={cat.image}
-                    alt={cat.name}
-                    className="w-full h-full object-cover object-center group-hover:scale-106 scale-100 transition-transform duration-400 ease-out"
-                  />
-                </div>
+                {/* Clean Full Background Image (No Shadow / No Dark Gradient) */}
+                <img
+                  src={cat.image}
+                  alt={cat.name}
+                  className="w-full h-full object-cover object-center group-hover:scale-106 transition-transform duration-500 ease-out"
+                />
 
-                {/* Bottom Content */}
-                <div className="p-4 text-center flex-1 flex flex-col justify-between items-center space-y-2">
-                  <IconComponent className="w-6 h-6 text-purple-400 group-hover:text-purple-300 group-hover:scale-110 transition-all duration-300" />
-                  
-                  <h3 className="text-base font-extrabold text-white group-hover:text-purple-300 transition-colors">
-                    {cat.name}
-                  </h3>
-
-                  <span className="text-xs font-bold text-purple-300 underline-slide">
-                    Ver más
-                  </span>
+                {/* Clean Pill Label sitting on top of the image at bottom left */}
+                <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2 z-10">
+                  <div className="px-2.5 py-1.5 rounded-xl bg-black/60 backdrop-blur-md border border-white/30 flex items-center gap-2 shrink-0 group-hover:bg-[#6D28D9] group-hover:border-purple-400 transition-colors duration-300">
+                    <IconComponent className="w-4 h-4 text-white" />
+                    <span className="text-xs sm:text-sm font-black text-white tracking-wide truncate">
+                      {cat.name}
+                    </span>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
-
-      </div>
     </section>
   );
 }

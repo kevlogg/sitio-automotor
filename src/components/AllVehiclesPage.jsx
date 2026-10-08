@@ -366,7 +366,7 @@ export default function AllVehiclesPage({
               return (
                 <div
                   key={item.id}
-                  className="group rounded-2xl border overflow-hidden flex flex-col justify-between hover:-translate-y-1.5 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-purple-950/40 bg-gradient-to-br from-[#261647] via-[#1E1138] to-[#160B2B] border-purple-700/70 hover:border-purple-400 text-white"
+                  className="group rounded-2xl border-2 border-purple-300 hover:border-[#6D28D9] overflow-hidden flex flex-col justify-between hover:-translate-y-1.5 transition-all duration-300 shadow-lg shadow-purple-900/10 hover:shadow-2xl hover:shadow-purple-900/20 bg-white text-slate-900"
                 >
                   <div className="relative aspect-video overflow-hidden bg-slate-900 cursor-pointer" onClick={() => onOpenDetailModal(item)}>
                     <img
@@ -397,25 +397,25 @@ export default function AllVehiclesPage({
                     <div>
                       <h3
                         onClick={() => onOpenDetailModal(item)}
-                        className="text-sm font-extrabold text-white transition-colors cursor-pointer line-clamp-1 group-hover:text-purple-300"
+                        className="text-sm font-extrabold text-slate-900 transition-colors cursor-pointer line-clamp-1 group-hover:text-[#6D28D9]"
                       >
                         {item.title}
                       </h3>
 
-                      <p className="text-[11px] mt-1 font-semibold text-purple-200/80">
+                      <p className="text-[11px] mt-1 font-bold text-purple-900/70">
                         {item.year} • {item.mileage} • {item.location.split(',')[0]}
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t border-purple-800/60 flex items-center justify-between">
-                      <span className="text-sm font-black font-mono text-purple-300">
+                    <div className="pt-2 border-t border-purple-200/80 flex items-center justify-between">
+                      <span className="text-sm font-black font-mono text-[#6D28D9]">
                         US$ {item.price.toLocaleString('es-AR')}
                       </span>
 
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => onOpenDetailModal(item)}
-                          className="p-1.5 rounded-lg bg-purple-950/80 hover:bg-[#6D28D9] text-purple-200 hover:text-white border border-purple-800/50 transition-all duration-200 hover:scale-105 cursor-pointer"
+                          className="p-1.5 rounded-lg bg-purple-100 hover:bg-[#6D28D9] text-purple-700 hover:text-white border border-purple-300 transition-all duration-200 hover:scale-105 cursor-pointer"
                           title="Ver detalle"
                         >
                           <Eye className="w-3.5 h-3.5" />

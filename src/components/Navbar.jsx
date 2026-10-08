@@ -42,12 +42,12 @@ export default function Navbar({
 
   return (
     <header className="sticky top-0 z-50 bg-[#0D111A]/95 backdrop-blur-md border-b border-slate-800/80 transition-all duration-300 shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative flex items-center justify-between h-20">
           
-          {/* Logo con frase desde public/logofrase.png */}
+          {/* Logo en el margen izquierdo */}
           <div
-            className="flex items-center cursor-pointer"
+            className="flex items-center cursor-pointer shrink-0 z-10"
             onClick={() => {
               if (onNavigate) onNavigate('home');
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -77,15 +77,15 @@ export default function Navbar({
             )}
           </div>
 
-          {/* Links Centrales Desktop */}
-          <nav className="hidden lg:flex items-center space-x-2 xl:space-x-4">
+          {/* Links Centrales (Vehículos, Agencias, Negocios) - Perfectamente Centrados */}
+          <nav className="hidden lg:flex items-center space-x-3 xl:space-x-6 absolute left-1/2 -translate-x-1/2 z-10">
             {navLinks.map((link) => {
               const isActive = currentView === link.id;
               return (
                 <button
                   key={link.name}
                   onClick={() => handleNavClick(link.id, link.href)}
-                  className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                  className={`px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
                     isActive
                       ? 'bg-[#6D28D9] text-white shadow-md shadow-purple-900/40 border border-purple-400/40'
                       : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
@@ -97,8 +97,8 @@ export default function Navbar({
             })}
           </nav>
 
-          {/* Acciones Derechas */}
-          <div className="hidden md:flex items-center space-x-3">
+          {/* Acciones Derechas (Ingresar / Perfil y Publicar mi vehículo) en el margen derecho */}
+          <div className="hidden md:flex items-center space-x-3 shrink-0 z-10">
             
             {/* Estado de Sesión / Botón Mi Panel Admin */}
             {currentUser ? (

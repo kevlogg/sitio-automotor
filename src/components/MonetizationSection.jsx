@@ -13,8 +13,8 @@ export default function MonetizationSection({
   const containerRef = useScrollReveal({ threshold: 0.1 });
 
   return (
-    <section id="vender" ref={containerRef} className="py-16 sm:py-20 bg-transparent">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+    <section id="vender" ref={containerRef} className="w-full bg-transparent space-y-8">
+      <div>
         
         {/* Header Section */}
         <div className="text-center max-w-3xl mx-auto space-y-3 reveal-on-scroll">
@@ -239,7 +239,7 @@ export default function MonetizationSection({
         </div>
 
         {/* Bottom Banner: 3 Pasos sencillos y claros */}
-        <div className="reveal-on-scroll delay-300 p-6 sm:p-8 rounded-3xl bg-white/90 border border-stone-200 shadow-xl backdrop-blur-md flex flex-col lg:flex-row items-center justify-between gap-6">
+        <div className="reveal-on-scroll delay-300 mt-8 sm:mt-10 p-6 sm:p-8 rounded-3xl bg-white border-2 border-purple-300/80 shadow-xl shadow-purple-900/10 flex flex-col lg:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4 text-left">
             <div className="w-12 h-12 rounded-2xl bg-[#6D28D9] text-white flex items-center justify-center font-black text-xl shrink-0 shadow-lg shadow-purple-900/20">
               ⚡

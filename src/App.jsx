@@ -7,6 +7,7 @@ import MundoAutomotorSidebar from './components/MundoAutomotorSidebar';
 import Sidebar from './components/Sidebar';
 import MonetizationSection from './components/MonetizationSection';
 import FeaturedVehiclesFeed from './components/FeaturedVehiclesFeed';
+import LatestVehiclesScroll from './components/LatestVehiclesScroll';
 import VehicleDetailModal from './components/VehicleDetailModal';
 import PublishModal from './components/PublishModal';
 import FavoritesModal from './components/FavoritesModal';
@@ -22,6 +23,7 @@ import AllVehiclesPage from './components/AllVehiclesPage';
 import AgenciesPage from './components/AgenciesPage';
 import BusinessesPage from './components/BusinessesPage';
 import ComingSoonPage from './components/ComingSoonPage';
+import { LeftAdCard, RightAdCard } from './components/SideAdBanners';
 import { MOCK_VEHICLES } from './data/mockVehicles';
 import { supabase } from './lib/supabase';
 
@@ -604,32 +606,13 @@ export default function App() {
         onNavigate={handleNavigate}
       />
 
-      {/* Main Content por Vista con Sidebar Izquierdo Completo */}
-      <div className="flex-1 flex max-w-[1700px] w-full mx-auto">
+      {/* Main Content por Vista */}
+      <div className="flex-1 flex w-full mx-auto">
         
-        {/* Barra Lateral Izquierda (Mundo Automotor / Categorías) */}
-        <div className="hidden lg:block shrink-0">
-          <Sidebar
-            selectedCategory={selectedCategory}
-            onSelectCategory={(catId) => {
-              setSelectedCategory(catId);
-              setActiveTab(catId);
-              handleSearchScroll();
-            }}
-            selectedService={activeRubro}
-            onSelectService={(rubroId) => {
-              setActiveRubro(rubroId);
-              if (rubroId) {
-                setBusinessDirectoryModalOpen(true);
-              }
-            }}
-          />
-        </div>
-
         {/* Vista Principal */}
         <main className="flex-1 min-w-0">
         {currentView === 'home' && (
-          <div className="relative w-full overflow-hidden bg-[#FAF7F2]">
+          <div className="relative w-full bg-[#FAF7F2] overflow-x-clip">
             {/* Checkered Racing Pattern Background Overlay in Brand Violet */}
             <div 
               className="absolute inset-0 opacity-[0.06] pointer-events-none"
@@ -641,91 +624,119 @@ export default function App() {
             {/* Soft Glow Radial Accent */}
             <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-purple-200/20 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="relative z-10 space-y-4">
+            <div className="relative z-10">
+              {/* Hero Section (Fila Superior Completa) */}
               <HeroSection
                 onOpenPublishModal={() => setPublishModalOpen(true)}
                 onSearchScroll={handleSearchScroll}
               />
 
-              <FloatingSearchBar
-                  searchTerm={searchTerm}
-                  setSearchTerm={setSearchTerm}
-                  selectedCategory={selectedCategory}
-                  setSelectedCategory={(cat) => {
-                    setSelectedCategory(cat);
-                    if (cat !== 'all') setActiveTab(cat);
-                  }}
-                  selectedBrand={selectedBrand}
-                  setSelectedBrand={setSelectedBrand}
-                  selectedYear={selectedYear}
-                  setSelectedYear={setSelectedYear}
-                  selectedLocation={selectedLocation}
-                  setSelectedLocation={setSelectedLocation}
-                  minPrice={minPrice}
-                  setMinPrice={setMinPrice}
-                  maxPrice={maxPrice}
-                  setMaxPrice={setMaxPrice}
-                  sortBy={sortBy}
-                  setSortBy={setSortBy}
-                  onSearchSubmit={handleSearchScroll}
-                  cardTheme={cardTheme}
-                />
-
-                <CategoryExplorer
-                  cardTheme={cardTheme}
-                  selectedCategory={selectedCategory}
-                  onSelectCategory={(catId) => {
-                    setSelectedCategory(catId);
-                    setActiveTab(catId);
-                    handleSearchScroll();
-                  }}
-                />
-
-                <WheelSectionDivider />
-
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    <div className="lg:col-span-3 lg:sticky lg:top-24 z-20">
-                      <MundoAutomotorSidebar
-                        cardTheme={cardTheme}
-                        activeRubro={activeRubro}
-                        onSelectRubro={(rubroId) => {
-                          setActiveRubro(rubroId);
-                          if (rubroId) {
-                            setBusinessDirectoryModalOpen(true);
-                          }
-                        }}
-                        onOpenRegisterBusiness={() => setRegisterBusinessModalOpen(true)}
-                      />
-                    </div>
-
-                    <div className="lg:col-span-9">
-                      <FeaturedVehiclesFeed
-                        cardTheme={cardTheme}
-                        vehicles={filteredVehicles}
-                        favorites={favorites}
-                        onToggleFavorite={handleToggleFavorite}
-                        onOpenDetailModal={(v) => setDetailVehicle(v)}
-                        onWhatsAppContact={handleWhatsAppContact}
-                        onNavigateToAllVehicles={() => handleNavigate('vehicles', 'all', searchTerm)}
-                      />
-                    </div>
-                  </div>
+              {/* Fila Principal debajo del Hero con Publicidad a los Lados */}
+              <div className="flex justify-center items-start gap-4 xl:gap-6 px-2 sm:px-4 py-4 max-w-[1920px] mx-auto min-h-screen">
+                
+                {/* Publicidad Izquierda (arranca luego del Hero y acompaña hasta el footer) */}
+                <div className="hidden lg:block shrink-0 sticky top-24 z-30 self-start">
+                  <LeftAdCard onActionClick={() => handleNavigate('businesses')} />
                 </div>
 
-                <WheelSectionDivider />
+                {/* Contenido Central de la Página (Más Grande, Ancho y Espaciado Uniforme) */}
+                <div className="flex-1 min-w-0 max-w-[1550px] w-full space-y-6 sm:space-y-8">
+                  <FloatingSearchBar
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    selectedCategory={selectedCategory}
+                    setSelectedCategory={(cat) => {
+                      setSelectedCategory(cat);
+                      if (cat !== 'all') setActiveTab(cat);
+                    }}
+                    selectedBrand={selectedBrand}
+                    setSelectedBrand={setSelectedBrand}
+                    selectedYear={selectedYear}
+                    setSelectedYear={setSelectedYear}
+                    selectedLocation={selectedLocation}
+                    setSelectedLocation={setSelectedLocation}
+                    minPrice={minPrice}
+                    setMinPrice={setMinPrice}
+                    maxPrice={maxPrice}
+                    setMaxPrice={setMaxPrice}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    onSearchSubmit={handleSearchScroll}
+                    cardTheme={cardTheme}
+                  />
 
-                <MonetizationSection
-                  cardTheme={cardTheme}
-                  onOpenPublishModal={() => setPublishModalOpen(true)}
-                  onOpenRegisterBusiness={() => setRegisterBusinessModalOpen(true)}
-                  onOpenAuthModal={(mode) => handleOpenAuthPage(mode)}
-                />
+                  <CategoryExplorer
+                    cardTheme={cardTheme}
+                    selectedCategory={selectedCategory}
+                    onSelectCategory={(catId) => {
+                      setSelectedCategory(catId);
+                      setActiveTab(catId);
+                      handleSearchScroll();
+                    }}
+                  />
 
-                <WheelSectionDivider />
+                  <div className="w-full">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                      {/* Barra de menú Mundo Automotor alineada de arriba a abajo con los scrolls */}
+                      <div className="lg:col-span-4 xl:col-span-3 flex">
+                        <MundoAutomotorSidebar
+                          cardTheme={cardTheme}
+                          activeRubro={activeRubro}
+                          onSelectRubro={(rubroId) => {
+                            setActiveRubro(rubroId);
+                            if (rubroId && rubroId !== 'all') {
+                              setBusinessDirectoryModalOpen(true);
+                            }
+                          }}
+                          onOpenRegisterBusiness={() => setRegisterBusinessModalOpen(true)}
+                          onNavigateToBusinesses={() => handleNavigate('businesses')}
+                        />
+                      </div>
+
+                      {/* Scrolls horizontales de Vehículos y Negocios Destacados */}
+                      <div className="lg:col-span-8 xl:col-span-9 flex flex-col justify-between">
+                        <FeaturedVehiclesFeed
+                          cardTheme={cardTheme}
+                          vehicles={filteredVehicles}
+                          favorites={favorites}
+                          onToggleFavorite={handleToggleFavorite}
+                          onOpenDetailModal={(v) => setDetailVehicle(v)}
+                          onWhatsAppContact={handleWhatsAppContact}
+                          onNavigateToAllVehicles={() => handleNavigate('vehicles', 'all', searchTerm)}
+                          onNavigateToBusinesses={() => handleNavigate('businesses')}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Scroll Horizontal de Últimos Vehículos Publicados */}
+                  <LatestVehiclesScroll
+                    vehicles={vehicles}
+                    favorites={favorites}
+                    onToggleFavorite={handleToggleFavorite}
+                    onOpenDetailModal={(v) => setDetailVehicle(v)}
+                    onWhatsAppContact={handleWhatsAppContact}
+                    onNavigateToAllVehicles={() => handleNavigate('vehicles', 'all', searchTerm)}
+                  />
+
+                  <MonetizationSection
+                    cardTheme={cardTheme}
+                    onOpenPublishModal={() => setPublishModalOpen(true)}
+                    onOpenRegisterBusiness={() => setRegisterBusinessModalOpen(true)}
+                    onOpenAuthModal={(mode) => handleOpenAuthPage(mode)}
+                  />
+                </div>
+
+                {/* Publicidad Derecha (arranca luego del Hero y acompaña hasta el footer) */}
+                <div className="hidden lg:block shrink-0 sticky top-24 z-30 self-start">
+                  <RightAdCard onActionClick={() => setPublishModalOpen(true)} />
+                </div>
+
               </div>
+
             </div>
-          )}
+          </div>
+        )}
 
         {currentView === 'vehicles' && (
           <AllVehiclesPage

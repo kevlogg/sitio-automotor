@@ -24,16 +24,15 @@ export default function HeroSection({ onOpenPublishModal, onSearchScroll }) {
     })();
   }, []);
 
-
   return (
-    <section id="hero" className="relative w-full min-h-[520px] lg:min-h-[580px] flex items-center overflow-hidden py-12">
+    <section id="hero" className="relative w-full min-h-[220px] sm:min-h-[280px] lg:min-h-[340px] flex items-center overflow-hidden">
       
-      {/* Full Width Daylight Fleet Background Image - Seamless Mask Fade to Continuous Checkered Bg */}
+      {/* Full Width Daylight Fleet Background Image - Fade starts much lower (94%) */}
       <div 
         className="absolute inset-0 z-0 pointer-events-none"
         style={{
-          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 35%, rgba(0,0,0,0.6) 65%, rgba(0,0,0,0.15) 88%, rgba(0,0,0,0) 100%)',
-          maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 35%, rgba(0,0,0,0.6) 65%, rgba(0,0,0,0.15) 88%, rgba(0,0,0,0) 100%)'
+          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 94%, rgba(0,0,0,0) 100%)',
+          maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 94%, rgba(0,0,0,0) 100%)'
         }}
       >
         <img
@@ -42,60 +41,8 @@ export default function HeroSection({ onOpenPublishModal, onSearchScroll }) {
           className="w-full h-full object-cover object-center brightness-105 contrast-105"
           onError={() => setHeroImageUrl('/hero_daylight_fleet.png')}
         />
-
-        {/* Soft Left Gradient Overlay for Maximum Text Contrast */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-900/45 to-transparent w-full lg:w-2/3"></div>
-      </div>
-
-      {/* Logo principal en el margen superior derecho del hero */}
-      <div className="absolute top-4 right-4 sm:top-6 sm:right-8 lg:top-8 lg:right-12 z-20 animate-hero-reveal delay-200">
-        <img
-          src="/logo.png"
-          alt="Sitio Automotor Logo Principal"
-          className="h-24 sm:h-32 lg:h-44 xl:h-52 w-auto object-contain drop-shadow-[0_15px_20px_rgba(0,0,0,0.85)] filter brightness-110 hover:scale-105 transition-transform duration-300"
-        />
-      </div>
-
-      {/* Hero Content directly on top of image */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="max-w-2xl text-left space-y-6">
-          
-          {/* Title */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] drop-shadow-xl animate-hero-reveal delay-75">
-            Todo el mundo <br />
-            automotor <br />
-            <span className="text-[#A78BFA] drop-shadow-md">en un solo sitio.</span>
-          </h1>
-
-          {/* Subtitle */}
-          <p className="text-slate-100 text-sm sm:text-base leading-relaxed font-semibold drop-shadow-md max-w-xl animate-hero-reveal delay-150">
-            Autos, camionetas, motos, camiones y náutica.<br />
-            Comprá, vendé y conectate con agencias y particulares verificados.
-          </p>
-
-          {/* Buttons Row */}
-          <div className="flex flex-wrap items-center gap-4 pt-2 animate-hero-reveal delay-250">
-            
-            {/* Primary Search Button */}
-            <button
-              onClick={onSearchScroll}
-              className="px-6 py-3.5 rounded-xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-bold text-sm shadow-xl shadow-purple-900/40 transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-700/60 active:scale-[0.98] flex items-center gap-2 border border-purple-400/40 cursor-pointer"
-            >
-              <Search className="w-4 h-4" />
-              <span>Buscar vehículos</span>
-            </button>
-
-            {/* Secondary Publish Button */}
-            <button
-              onClick={onOpenPublishModal}
-              className="px-6 py-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-900 text-white font-bold text-sm border border-slate-700/80 backdrop-blur-md shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:bg-slate-950 active:scale-[0.98] cursor-pointer"
-            >
-              <span>Publicar mi vehículo</span>
-            </button>
-
-          </div>
-
-        </div>
+        {/* Soft bottom color transition starting very low */}
+        <div className="absolute bottom-0 inset-x-0 h-8 bg-gradient-to-t from-[#FAF7F2] to-transparent"></div>
       </div>
     </section>
   );

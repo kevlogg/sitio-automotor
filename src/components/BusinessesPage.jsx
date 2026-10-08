@@ -24,11 +24,12 @@ const RUBRO_OPTIONS = [
   { id: 'gestorias', label: 'Gestorías' },
 ];
 
-const SEED_BUSINESSES = [
+export const SEED_BUSINESSES = [
   {
     id: 'b-1',
     name: 'Taller Mecánico Especializado San Martín',
     rubro_id: 'talleres',
+    rubroLabel: 'Taller Mecánico',
     address: 'Av. Pellegrini 1840',
     city: 'Rosario',
     province: 'Santa Fe',
@@ -36,11 +37,13 @@ const SEED_BUSINESSES = [
     whatsapp: '5493415550199',
     rating: 4.9,
     verified: true,
+    image: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 'b-2',
     name: 'Repuestos El Rayo Originales',
     rubro_id: 'repuestos',
+    rubroLabel: 'Repuestos & Accesorios',
     address: 'Av. Mitre 450',
     city: 'Rosario',
     province: 'Santa Fe',
@@ -48,11 +51,13 @@ const SEED_BUSINESSES = [
     whatsapp: '5493415550299',
     rating: 5.0,
     verified: true,
+    image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 'b-3',
     name: 'Lubricentro Express Premium',
     rubro_id: 'lubricentros',
+    rubroLabel: 'Lubricentro',
     address: 'Av. Juan B. Justo 2100',
     city: 'Buenos Aires',
     province: 'Buenos Aires',
@@ -60,11 +65,13 @@ const SEED_BUSINESSES = [
     whatsapp: '5491133445566',
     rating: 4.8,
     verified: true,
+    image: 'https://images.unsplash.com/photo-1507136566006-cfc505b114fe?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 'b-4',
     name: 'GT Detailing & Cerámico Studio',
     rubro_id: 'detailing',
+    rubroLabel: 'Detailing & Lavado',
     address: 'Calle 50 #1240',
     city: 'La Plata',
     province: 'Buenos Aires',
@@ -72,11 +79,13 @@ const SEED_BUSINESSES = [
     whatsapp: '5492215667788',
     rating: 5.0,
     verified: true,
+    image: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&w=600&q=80',
   },
   {
     id: 'b-5',
     name: 'Neumáticos & Gomería Córdoba 24hs',
     rubro_id: 'gomerias',
+    rubroLabel: 'Gomería & Neumáticos',
     address: 'Av. Vélez Sarsfield 1200',
     city: 'Córdoba Capital',
     province: 'Córdoba',
@@ -84,6 +93,21 @@ const SEED_BUSINESSES = [
     whatsapp: '5493515667788',
     rating: 4.9,
     verified: true,
+    image: 'https://images.unsplash.com/photo-1578844251758-2f71da64c96f?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    id: 'b-6',
+    name: 'Centro de Chapa y Pintura San Cristóbal',
+    rubro_id: 'chapa-pintura',
+    rubroLabel: 'Chapa y Pintura',
+    address: 'Av. San Martín 3200',
+    city: 'Rosario',
+    province: 'Santa Fe',
+    phone: '0341 4332211',
+    whatsapp: '5493414332211',
+    rating: 4.8,
+    verified: true,
+    image: 'https://images.unsplash.com/photo-1625047509168-a7026f36de04?auto=format&fit=crop&w=600&q=80',
   }
 ];
 

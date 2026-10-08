@@ -847,6 +847,214 @@ function SectionHero({ toast }) {
 }
 
 // =============================================================================
+// SECTION 5.5: PUBLICIDAD / BANNERS LATERALES — conectado a Supabase site_settings
+// =============================================================================
+function SectionPublicidad({ toast }) {
+  const [leftUrl, setLeftUrl] = useState('');
+  const [leftLink, setLeftLink] = useState('');
+  const [rightUrl, setRightUrl] = useState('');
+  const [rightLink, setRightLink] = useState('');
+  const [savingLeft, setSavingLeft] = useState(false);
+  const [savingRight, setSavingRight] = useState(false);
+  const [uploadingLeft, setUploadingLeft] = useState(false);
+  const [uploadingRight, setUploadingRight] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from('site_settings')
+        .select('id, value')
+        .in('id', ['ad_left_image_url', 'ad_left_link_url', 'ad_right_image_url', 'ad_right_link_url']);
+      
+      if (data) {
+        data.forEach(row => {
+          if (row.id === 'ad_left_image_url') setLeftUrl(row.value || '');
+          if (row.id === 'ad_left_link_url') setLeftLink(row.value || '');
+          if (row.id === 'ad_right_image_url') setRightUrl(row.value || '');
+          if (row.id === 'ad_right_link_url') setRightLink(row.value || '');
+        });
+      }
+      setLoading(false);
+    })();
+  }, []);
+
+  const handleUploadLeft = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingLeft(true);
+    try {
+      const { uploadVehicleImage } = await import('../lib/supabase');
+      const url = await uploadVehicleImage(file);
+      setLeftUrl(url);
+      toast.show('Imagen izquierda subida. Guardá para aplicar.');
+    } catch (err) {
+      toast.show('Error al subir: ' + err.message, 'error');
+    } finally {
+      setUploadingLeft(false);
+    }
+  };
+
+  const handleUploadRight = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingRight(true);
+    try {
+      const { uploadVehicleImage } = await import('../lib/supabase');
+      const url = await uploadVehicleImage(file);
+      setRightUrl(url);
+      toast.show('Imagen derecha subida. Guardá para aplicar.');
+    } catch (err) {
+      toast.show('Error al subir: ' + err.message, 'error');
+    } finally {
+      setUploadingRight(false);
+    }
+  };
+
+  const handleSaveLeft = async () => {
+    setSavingLeft(true);
+    await setSetting('ad_left_image_url', leftUrl.trim());
+    await setSetting('ad_left_link_url', leftLink.trim());
+    localStorage.setItem('sa_ad_left_image_url', leftUrl.trim());
+    localStorage.setItem('sa_ad_left_link_url', leftLink.trim());
+    toast.show('✅ Publicidad izquierda guardada en Supabase');
+    setSavingLeft(false);
+  };
+
+  const handleSaveRight = async () => {
+    setSavingRight(true);
+    await setSetting('ad_right_image_url', rightUrl.trim());
+    await setSetting('ad_right_link_url', rightLink.trim());
+    localStorage.setItem('sa_ad_right_image_url', rightUrl.trim());
+    localStorage.setItem('sa_ad_right_link_url', rightLink.trim());
+    toast.show('✅ Publicidad derecha guardada en Supabase');
+    setSavingRight(false);
+  };
+
+  const handleResetLeft = async () => {
+    await setSetting('ad_left_image_url', '');
+    await setSetting('ad_left_link_url', '');
+    localStorage.removeItem('sa_ad_left_image_url');
+    localStorage.removeItem('sa_ad_left_link_url');
+    setLeftUrl('');
+    setLeftLink('');
+    toast.show('Publicidad izquierda restaurada al banner por defecto');
+  };
+
+  const handleResetRight = async () => {
+    await setSetting('ad_right_image_url', '');
+    await setSetting('ad_right_link_url', '');
+    localStorage.removeItem('sa_ad_right_image_url');
+    localStorage.removeItem('sa_ad_right_link_url');
+    setRightUrl('');
+    setRightLink('');
+    toast.show('Publicidad derecha restaurada al banner por defecto');
+  };
+
+  return (
+    <div className="space-y-6">
+      <SectionHeader icon={Image} title="Banners de Publicidad Lateral"
+        sub="Configurá las imágenes de publicidad a los lados del sitio (arrancan debajo del Hero)" />
+
+      {loading ? (
+        <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-violet-400 animate-spin" /></div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Publicidad Izquierda */}
+          <div className="bg-[#0F172A] border border-slate-800 rounded-2xl p-6 space-y-4">
+            <h3 className="text-sm font-black text-white flex items-center gap-2">
+              <Zap className="w-4 h-4 text-violet-400" /> Publicidad Izquierda
+            </h3>
+
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-300">Subir imagen</label>
+              <label className="flex items-center justify-center gap-3 w-full py-4 rounded-xl border-2 border-dashed border-slate-700 hover:border-violet-500/50 bg-slate-900/50 cursor-pointer transition-all group">
+                <input type="file" accept="image/*" onChange={handleUploadLeft} className="hidden" />
+                {uploadingLeft
+                  ? <><Loader2 className="w-4 h-4 text-violet-400 animate-spin" /><span className="text-xs text-violet-300 font-bold">Subiendo...</span></>
+                  : <><Upload className="w-4 h-4 text-slate-500 group-hover:text-violet-400 transition-colors" /><span className="text-xs text-slate-400 group-hover:text-violet-300 font-bold">Subir Banner Izquierdo</span></>
+                }
+              </label>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-300">O ingresar URL de la imagen</label>
+              <input type="url" value={leftUrl} onChange={e => setLeftUrl(e.target.value)}
+                placeholder="https://ejemplo.com/banner-izquierdo.jpg"
+                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none" />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-300">URL de destino (opcional)</label>
+              <input type="url" value={leftLink} onChange={e => setLeftLink(e.target.value)}
+                placeholder="https://pagina-del-anunciante.com"
+                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none" />
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button onClick={handleSaveLeft} disabled={savingLeft}
+                className="flex-1 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-black text-xs flex items-center justify-center gap-2 cursor-pointer transition-all shadow-lg shadow-violet-900/30">
+                {savingLeft ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                Guardar Izquierda
+              </button>
+              <button onClick={handleResetLeft}
+                className="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold text-xs flex items-center gap-2 cursor-pointer transition-all">
+                <RefreshCw className="w-4 h-4" /> Reset
+              </button>
+            </div>
+          </div>
+
+          {/* Publicidad Derecha */}
+          <div className="bg-[#0F172A] border border-slate-800 rounded-2xl p-6 space-y-4">
+            <h3 className="text-sm font-black text-white flex items-center gap-2">
+              <Zap className="w-4 h-4 text-purple-400" /> Publicidad Derecha
+            </h3>
+
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-300">Subir imagen</label>
+              <label className="flex items-center justify-center gap-3 w-full py-4 rounded-xl border-2 border-dashed border-slate-700 hover:border-purple-500/50 bg-slate-900/50 cursor-pointer transition-all group">
+                <input type="file" accept="image/*" onChange={handleUploadRight} className="hidden" />
+                {uploadingRight
+                  ? <><Loader2 className="w-4 h-4 text-purple-400 animate-spin" /><span className="text-xs text-purple-300 font-bold">Subiendo...</span></>
+                  : <><Upload className="w-4 h-4 text-slate-500 group-hover:text-purple-400 transition-colors" /><span className="text-xs text-slate-400 group-hover:text-purple-300 font-bold">Subir Banner Derecho</span></>
+                }
+              </label>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-300">O ingresar URL de la imagen</label>
+              <input type="url" value={rightUrl} onChange={e => setRightUrl(e.target.value)}
+                placeholder="https://ejemplo.com/banner-derecho.jpg"
+                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none" />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-300">URL de destino (opcional)</label>
+              <input type="url" value={rightLink} onChange={e => setRightLink(e.target.value)}
+                placeholder="https://pagina-del-anunciante.com"
+                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none" />
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button onClick={handleSaveRight} disabled={savingRight}
+                className="flex-1 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-black text-xs flex items-center justify-center gap-2 cursor-pointer transition-all shadow-lg shadow-violet-900/30">
+                {savingRight ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                Guardar Derecha
+              </button>
+              <button onClick={handleResetRight}
+                className="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold text-xs flex items-center gap-2 cursor-pointer transition-all">
+                <RefreshCw className="w-4 h-4" /> Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =============================================================================
 // SECTION 6: NEGOCIOS / DIRECTORIO
 // =============================================================================
 const RUBROS = [
@@ -1247,6 +1455,7 @@ export default function SuperAdminPage({ currentUser, onBackToHome, onSignOut })
     { id: 'pagos',     label: 'Pagos / Planes', icon: CreditCard,   badge: stats?.pendingPayments || null },
     { id: 'vehiculos', label: 'Vehículos',      icon: Car },
     { id: 'hero',      label: 'Hero / Banner',  icon: Image },
+    { id: 'publicidad',label: 'Publicidad Ads', icon: Zap },
     { id: 'negocios',  label: 'Directorio',     icon: Wrench },
     { id: 'leads',     label: 'Leads WA',       icon: MessageSquare },
     { id: 'config',    label: 'Configuración',  icon: Settings },
@@ -1403,6 +1612,7 @@ export default function SuperAdminPage({ currentUser, onBackToHome, onSignOut })
           {activeSection === 'pagos'     && <SectionPagos toast={toast} />}
           {activeSection === 'vehiculos' && <SectionVehiculos toast={toast} />}
           {activeSection === 'hero'      && <SectionHero toast={toast} />}
+          {activeSection === 'publicidad'&& <SectionPublicidad toast={toast} />}
           {activeSection === 'negocios'  && <SectionNegocios toast={toast} />}
           {activeSection === 'leads'     && <SectionLeads toast={toast} />}
           {activeSection === 'config'    && <SectionConfiguracion toast={toast} />}
