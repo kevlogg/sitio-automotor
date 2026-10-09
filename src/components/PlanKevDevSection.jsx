@@ -71,9 +71,9 @@ export default function PlanKevDevSection() {
 
 function TabEstado() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
       {/* Card 1 */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-full">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
             <Zap className="w-5 h-5 text-teal-500" />
@@ -92,7 +92,7 @@ function TabEstado() {
       </div>
 
       {/* Card 2 */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-full">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
             <span className="text-blue-500 font-black text-xl">$</span>
@@ -113,7 +113,7 @@ function TabEstado() {
       </div>
 
       {/* Card 3 */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-full">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
             <TrendingUp className="w-5 h-5 text-amber-500" />
