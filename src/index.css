@@ -4,11 +4,7 @@
 
 :root,
 html,
-body,
-input,
-select,
-textarea,
-button {
+body {
   color-scheme: light !important;
   supported-color-schemes: light;
 }
@@ -36,11 +32,7 @@ button {
 @media (prefers-color-scheme: dark) {
   :root,
   html,
-  body,
-  input,
-  select,
-  textarea,
-  button {
+  body {
     color-scheme: light !important;
     background-color: #F8FAFC !important;
     color: #0F172A !important;
