@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { PLAN_INFO } from '../lib/planUtils';
+import PlanKevDevSection from './PlanKevDevSection';
 
 // ── SuperAdmin Emails ────────────────────────────────────────────────────────
 const SUPER_ADMIN_EMAILS = [
@@ -1459,6 +1460,7 @@ export default function SuperAdminPage({ currentUser, onBackToHome, onSignOut })
     { id: 'negocios',  label: 'Directorio',     icon: Wrench },
     { id: 'leads',     label: 'Leads WA',       icon: MessageSquare },
     { id: 'config',    label: 'Configuración',  icon: Settings },
+    { id: 'plankevdev',label: 'Plan KevDev',    icon: ShieldCheck },
   ];
 
   // ── Acceso denegado ─────────────────────────────────────────────────────────
@@ -1616,6 +1618,7 @@ export default function SuperAdminPage({ currentUser, onBackToHome, onSignOut })
           {activeSection === 'negocios'  && <SectionNegocios toast={toast} />}
           {activeSection === 'leads'     && <SectionLeads toast={toast} />}
           {activeSection === 'config'    && <SectionConfiguracion toast={toast} />}
+          {activeSection === 'plankevdev'&& <PlanKevDevSection />}
         </main>
       </div>
     </div>

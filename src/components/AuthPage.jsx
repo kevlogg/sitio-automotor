@@ -273,91 +273,56 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
         </div>
       </header>
 
-      {/* Cuerpo Principal */}
-      <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col lg:flex-row gap-8 items-stretch justify-center">
+      {/* Cuerpo Principal Centrado */}
+      <div className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col items-center justify-center">
         
-        {/* Banner Lateral Ilustrativo / Informativo */}
-        <div className="lg:w-5/12 bg-gradient-to-br from-purple-900/40 via-slate-900 to-slate-950 p-8 sm:p-10 rounded-3xl border border-purple-900/30 shadow-2xl flex flex-col justify-between relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
-          
-          <div className="space-y-6 relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-xs font-black uppercase tracking-wider">
-              <ShieldCheck className="w-4 h-4 text-purple-400" />
-              <span>Acceso Oficial a la Comunidad</span>
-            </div>
-
-            <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight tracking-tight">
-              Todo el mundo automotor en un solo sitio.
-            </h1>
-
-            <p className="text-sm text-slate-300 leading-relaxed font-normal">
-              Conectá con miles de compradores y vendedores. Elegí tu tipo de perfil para acceder a funciones especializadas.
-            </p>
-
-            {/* Tarjetas de Beneficios según perfil */}
-            <div className="space-y-3 pt-2">
-              <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center flex-shrink-0 font-bold">
-                  <Car className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-black text-white">Particulares</h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">Publicá tu auto en minutos y recibí mensajes directos a tu WhatsApp sin intermediarios.</p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center flex-shrink-0 font-bold">
-                  <Building2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-black text-white">Agencias y Concesionarias</h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">Gestioná tu stock completo, mostrá tu insignia verificada y vendé a nivel local u online.</p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 font-bold">
-                  <Wrench className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-black text-white">Comercios y Servicios Automotor</h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">Destacá tu taller, gomería, repuestos o servicio en el directorio interactivo Mundo Automotor.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-8 border-t border-slate-800/80 mt-6 relative z-10 flex items-center justify-between text-xs text-slate-400 font-medium">
-            <span>© Sitio Automotor Argentina</span>
-            <span className="text-purple-400 font-bold">100% Verificado</span>
-          </div>
-        </div>
-
         {/* Formulario Principal de Autenticación */}
-        <div className="lg:w-7/12 bg-[#0F172A] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col justify-between">
+        <div className="w-full bg-[#0F172A] border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl flex flex-col justify-between">
           <div>
             {/* Header del Formulario */}
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
-              <div>
-                <h2 className="text-2xl font-black text-white">
-                  {mode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta Nueva'}
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  {mode === 'login' 
-                    ? 'Ingresá tu correo y contraseña para gestionar tus anuncios' 
-                    : 'Completá tus datos para formar parte de la plataforma'}
-                </p>
-              </div>
+            <div className="pb-4 border-b border-slate-800">
+              <h2 className="text-2xl sm:text-3xl font-black text-white">
+                {mode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta Nueva'}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                {mode === 'login' 
+                  ? 'Ingresá tu correo y contraseña para gestionar tus anuncios y perfil' 
+                  : 'Completá tus datos para formar parte de la plataforma'}
+              </p>
 
-              {/* Botón Selector de Modo en Móvil */}
-              <div className="sm:hidden">
+              {/* Selector de Modo (Tabs) Integrado dentro de la Card */}
+              <div className="flex rounded-2xl bg-slate-950 p-1.5 border border-slate-800/80 mt-5">
                 <button
                   type="button"
-                  onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-                  className="px-3 py-1.5 rounded-xl bg-purple-900/40 text-purple-300 text-xs font-bold"
+                  onClick={() => {
+                    setMode('signup');
+                    setErrorMsg(null);
+                    setSuccessMsg(null);
+                  }}
+                  className={`flex-1 py-3 px-4 rounded-xl font-extrabold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                    mode === 'signup'
+                      ? 'bg-[#6D28D9] text-white shadow-lg shadow-purple-950/50'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                  }`}
                 >
-                  {mode === 'login' ? 'Crear Cuenta' : 'Ingresar'}
+                  <User className="w-4 h-4" />
+                  <span>Crear Cuenta Nueva</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('login');
+                    setErrorMsg(null);
+                    setSuccessMsg(null);
+                  }}
+                  className={`flex-1 py-3 px-4 rounded-xl font-extrabold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                    mode === 'login'
+                      ? 'bg-[#6D28D9] text-white shadow-lg shadow-purple-950/50'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                  }`}
+                >
+                  <Lock className="w-4 h-4" />
+                  <span>Ya tengo cuenta — Iniciar Sesión</span>
                 </button>
               </div>
             </div>
