@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, CheckCircle2, Upload, PlusCircle, Loader2, ImagePlus, Lock, User, ArrowRight, Building2, Car } from 'lucide-react';
 import { uploadVehicleImage } from '../lib/supabase';
 import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../data/locationData';
+import { PLAN_INFO } from '../lib/planUtils';
 
 export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentUser, onRequireAuth }) {
   const [formData, setFormData] = useState({
@@ -117,7 +118,7 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentU
       badgeColor: 'violet',
       image: mainImage,
       images: allImages,
-      description: formData.description || 'Vehículo publicado mediante el Plan Individual de $15.000 / 30 días.',
+      description: formData.description || 'Vehículo publicado en la plataforma de Sitio Automotor.',
       features: ['Fotos HD en Supabase Storage', 'Contacto Directo WhatsApp', 'Unidad Inspeccionada']
     };
 
@@ -204,14 +205,14 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentU
             {/* Plan Header Banner */}
             <div className="p-4 bg-purple-50 border-b border-purple-100 flex items-center justify-between px-6">
               <div className="flex items-center gap-3">
-                <div className="px-3 py-1 rounded-full bg-[#6D28D9] text-white font-black text-xs">
-                  Plan {currentUser.profile?.user_type === 'agencia' ? 'Agencia' : 'Individual'}
+                <div className="px-3 py-1 rounded-full bg-[#5328D7] text-white font-black text-xs">
+                  {currentUser.profile?.current_plan ? (PLAN_INFO[currentUser.profile?.current_plan]?.label || 'Plan Activo') : 'Plan Base'}
                 </div>
                 <span className="text-xs text-slate-700 font-medium">
-                  Publicación activa por 30 días con fotos en Supabase Storage.
+                  Publicación activa en la plataforma con fotos en Supabase Storage.
                 </span>
               </div>
-              <span className="text-lg font-black text-slate-900 font-mono">$15.000</span>
+              <span className="text-xs font-black text-purple-700 bg-purple-100 px-2.5 py-1 rounded-lg">1 aviso incluido</span>
             </div>
 
         {submitted ? (
@@ -475,7 +476,7 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentU
               ) : (
                 <>
                   <ImagePlus className="w-5 h-5" />
-                  <span>Pagar $15.000 y Publicar vehículo por 30 días</span>
+                  <span>Publicar Vehículo</span>
                 </>
               )}
             </button>

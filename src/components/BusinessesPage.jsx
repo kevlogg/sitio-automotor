@@ -237,7 +237,7 @@ export default function BusinessesPage({ onBackToHome, onOpenRegisterBusiness })
   };
 
   return (
-    <div className="bg-[#F8FAFC] text-slate-900 min-h-screen py-8">
+    <div className="bg-home-canvas text-slate-900 min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         
         {/* Breadcrumb / Back button */}

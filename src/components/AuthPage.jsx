@@ -239,15 +239,15 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
   };
 
   return (
-    <div className="min-h-screen bg-[#090D16] text-white flex flex-col selection:bg-[#6D28D9] selection:text-white">
+    <div className="min-h-screen bg-home-canvas text-slate-900 flex flex-col selection:bg-[#6D28D9] selection:text-white">
       {/* Header Superior con navegación de retorno */}
-      <header className="border-b border-slate-800 bg-[#0F172A]/90 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-slate-200 bg-white/90 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <button
             onClick={onBackToHome}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-all text-xs font-bold cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 transition-all text-xs font-bold cursor-pointer border border-slate-200"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 text-[#6D28D9]" />
             <span>Volver al inicio</span>
           </button>
 
@@ -256,7 +256,7 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
           </div>
 
           <div className="hidden sm:flex items-center gap-2">
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-slate-500 font-semibold">
               {mode === 'login' ? '¿No tenés cuenta?' : '¿Ya tenés cuenta?'}
             </span>
             <button
@@ -265,7 +265,7 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                 setErrorMsg(null);
                 setSuccessMsg(null);
               }}
-              className="px-3.5 py-1.5 rounded-xl border border-purple-500/40 bg-purple-950/30 hover:bg-purple-900/50 text-purple-300 text-xs font-extrabold transition-all cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 text-[#6D28D9] text-xs font-extrabold transition-all cursor-pointer"
             >
               {mode === 'login' ? 'Registrarme' : 'Iniciar Sesión'}
             </button>
@@ -277,21 +277,21 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
       <div className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col items-center justify-center">
         
         {/* Formulario Principal de Autenticación */}
-        <div className="w-full bg-[#0F172A] border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl flex flex-col justify-between">
+        <div className="w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-xl flex flex-col justify-between">
           <div>
             {/* Header del Formulario */}
-            <div className="pb-4 border-b border-slate-800">
-              <h2 className="text-2xl sm:text-3xl font-black text-white">
+            <div className="pb-4 border-b border-slate-100">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
                 {mode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta Nueva'}
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1">
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
                 {mode === 'login' 
                   ? 'Ingresá tu correo y contraseña para gestionar tus anuncios y perfil' 
                   : 'Completá tus datos para formar parte de la plataforma'}
               </p>
 
               {/* Selector de Modo (Tabs) Integrado dentro de la Card */}
-              <div className="flex rounded-2xl bg-slate-950 p-1.5 border border-slate-800/80 mt-5">
+              <div className="flex rounded-2xl bg-slate-100 p-1.5 border border-slate-200 mt-5">
                 <button
                   type="button"
                   onClick={() => {
@@ -301,8 +301,8 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                   }}
                   className={`flex-1 py-3 px-4 rounded-xl font-extrabold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
                     mode === 'signup'
-                      ? 'bg-[#6D28D9] text-white shadow-lg shadow-purple-950/50'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                      ? 'bg-[#6D28D9] text-white shadow-md'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                   }`}
                 >
                   <User className="w-4 h-4" />
@@ -317,8 +317,8 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                   }}
                   className={`flex-1 py-3 px-4 rounded-xl font-extrabold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
                     mode === 'login'
-                      ? 'bg-[#6D28D9] text-white shadow-lg shadow-purple-950/50'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                      ? 'bg-[#6D28D9] text-white shadow-md'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                   }`}
                 >
                   <Lock className="w-4 h-4" />
@@ -329,26 +329,26 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
 
             {/* Mensajes de Alerta */}
             {errorMsg && (
-              <div className="mb-5 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-400" />
-                <span className="font-medium">{errorMsg}</span>
+              <div className="mt-5 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-600" />
+                <span className="font-semibold">{errorMsg}</span>
               </div>
             )}
 
             {successMsg && (
-              <div className="mb-5 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-3 animate-fadeIn">
-                <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-400" />
-                <span className="font-medium">{successMsg}</span>
+              <div className="mt-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-3 animate-fadeIn">
+                <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-600" />
+                <span className="font-semibold">{successMsg}</span>
               </div>
             )}
 
             {/* MODO SIGNUP */}
             {mode === 'signup' ? (
-              <form onSubmit={handleSignUp} className="space-y-6">
+              <form onSubmit={handleSignUp} className="space-y-6 mt-6">
                 
                 {/* 1. Selector de Tipo de Usuario (3 Opciones) */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-2">
+                  <label className="block text-xs font-bold text-slate-700 mb-2">
                     ¿Cómo vas a operar en Sitio Automotor? *
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -358,21 +358,21 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                         label: 'Particular', 
                         sub: 'Vender / Comprar mi vehículo', 
                         icon: Car, 
-                        color: 'border-blue-500 bg-blue-950/40 text-blue-300 ring-blue-500/50' 
+                        color: 'border-blue-500 bg-blue-50/80 text-blue-900 ring-blue-500/30' 
                       },
                       { 
                         id: 'agencia', 
                         label: 'Agencia', 
                         sub: 'Concesionaria o Revendedor', 
                         icon: Building2, 
-                        color: 'border-purple-500 bg-purple-950/40 text-purple-300 ring-purple-500/50' 
+                        color: 'border-purple-500 bg-purple-50/80 text-purple-900 ring-purple-500/30' 
                       },
                       { 
                         id: 'negocio_automotor', 
                         label: 'Negocio / Comercio', 
                         sub: 'Taller, repuestos, servicios', 
                         icon: Wrench, 
-                        color: 'border-amber-500 bg-amber-950/40 text-amber-300 ring-amber-500/50' 
+                        color: 'border-amber-500 bg-amber-50/80 text-amber-900 ring-amber-500/30' 
                       },
                     ].map((item) => {
                       const IconComp = item.icon;
@@ -384,17 +384,17 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                           onClick={() => setUserType(item.id)}
                           className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
                             isSelected
-                              ? `${item.color} shadow-lg ring-2 scale-[1.02]`
-                              : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                              ? `${item.color} shadow-md ring-2 scale-[1.02]`
+                              : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 hover:text-slate-900'
                           }`}
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <IconComp className="w-5 h-5" />
-                            {isSelected && <CheckCircle2 className="w-4 h-4 text-purple-400" />}
+                            <IconComp className="w-5 h-5 text-[#6D28D9]" />
+                            {isSelected && <CheckCircle2 className="w-4 h-4 text-[#6D28D9]" />}
                           </div>
                           <div>
                             <span className="text-xs font-black block leading-tight">{item.label}</span>
-                            <span className="text-[10px] text-slate-400 font-medium block mt-1 leading-snug">{item.sub}</span>
+                            <span className="text-[10px] text-slate-500 font-medium block mt-1 leading-snug">{item.sub}</span>
                           </div>
                         </button>
                       );
@@ -406,31 +406,31 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                 <div className="space-y-4 pt-1">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1.5">Tu Nombre Completo *</label>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Tu Nombre Completo *</label>
                       <div className="relative">
-                        <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                        <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                         <input
                           type="text"
                           required
                           placeholder="Ej. Juan Pérez"
                           value={formData.fullName}
                           onChange={(e) => handleChange('fullName', e.target.value)}
-                          className="w-full pl-10 pr-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:border-purple-500 focus:outline-none"
+                          className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-purple-600 focus:outline-none"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1.5">WhatsApp de Contacto *</label>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">WhatsApp de Contacto *</label>
                       <div className="relative">
-                        <Phone className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                        <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                         <input
                           type="tel"
                           required
                           placeholder="Ej. 5491134567890"
                           value={formData.phoneWhatsApp}
                           onChange={(e) => handleChange('phoneWhatsApp', e.target.value)}
-                          className="w-full pl-10 pr-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white font-mono focus:border-purple-500 focus:outline-none"
+                          className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-mono placeholder-slate-400 focus:bg-white focus:border-purple-600 focus:outline-none"
                         />
                       </div>
                     </div>
@@ -440,18 +440,18 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                   {userType !== 'particular' && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                           {userType === 'agencia' ? 'Nombre de la Agencia *' : 'Nombre del Negocio / Comercio *'}
                         </label>
                         <div className="relative">
-                          <Building2 className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                          <Building2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                           <input
                             type="text"
                             required
                             placeholder={userType === 'agencia' ? 'Ej. Mendoza Automotores' : 'Ej. Repuestos El Rayo'}
                             value={formData.businessName}
                             onChange={(e) => handleChange('businessName', e.target.value)}
-                            className="w-full pl-10 pr-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:border-purple-500 focus:outline-none"
+                            className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-purple-600 focus:outline-none"
                           />
                         </div>
                       </div>
@@ -459,11 +459,11 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                       {/* Rubro si es Negocio Automotor con opción OTRO y aclaración obligatoria */}
                       {userType === 'negocio_automotor' && (
                         <div>
-                          <label className="block text-xs font-semibold text-slate-300 mb-1.5">Rubro Principal *</label>
+                          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Rubro Principal *</label>
                           <select
                             value={formData.rubro}
                             onChange={(e) => handleChange('rubro', e.target.value)}
-                            className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:border-purple-500 focus:outline-none cursor-pointer"
+                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:border-purple-600 focus:outline-none cursor-pointer"
                           >
                             <option value="repuestos">Repuestos</option>
                             <option value="accesorios">Accesorios</option>
@@ -486,8 +486,8 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
 
                   {/* Si el rubro es "otro", mostramos el campo obligatorio de aclaración */}
                   {userType === 'negocio_automotor' && formData.rubro === 'otro' && (
-                    <div className="p-3.5 rounded-2xl bg-amber-950/30 border border-amber-500/40 space-y-2 animate-fadeIn">
-                      <label className="block text-xs font-extrabold text-amber-300">
+                    <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 space-y-2 animate-fadeIn">
+                      <label className="block text-xs font-extrabold text-amber-900">
                         Aclaración Obligatoria del Rubro *
                       </label>
                       <input
@@ -496,17 +496,17 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                         placeholder="Ej. Ploteo, Calcomanías y Car Wrap / Car Detailing a domicilio"
                         value={formData.customRubro}
                         onChange={(e) => handleChange('customRubro', e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-slate-900 border border-amber-500/50 rounded-xl text-xs text-white focus:border-amber-400 focus:outline-none"
+                        className="w-full px-3.5 py-2.5 bg-white border border-amber-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-amber-500 focus:outline-none"
                       />
-                      <p className="text-[11px] text-amber-400/80">
+                      <p className="text-[11px] text-amber-700">
                         Especificá a qué se dedica tu negocio para poder catalogarte adecuadamente.
                       </p>
                     </div>
                   )}
 
                   {/* 3. Selección de Ubicación (Lugar específico vs Varias ubicaciones / Online) */}
-                  <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
-                    <label className="block text-xs font-bold text-slate-300">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                    <label className="block text-xs font-bold text-slate-800">
                       Ubicación y Alcance de Venta / Servicio *
                     </label>
 
@@ -517,11 +517,11 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                         onClick={() => setLocationType('single')}
                         className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                           locationType === 'single'
-                            ? 'bg-purple-900/50 border-purple-500 text-white shadow-md'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                            ? 'bg-purple-100 border-purple-400 text-purple-900 shadow-sm'
+                            : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900'
                         }`}
                       >
-                        <MapPin className="w-4 h-4 text-purple-400" />
+                        <MapPin className="w-4 h-4 text-[#6D28D9]" />
                         <span>Ciudad / Provincia específica</span>
                       </button>
 
@@ -530,11 +530,11 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                         onClick={() => setLocationType('multiple')}
                         className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                           locationType === 'multiple'
-                            ? 'bg-purple-900/50 border-purple-500 text-white shadow-md'
-                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                            ? 'bg-purple-100 border-purple-400 text-purple-900 shadow-sm'
+                            : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900'
                         }`}
                       >
-                        <Globe className="w-4 h-4 text-purple-400" />
+                        <Globe className="w-4 h-4 text-[#6D28D9]" />
                         <span>Varias ubicaciones / Venta Online</span>
                       </button>
                     </div>
@@ -545,7 +545,7 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {/* 1. PROVINCIA PRIMERO */}
                           <div>
-                            <label className="block text-[11px] font-bold text-purple-300 mb-1">1. Provincia *</label>
+                            <label className="block text-[11px] font-bold text-slate-700 mb-1">1. Provincia *</label>
                             <select
                               value={formData.province}
                               onChange={(e) => {
@@ -558,7 +558,7 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                                   customCity: '',
                                 }));
                               }}
-                              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:border-purple-500 focus:outline-none cursor-pointer"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:border-purple-600 focus:outline-none cursor-pointer"
                             >
                               {PROVINCES_LIST.map((prov) => (
                                 <option key={prov} value={prov}>
@@ -570,11 +570,11 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
 
                           {/* 2. CIUDAD SEGUNDO */}
                           <div>
-                            <label className="block text-[11px] font-bold text-purple-300 mb-1">2. Ciudad / Localidad *</label>
+                            <label className="block text-[11px] font-bold text-slate-700 mb-1">2. Ciudad / Localidad *</label>
                             <select
                               value={formData.city}
                               onChange={(e) => handleChange('city', e.target.value)}
-                              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:border-purple-500 focus:outline-none cursor-pointer"
+                              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:border-purple-600 focus:outline-none cursor-pointer"
                             >
                               {(ARGENTINA_LOCATION_DATA[formData.province] || ['Otra ciudad / localidad']).map((c) => (
                                 <option key={c} value={c}>
@@ -587,8 +587,8 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
 
                         {/* Si seleccionó "Otra ciudad / localidad" o "Otro barrio / zona" */}
                         {(formData.city.startsWith('Otra') || formData.city.startsWith('Otro')) && (
-                          <div className="p-3 rounded-xl bg-purple-950/30 border border-purple-500/40 space-y-1 animate-fadeIn">
-                            <label className="block text-[11px] font-bold text-purple-300">
+                          <div className="p-3 rounded-xl bg-purple-50 border border-purple-200 space-y-1 animate-fadeIn">
+                            <label className="block text-[11px] font-bold text-purple-900">
                               Especificá el nombre de tu ciudad o localidad *
                             </label>
                             <input
@@ -597,7 +597,7 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                               placeholder="Ej. Villa General Belgrano, El Chaltén..."
                               value={formData.customCity}
                               onChange={(e) => handleChange('customCity', e.target.value)}
-                              className="w-full px-3 py-2 bg-slate-950 border border-purple-500/50 rounded-xl text-xs text-white focus:border-purple-400 focus:outline-none"
+                              className="w-full px-3 py-2 bg-white border border-purple-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:border-purple-600 focus:outline-none"
                             />
                           </div>
                         )}
@@ -605,7 +605,7 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                     ) : (
                       /* Si eligió Varias ubicaciones / Venta Online */
                       <div className="space-y-2 pt-1 animate-fadeIn">
-                        <label className="block text-xs font-extrabold text-purple-300">
+                        <label className="block text-xs font-extrabold text-slate-800">
                           Aclaración de lugares donde te ubicas o vendes *
                         </label>
                         <textarea
@@ -614,9 +614,9 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                           placeholder="Ej: Sucursales en Córdoba, Rosario y Buenos Aires / Venta online con envíos a todo el país"
                           value={formData.locationDetails}
                           onChange={(e) => handleChange('locationDetails', e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-slate-950 border border-purple-500/50 rounded-xl text-xs text-white focus:border-purple-400 focus:outline-none"
+                          className="w-full px-3.5 py-2.5 bg-white border border-purple-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:border-purple-600 focus:outline-none"
                         ></textarea>
-                        <p className="text-[11px] text-slate-400">
+                        <p className="text-[11px] text-slate-500">
                           Indicá las zonas, provincias o si ofrecés venta 100% online con envío.
                         </p>
                       </div>
@@ -626,25 +626,25 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                   {/* 4. Correo Electrónico, Contraseña y Doble Confirmación */}
                   <div className="space-y-4 pt-1">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1.5">Correo Electrónico *</label>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Correo Electrónico *</label>
                       <div className="relative">
-                        <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                        <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                         <input
                           type="email"
                           required
                           placeholder="tu@email.com"
                           value={formData.email}
                           onChange={(e) => handleChange('email', e.target.value)}
-                          className="w-full pl-10 pr-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:border-purple-500 focus:outline-none"
+                          className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-purple-600 focus:outline-none"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-300 mb-1.5">Contraseña *</label>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">Contraseña *</label>
                         <div className="relative">
-                          <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                          <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                           <input
                             type="password"
                             required
@@ -652,15 +652,15 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                             placeholder="Mínimo 6 caracteres"
                             value={formData.password}
                             onChange={(e) => handleChange('password', e.target.value)}
-                            className="w-full pl-10 pr-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:border-purple-500 focus:outline-none"
+                            className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-purple-600 focus:outline-none"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-slate-300 mb-1.5">Confirmar Contraseña *</label>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">Confirmar Contraseña *</label>
                         <div className="relative">
-                          <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                          <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                           <input
                             type="password"
                             required
@@ -668,17 +668,17 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                             placeholder="Repetí la contraseña"
                             value={formData.confirmPassword}
                             onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                            className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-900 border rounded-xl text-xs text-white focus:outline-none ${
+                            className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none ${
                               formData.confirmPassword && formData.password !== formData.confirmPassword
                                 ? 'border-rose-500 focus:border-rose-500'
                                 : formData.confirmPassword && formData.password === formData.confirmPassword
                                 ? 'border-emerald-500 focus:border-emerald-500'
-                                : 'border-slate-800 focus:border-purple-500'
+                                : 'border-slate-200 focus:border-purple-600'
                             }`}
                           />
                         </div>
                         {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                          <span className="text-[10px] text-rose-400 font-bold block mt-1">
+                          <span className="text-[10px] text-rose-600 font-bold block mt-1">
                             Las contraseñas no coinciden
                           </span>
                         )}
@@ -691,7 +691,7 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 rounded-2xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-extrabold text-sm shadow-xl shadow-purple-900/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4"
+                  className="w-full py-4 rounded-2xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-extrabold text-sm shadow-lg shadow-purple-900/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4"
                 >
                   {loading ? (
                     <>
@@ -708,33 +708,33 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
               </form>
             ) : (
               /* MODO LOGIN */
-              <form onSubmit={handleLogin} className="space-y-5 py-4">
+              <form onSubmit={handleLogin} className="space-y-5 py-4 mt-5">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Correo Electrónico</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Correo Electrónico</label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                     <input
                       type="email"
                       required
                       placeholder="tu@email.com"
                       value={formData.email}
                       onChange={(e) => handleChange('email', e.target.value)}
-                      className="w-full pl-10 pr-3.5 py-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:border-purple-500 focus:outline-none"
+                      className="w-full pl-10 pr-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-purple-600 focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Contraseña</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Contraseña</label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                     <input
                       type="password"
                       required
                       placeholder="••••••••"
                       value={formData.password}
                       onChange={(e) => handleChange('password', e.target.value)}
-                      className="w-full pl-10 pr-3.5 py-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:border-purple-500 focus:outline-none"
+                      className="w-full pl-10 pr-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-purple-600 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -742,7 +742,7 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 rounded-2xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-extrabold text-sm shadow-xl shadow-purple-900/40 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4"
+                  className="w-full py-4 rounded-2xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-extrabold text-sm shadow-lg shadow-purple-900/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4"
                 >
                   {loading ? (
                     <>
@@ -761,8 +761,8 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
           </div>
 
           {/* Footer del Formulario */}
-          <div className="pt-6 border-t border-slate-800/80 mt-6 text-center">
-            <p className="text-xs text-slate-400">
+          <div className="pt-6 border-t border-slate-100 mt-6 text-center">
+            <p className="text-xs text-slate-500 font-medium">
               {mode === 'login' ? '¿Aún no tenés una cuenta?' : '¿Ya tenés una cuenta registrada?'}
               <button
                 type="button"
@@ -771,7 +771,7 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
                   setErrorMsg(null);
                   setSuccessMsg(null);
                 }}
-                className="text-purple-400 font-extrabold hover:underline ml-1.5 cursor-pointer"
+                className="text-[#6D28D9] font-extrabold hover:underline ml-1.5 cursor-pointer"
               >
                 {mode === 'login' ? 'Crear cuenta ahora' : 'Iniciar sesión'}
               </button>

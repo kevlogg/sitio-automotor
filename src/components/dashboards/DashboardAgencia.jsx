@@ -160,19 +160,19 @@ export default function DashboardAgencia({
   ];
 
   return (
-    <div className="min-h-screen bg-[#090D16] text-white flex flex-col">
+    <div className="min-h-screen bg-home-canvas text-slate-900 flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-slate-800 bg-[#0F172A]/90 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button onClick={onBackToHome}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all text-xs font-bold cursor-pointer">
-              <ArrowLeft className="w-4 h-4" />
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 transition-all text-xs font-bold cursor-pointer border border-slate-200 shadow-sm">
+              <ArrowLeft className="w-4 h-4 text-[#6D28D9]" />
               <span className="hidden sm:inline">Volver a la Tienda</span>
             </button>
-            <div className="hidden md:flex items-center gap-2 border-l border-slate-800 pl-4">
-              <Building2 className="w-4 h-4 text-purple-400" />
-              <span className="text-sm font-black text-white">Panel de Agencia / Concesionaria</span>
+            <div className="hidden md:flex items-center gap-2 border-l border-slate-200 pl-4">
+              <Building2 className="w-4 h-4 text-[#6D28D9]" />
+              <span className="text-sm font-black text-slate-900">Panel de Agencia / Concesionaria</span>
             </div>
           </div>
 
@@ -181,16 +181,16 @@ export default function DashboardAgencia({
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-2xl px-3 py-1.5">
+            <div className="hidden sm:flex items-center gap-2 bg-white border border-slate-200 shadow-sm rounded-2xl px-3 py-1.5">
               <div className="w-7 h-7 rounded-xl bg-[#6D28D9] text-white flex items-center justify-center font-black text-xs overflow-hidden">
                 {formData.avatarUrl ? <img src={formData.avatarUrl} alt="" className="w-full h-full object-cover" /> : (formData.businessName?.charAt(0) || formData.fullName?.charAt(0) || 'A')}
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-bold text-white max-w-[130px] truncate">{formData.businessName || formData.fullName || 'Agencia'}</span>
-                <span className="text-[9px] font-extrabold border px-1.5 rounded-md bg-purple-500/20 text-purple-300 border-purple-500/40">Agencia Verificada</span>
+                <span className="text-xs font-bold text-slate-900 max-w-[130px] truncate">{formData.businessName || formData.fullName || 'Agencia'}</span>
+                <span className="text-[9px] font-extrabold border px-1.5 rounded-md bg-purple-50 text-[#6D28D9] border-purple-200">Agencia Verificada</span>
               </div>
             </div>
-            <button onClick={onSignOut} className="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer">
+            <button onClick={onSignOut} className="p-2.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer border border-slate-200">
               <LogOut className="w-4 h-4" />
             </button>
           </div>
@@ -200,7 +200,7 @@ export default function DashboardAgencia({
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
         {/* Hero Banner Agencia */}
-        <div className="relative rounded-3xl bg-gradient-to-r from-[#1E1B4B] via-[#0F172A] to-slate-900 border border-purple-900/40 p-6 sm:p-8 shadow-2xl overflow-hidden">
+        <div className="relative rounded-3xl bg-gradient-to-r from-[#1E1B4B] via-[#0F172A] to-slate-900 border border-purple-900/40 p-6 sm:p-8 shadow-2xl overflow-hidden text-white">
           <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
           {formData.bannerUrl && (
             <div className="absolute inset-0 rounded-3xl overflow-hidden">
@@ -233,17 +233,17 @@ export default function DashboardAgencia({
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-slate-800 gap-2 overflow-x-auto pb-1">
+        <div className="flex border-b border-slate-200 gap-2 overflow-x-auto pb-1">
           {tabs.map(tab => {
             const Icon = tab.icon;
             return (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                 className={`px-5 py-3 rounded-2xl font-extrabold text-xs transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'bg-[#6D28D9] text-white shadow-lg shadow-purple-900/30'
-                    : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800'
+                    ? 'bg-[#6D28D9] text-white shadow-md'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}>
-                <Icon className={`w-4 h-4 ${tab.id === 'planes' ? 'text-amber-300' : ''}`} />
+                <Icon className={`w-4 h-4 ${tab.id === 'planes' ? 'text-amber-500' : ''}`} />
                 <span>{tab.label}</span>
               </button>
             );

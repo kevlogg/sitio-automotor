@@ -228,32 +228,7 @@ export default function MonetizationSection({
 
         </div>
 
-        {/* Bottom Banner: Vendedores Particulares */}
-        <div className="reveal-on-scroll delay-300 mt-10 p-6 sm:p-7 rounded-3xl bg-white border border-slate-200 shadow-lg shadow-slate-200/40 flex flex-col sm:flex-row items-center justify-between gap-5 max-w-7xl mx-auto">
-          <div className="flex items-center gap-4 text-left">
-            <div className="w-12 h-12 rounded-2xl bg-purple-100 text-[#5328D7] flex items-center justify-center font-black text-xl shrink-0">
-              <Car className="w-6 h-6 text-[#5328D7]" />
-            </div>
-            <div>
-              <h4 className="text-base sm:text-lg font-black text-slate-900">
-                ¿Querés vender tu auto como particular?
-              </h4>
-              <p className="text-xs text-slate-500 font-semibold mt-0.5">
-                Publicación activa por 30 días, fotos en alta resolución y consultas directas a tu WhatsApp por <strong>$15.000</strong> sin comisiones de venta.
-              </p>
-            </div>
-          </div>
 
-          <div className="shrink-0 w-full sm:w-auto">
-            <button
-              onClick={onOpenPublishModal}
-              className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs shadow-md cursor-pointer transition-all whitespace-nowrap flex items-center justify-center gap-2"
-            >
-              <span>Publicar Vehículo ($15.000)</span>
-              <ArrowRight className="w-4 h-4 text-purple-400" />
-            </button>
-          </div>
-        </div>
 
       </div>
     </section>

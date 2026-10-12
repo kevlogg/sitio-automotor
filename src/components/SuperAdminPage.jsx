@@ -408,29 +408,27 @@ function SectionUsuarios({ toast }) {
                         {user.bio}
                       </div>
                     )}
-                    {/* Acciones admin */}
-                    <div className="flex flex-wrap gap-3 pt-2 border-t border-slate-800/60">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-slate-400 font-bold">Tipo:</span>
-                        {['particular', 'agencia', 'negocio_automotor'].map(t => (
-                          <button key={t} onClick={() => changeType(user.id, t)} disabled={saving || user.user_type === t}
-                            className={`px-2.5 py-1.5 rounded-lg text-[10px] font-black cursor-pointer transition-all ${user.user_type === t ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'} disabled:opacity-50`}>
-                            {USER_TYPE_STYLES[t]?.label}
-                          </button>
-                        ))}
+                    {/* Información de Cuenta y Plan */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800/60">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                          <span className="text-[10px] uppercase font-bold text-slate-500">Tipo de cuenta:</span>
+                          <span className="font-extrabold text-white">{USER_TYPE_STYLES[user.user_type]?.label || user.user_type}</span>
+                        </div>
+                        <div className="w-px h-3 bg-slate-800 hidden sm:block" />
+                        <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                          <span className="text-[10px] uppercase font-bold text-slate-500">Plan:</span>
+                          <span className="font-extrabold text-violet-300">
+                            {user.current_plan ? (PLAN_INFO[user.current_plan]?.label || user.current_plan) : 'Sin plan contratado'}
+                          </span>
+                          <Badge className={PLAN_STATUS_STYLES[user.plan_status]?.color || PLAN_STATUS_STYLES.null.color}>
+                            {PLAN_STATUS_STYLES[user.plan_status]?.label || 'Inactivo'}
+                          </Badge>
+                        </div>
                       </div>
-                      {user.plan_status !== 'active' && user.current_plan && (
-                        <button onClick={() => activatePlan(user.id, user.current_plan)} disabled={saving}
-                          className="px-3 py-1.5 rounded-xl bg-emerald-600/30 border border-emerald-500/30 text-emerald-300 text-[10px] font-black flex items-center gap-1 cursor-pointer hover:bg-emerald-600/50 disabled:opacity-50">
-                          <Zap className="w-3 h-3" /> Activar Plan
-                        </button>
-                      )}
-                      {user.plan_status === 'active' && (
-                        <button onClick={() => cancelPlan(user.id)} disabled={saving}
-                          className="px-3 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 text-[10px] font-black flex items-center gap-1 cursor-pointer hover:bg-rose-500/30 disabled:opacity-50">
-                          <Ban className="w-3 h-3" /> Cancelar Plan
-                        </button>
-                      )}
+                      <div className="text-[10px] text-slate-500 italic">
+                        🔒 El tipo de negocio y plan lo determina el pago registrado (gestionable en "Pagos / Planes").
+                      </div>
                     </div>
                   </div>
                 )}
@@ -711,6 +709,7 @@ function SectionVehiculos({ toast }) {
 // =============================================================================
 function SectionHero({ toast }) {
   const [heroUrl, setHeroUrl] = useState('');
+  const [heroLink, setHeroLink] = useState('');
   const [previewUrl, setPreviewUrl] = useState('/hero_daylight_fleet.png');
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -718,8 +717,13 @@ function SectionHero({ toast }) {
 
   useEffect(() => {
     (async () => {
-      const val = await getSetting('hero_image_url');
-      if (val) { setHeroUrl(val); setPreviewUrl(val); }
+      setLoadingCurrent(true);
+      const [imgVal, linkVal] = await Promise.all([
+        getSetting('hero_image_url'),
+        getSetting('hero_link_url')
+      ]);
+      if (imgVal) { setHeroUrl(imgVal); setPreviewUrl(imgVal); }
+      if (linkVal) { setHeroLink(linkVal); }
       setLoadingCurrent(false);
     })();
   }, []);
@@ -733,7 +737,7 @@ function SectionHero({ toast }) {
       const url = await uploadVehicleImage(file);
       setHeroUrl(url);
       setPreviewUrl(url);
-      toast.show('Imagen subida. Guardá para aplicar.');
+      toast.show('Imagen subida exitosamente. Guardá para aplicar los cambios.');
     } catch (err) {
       toast.show('Error al subir: ' + err.message, 'error');
     } finally {
@@ -742,79 +746,117 @@ function SectionHero({ toast }) {
   };
 
   const handleSave = async () => {
-    if (!heroUrl.trim()) return toast.show('Ingresá una URL válida', 'error');
+    if (!heroUrl.trim()) return toast.show('Subí una imagen antes de guardar', 'error');
     setSaving(true);
-    await setSetting('hero_image_url', heroUrl.trim());
-    // También sync localStorage para que HeroSection lo lea inmediatamente
+    await Promise.all([
+      setSetting('hero_image_url', heroUrl.trim()),
+      setSetting('hero_link_url', heroLink.trim()),
+    ]);
     localStorage.setItem('sa_hero_image_url', heroUrl.trim());
-    toast.show('✅ Imagen del hero guardada en Supabase. Recargá la home para verlo.');
+    localStorage.setItem('sa_hero_link_url', heroLink.trim());
+    toast.show('✅ Banner y redirección guardados en Supabase.');
     setSaving(false);
   };
 
   const handleReset = async () => {
-    await setSetting('hero_image_url', '');
+    await Promise.all([
+      setSetting('hero_image_url', ''),
+      setSetting('hero_link_url', ''),
+    ]);
     localStorage.removeItem('sa_hero_image_url');
+    localStorage.removeItem('sa_hero_link_url');
     setHeroUrl('');
+    setHeroLink('');
     setPreviewUrl('/hero_daylight_fleet.png');
     toast.show('Hero restaurado a la imagen original');
   };
 
   return (
     <div className="space-y-6">
-      <SectionHeader icon={Image} title="Imagen del Hero / Banner"
-        sub="Cambia la imagen de fondo del hero de la home — guardado en Supabase" />
+      <SectionHeader icon={Image} title="Banner Principal / Hero"
+        sub="Subí la imagen del banner de la home y configurá la URL de redireccionamiento al hacer clic" />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-[#0F172A] border border-slate-800 rounded-2xl p-6 space-y-5">
           <h3 className="text-sm font-black text-white flex items-center gap-2">
-            <Edit3 className="w-4 h-4 text-violet-400" /> Configurar imagen
+            <Edit3 className="w-4 h-4 text-violet-400" /> Configurar Banner
           </h3>
 
           {loadingCurrent ? (
             <div className="flex items-center gap-2 text-xs text-slate-400">
-              <Loader2 className="w-4 h-4 animate-spin text-violet-400" /> Cargando imagen actual desde Supabase...
+              <Loader2 className="w-4 h-4 animate-spin text-violet-400" /> Cargando banner actual...
             </div>
-          ) : heroUrl && (
-            <div className="p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-700/30 text-[10px] text-emerald-300 flex items-center gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
-              Imagen actual cargada desde Supabase
+          ) : heroUrl ? (
+            <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-700/30 text-xs text-emerald-300 flex items-center justify-between gap-2">
+              <span className="flex items-center gap-2 font-bold">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                Imagen subida y activa
+              </span>
+              <span className="text-[10px] text-emerald-400/80 font-mono">En Supabase Storage</span>
+            </div>
+          ) : (
+            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-400">
+              Mostrando imagen predeterminada de la plataforma. Subí una nueva imagen para personalizarla.
             </div>
           )}
 
-          {/* Upload */}
+          {/* Subida de Imagen */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-slate-300">Subir imagen</label>
-            <label className="flex items-center justify-center gap-3 w-full py-4 rounded-xl border-2 border-dashed border-slate-700 hover:border-violet-500/50 bg-slate-900/50 cursor-pointer transition-all group">
+            <label className="block text-xs font-bold text-slate-300">Subir imagen del banner</label>
+            <label className="flex flex-col items-center justify-center gap-2 w-full py-6 rounded-2xl border-2 border-dashed border-slate-700 hover:border-violet-500/50 bg-slate-900/50 cursor-pointer transition-all group">
               <input type="file" accept="image/*" onChange={handleUpload} className="hidden" />
-              {uploading
-                ? <><Loader2 className="w-4 h-4 text-violet-400 animate-spin" /><span className="text-xs text-violet-300 font-bold">Subiendo...</span></>
-                : <><Upload className="w-4 h-4 text-slate-500 group-hover:text-violet-400 transition-colors" /><span className="text-xs text-slate-400 group-hover:text-violet-300 font-bold">JPG, PNG, WebP — Mínimo 1920×1080</span></>
-              }
+              {uploading ? (
+                <>
+                  <Loader2 className="w-6 h-6 text-violet-400 animate-spin" />
+                  <span className="text-xs text-violet-300 font-bold">Subiendo imagen a Storage...</span>
+                </>
+              ) : (
+                <>
+                  <div className="p-3 rounded-xl bg-violet-600/10 text-violet-400 group-hover:bg-violet-600/20 group-hover:text-violet-300 transition-colors">
+                    <Upload className="w-5 h-5" />
+                  </div>
+                  <span className="text-xs text-slate-300 group-hover:text-white font-bold">
+                    Hacé clic para seleccionar una imagen
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-medium">
+                    JPG, PNG o WebP — Resolución recomendada 1920×1080px
+                  </span>
+                </>
+              )}
             </label>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-slate-800" />
-            <span className="text-[10px] text-slate-500 font-bold">O ingresá una URL</span>
-            <div className="flex-1 h-px bg-slate-800" />
-          </div>
-
+          {/* URL de Redireccionamiento */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-slate-300">URL de la imagen</label>
-            <input type="url" value={heroUrl}
-              onChange={e => { setHeroUrl(e.target.value); setPreviewUrl(e.target.value); }}
-              placeholder="https://ejemplo.com/banner.jpg"
-              className="w-full px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none" />
+            <label className="block text-xs font-bold text-slate-300 flex items-center justify-between">
+              <span>URL de redireccionamiento al hacer clic</span>
+              <span className="text-[10px] text-slate-500 font-normal">Opcional</span>
+            </label>
+            <input
+              type="url"
+              value={heroLink}
+              onChange={e => setHeroLink(e.target.value)}
+              placeholder="https://ejemplo.com/promocion-o-contacto"
+              className="w-full px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none"
+            />
+            <p className="text-[10px] text-slate-500">
+              Si se especifica, el usuario será redirigido a este enlace cuando haga clic sobre el banner en la home.
+            </p>
           </div>
 
-          <div className="flex gap-3">
-            <button onClick={handleSave} disabled={saving || !heroUrl}
-              className="flex-1 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-black text-xs flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 shadow-lg shadow-violet-900/30">
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={handleSave}
+              disabled={saving || !heroUrl}
+              className="flex-1 py-3.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-black text-xs flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 shadow-lg shadow-violet-900/30"
+            >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Guardar en Supabase
+              Guardar Banner y Redirección
             </button>
-            <button onClick={handleReset}
-              className="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold text-xs flex items-center gap-2 cursor-pointer transition-all">
+            <button
+              onClick={handleReset}
+              className="px-4 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold text-xs flex items-center gap-2 cursor-pointer transition-all"
+            >
               <RefreshCw className="w-4 h-4" /> Reset
             </button>
           </div>
@@ -822,10 +864,17 @@ function SectionHero({ toast }) {
 
         {/* Preview */}
         <div className="bg-[#0F172A] border border-slate-800 rounded-2xl p-6 space-y-4">
-          <h3 className="text-sm font-black text-white flex items-center gap-2">
-            <Eye className="w-4 h-4 text-blue-400" /> Vista Previa
-          </h3>
-          <div className="relative rounded-xl overflow-hidden aspect-video border border-slate-700/50">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-black text-white flex items-center gap-2">
+              <Eye className="w-4 h-4 text-blue-400" /> Vista Previa del Banner
+            </h3>
+            {heroLink && (
+              <span className="text-[10px] font-bold text-violet-300 bg-violet-500/20 px-2 py-0.5 rounded-md border border-violet-500/30 flex items-center gap-1">
+                <ExternalLink className="w-3 h-3" /> Clic activo
+              </span>
+            )}
+          </div>
+          <div className={`relative rounded-xl overflow-hidden aspect-video border border-slate-700/50 ${heroLink ? 'ring-1 ring-violet-500/40' : ''}`}>
             <img src={previewUrl} alt="Preview" className="w-full h-full object-cover"
               onError={e => { e.target.src = '/hero_daylight_fleet.png'; }} />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-900/40 to-transparent" />
@@ -839,8 +888,16 @@ function SectionHero({ toast }) {
                 </div>
               </div>
             </div>
+            {heroLink && (
+              <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur-md text-[10px] text-violet-200 border border-violet-500/40 flex items-center gap-1.5">
+                <ExternalLink className="w-3 h-3 text-violet-400" />
+                <span className="truncate max-w-[200px]">{heroLink}</span>
+              </div>
+            )}
           </div>
-          <p className="text-[10px] text-slate-500 text-center">Vista con overlay simulado</p>
+          <p className="text-[10px] text-slate-500 text-center">
+            {heroLink ? `Al hacer clic redirige a: ${heroLink}` : 'Sin redirección al hacer clic'}
+          </p>
         </div>
       </div>
     </div>
@@ -979,12 +1036,7 @@ function SectionPublicidad({ toast }) {
               </label>
             </div>
 
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-300">O ingresar URL de la imagen</label>
-              <input type="url" value={leftUrl} onChange={e => setLeftUrl(e.target.value)}
-                placeholder="https://ejemplo.com/banner-izquierdo.jpg"
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none" />
-            </div>
+
 
             <div className="space-y-2">
               <label className="block text-xs font-bold text-slate-300">URL de destino (opcional)</label>
@@ -1023,12 +1075,7 @@ function SectionPublicidad({ toast }) {
               </label>
             </div>
 
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-300">O ingresar URL de la imagen</label>
-              <input type="url" value={rightUrl} onChange={e => setRightUrl(e.target.value)}
-                placeholder="https://ejemplo.com/banner-derecho.jpg"
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none" />
-            </div>
+
 
             <div className="space-y-2">
               <label className="block text-xs font-bold text-slate-300">URL de destino (opcional)</label>
@@ -1466,12 +1513,12 @@ export default function SuperAdminPage({ currentUser, onBackToHome, onSignOut })
   // ── Acceso denegado ─────────────────────────────────────────────────────────
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-[#090D16] flex items-center justify-center">
-        <div className="text-center space-y-4">
+      <div className="min-h-screen bg-home-canvas flex items-center justify-center p-4">
+        <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-xl text-center space-y-4 max-w-sm w-full">
           <Shield className="w-16 h-16 text-rose-500 mx-auto" />
-          <h2 className="text-xl font-black text-white">Acceso Restringido</h2>
-          <p className="text-slate-400 text-sm">Iniciá sesión para continuar.</p>
-          <button onClick={onBackToHome} className="px-6 py-3 rounded-xl bg-violet-600 text-white font-bold text-sm cursor-pointer">Volver</button>
+          <h2 className="text-xl font-black text-slate-900">Acceso Restringido</h2>
+          <p className="text-slate-600 text-sm">Iniciá sesión para continuar.</p>
+          <button onClick={onBackToHome} className="w-full px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm cursor-pointer shadow-md transition-all">Volver</button>
         </div>
       </div>
     );
@@ -1479,24 +1526,24 @@ export default function SuperAdminPage({ currentUser, onBackToHome, onSignOut })
 
   if (!isSuperAdmin) {
     return (
-      <div className="min-h-screen bg-[#090D16] flex items-center justify-center">
-        <div className="text-center space-y-4 max-w-sm mx-4">
-          <div className="w-20 h-20 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto">
-            <Lock className="w-10 h-10 text-rose-400" />
+      <div className="min-h-screen bg-home-canvas flex items-center justify-center p-4">
+        <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-xl text-center space-y-4 max-w-sm w-full">
+          <div className="w-20 h-20 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center mx-auto">
+            <Lock className="w-10 h-10 text-rose-600" />
           </div>
-          <h2 className="text-2xl font-black text-white">Acceso Denegado</h2>
-          <p className="text-slate-400 text-sm">No tenés permisos de SuperAdmin.</p>
-          <p className="text-[11px] text-slate-600 font-mono bg-slate-900 rounded-xl p-3 border border-slate-800">
+          <h2 className="text-2xl font-black text-slate-900">Acceso Denegado</h2>
+          <p className="text-slate-600 text-sm">No tenés permisos de SuperAdmin.</p>
+          <p className="text-[11px] text-slate-700 font-mono bg-slate-50 rounded-xl p-3 border border-slate-200">
             Email: {userEmail}
           </p>
-          <button onClick={onBackToHome} className="px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold text-sm cursor-pointer transition-all">Volver</button>
+          <button onClick={onBackToHome} className="w-full px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm cursor-pointer transition-all shadow-md">Volver</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#090D16] text-white flex flex-col">
+    <div className="min-h-screen bg-home-canvas text-slate-900 flex flex-col">
       {/* Toast */}
       {toast.toast && (
         <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl text-white font-bold text-xs shadow-2xl border animate-bounce ${
@@ -1509,21 +1556,21 @@ export default function SuperAdminPage({ currentUser, onBackToHome, onSignOut })
       )}
 
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-slate-800 bg-[#0B0F1A]/95 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button onClick={onBackToHome}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold cursor-pointer transition-all">
-              <ArrowLeft className="w-3.5 h-3.5" />
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs font-bold cursor-pointer transition-all border border-slate-200 shadow-sm">
+              <ArrowLeft className="w-3.5 h-3.5 text-violet-600" />
               <span className="hidden sm:inline">Volver al Sitio</span>
             </button>
-            <div className="flex items-center gap-2 border-l border-slate-800 pl-4">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-600 to-rose-500 flex items-center justify-center">
+            <div className="flex items-center gap-2 border-l border-slate-200 pl-4">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-600 to-rose-500 flex items-center justify-center shadow-sm">
                 <Shield className="w-4 h-4 text-white" />
               </div>
               <div>
-                <span className="text-sm font-black text-white">Panel SuperAdmin</span>
-                <div className="text-[9px] text-violet-300 font-bold uppercase tracking-wider">Sitio Automotor</div>
+                <span className="text-sm font-black text-slate-900">Panel SuperAdmin</span>
+                <div className="text-[9px] text-violet-700 font-bold uppercase tracking-wider">Sitio Automotor</div>
               </div>
             </div>
           </div>
@@ -1531,22 +1578,22 @@ export default function SuperAdminPage({ currentUser, onBackToHome, onSignOut })
           <div className="flex items-center gap-3">
             {(stats?.pendingPayments ?? 0) > 0 && (
               <button onClick={() => setActiveSection('pagos')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-black cursor-pointer hover:bg-amber-500/30 transition-all">
-                <Bell className="w-3.5 h-3.5" />
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-800 text-[10px] font-black cursor-pointer hover:bg-amber-500/30 transition-all">
+                <Bell className="w-3.5 h-3.5 text-amber-600" />
                 {stats.pendingPayments} pago{stats.pendingPayments !== 1 ? 's' : ''} pendiente{stats.pendingPayments !== 1 ? 's' : ''}
               </button>
             )}
-            <div className="hidden sm:flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5">
+            <div className="hidden sm:flex items-center gap-2 bg-white border border-slate-200 shadow-sm rounded-xl px-3 py-1.5">
               <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-600 to-rose-500 flex items-center justify-center font-black text-white text-[10px]">
                 {userEmail.charAt(0).toUpperCase()}
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-white max-w-[150px] truncate">{userEmail}</span>
-                <span className="text-[8px] font-black text-violet-300 uppercase tracking-wider">Super Admin</span>
+                <span className="text-[10px] font-bold text-slate-900 max-w-[150px] truncate">{userEmail}</span>
+                <span className="text-[8px] font-black text-violet-700 uppercase tracking-wider">Super Admin</span>
               </div>
             </div>
             <button onClick={onSignOut}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer">
+              className="p-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer border border-slate-200">
               <LogOut className="w-4 h-4" />
             </button>
           </div>
@@ -1555,17 +1602,17 @@ export default function SuperAdminPage({ currentUser, onBackToHome, onSignOut })
 
       <div className="flex flex-1 max-w-[1400px] mx-auto w-full">
         {/* Sidebar desktop */}
-        <aside className="hidden lg:flex flex-col w-60 xl:w-64 border-r border-slate-800 py-6 px-3 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto flex-shrink-0">
+        <aside className="hidden lg:flex flex-col w-60 xl:w-64 border-r border-slate-200 py-6 px-3 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto flex-shrink-0">
           <nav className="space-y-1">
             {sections.map(({ id, label, icon: Icon, badge }) => (
               <button key={id} onClick={() => setActiveSection(id)}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeSection === id
-                    ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/80'
+                    ? 'bg-violet-600 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
                 }`}>
                 <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 ${activeSection === id ? 'text-white' : 'text-slate-500'}`} />
+                  <Icon className={`w-4 h-4 ${activeSection === id ? 'text-white' : 'text-slate-400'}`} />
                   {label}
                 </div>
                 {badge > 0 && (
@@ -1577,10 +1624,10 @@ export default function SuperAdminPage({ currentUser, onBackToHome, onSignOut })
             ))}
           </nav>
           <div className="mt-auto pt-6">
-            <div className="p-3 rounded-xl bg-violet-950/30 border border-violet-700/30">
+            <div className="p-3 rounded-xl bg-violet-50 border border-violet-200">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-3.5 h-3.5 text-violet-300" />
-                <span className="text-[10px] font-black text-violet-300">Acceso Total</span>
+                <ShieldCheck className="w-3.5 h-3.5 text-violet-700" />
+                <span className="text-[10px] font-black text-violet-800">Acceso Total</span>
               </div>
               <p className="text-[9px] text-slate-500 mt-1">Todas las operaciones impactan directo en Supabase.</p>
             </div>
@@ -1588,12 +1635,12 @@ export default function SuperAdminPage({ currentUser, onBackToHome, onSignOut })
         </aside>
 
         {/* Nav mobile */}
-        <div className="lg:hidden border-b border-slate-800 bg-[#0B0F1A]/95 sticky top-16 z-30 w-full overflow-x-auto">
+        <div className="lg:hidden border-b border-slate-200 bg-white/95 sticky top-16 z-30 w-full overflow-x-auto">
           <div className="flex gap-1 px-3 py-2 min-w-max">
             {sections.map(({ id, label, icon: Icon, badge }) => (
               <button key={id} onClick={() => setActiveSection(id)}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold whitespace-nowrap transition-all cursor-pointer relative ${
-                  activeSection === id ? 'bg-violet-600 text-white' : 'text-slate-400 hover:bg-slate-800'
+                  activeSection === id ? 'bg-violet-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
                 }`}>
                 <Icon className="w-3.5 h-3.5" />
                 {label}

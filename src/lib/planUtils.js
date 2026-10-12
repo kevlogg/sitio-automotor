@@ -25,6 +25,7 @@ export const PLAN_KEYS = {
   PREMIUM: 'premium',
   SUPER_PREMIUM: 'super_premium',
   // Aliases de compatibilidad previa
+  PARTICULAR: 'base',
   AGENCIA_BASE: 'premium',
   AGENCIA_PRO: 'super_premium',
   NEGOCIO_BASE: 'base',
@@ -33,12 +34,12 @@ export const PLAN_KEYS = {
 
 export const PLAN_INFO = {
   particular: {
-    label: 'Particular Standard',
-    price: 15000,
-    priceLabel: '$15.000 / publicación',
+    label: 'Plan Base',
+    price: 55000,
+    priceLabel: '$55.000 / mes',
     userType: 'particular',
     vehicleLimit: 1,
-    features: ['1 aviso activo por 30 días', 'Fotos HD', 'Consultas directo a WhatsApp'],
+    features: ['1 aviso en la plataforma', 'Comercios y particulares', 'Consultas directo a WhatsApp'],
   },
   base: {
     label: 'Plan Base',

@@ -235,35 +235,35 @@ export default function DashboardParticular({
   ];
 
   return (
-    <div className="min-h-screen bg-[#090D16] text-white flex flex-col">
+    <div className="min-h-screen bg-home-canvas text-slate-900 flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-slate-800 bg-[#0F172A]/90 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button onClick={onBackToHome}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all text-xs font-bold cursor-pointer">
-              <ArrowLeft className="w-4 h-4" />
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 transition-all text-xs font-bold cursor-pointer border border-slate-200 shadow-sm">
+              <ArrowLeft className="w-4 h-4 text-blue-600" />
               <span className="hidden sm:inline">Volver a la Tienda</span>
             </button>
-            <div className="hidden md:flex items-center gap-2 border-l border-slate-800 pl-4">
-              <Car className="w-4 h-4 text-blue-400" />
-              <span className="text-sm font-black text-white">Panel de Vendedor Particular</span>
+            <div className="hidden md:flex items-center gap-2 border-l border-slate-200 pl-4">
+              <Car className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-black text-slate-900">Panel de Vendedor Particular</span>
             </div>
           </div>
           <div className="flex items-center gap-3 cursor-pointer" onClick={onBackToHome}>
             <img src="/logofrase.png" alt="Sitio Automotor" className="h-11 w-auto object-contain" />
           </div>
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-2xl px-3 py-1.5">
+            <div className="hidden sm:flex items-center gap-2 bg-white border border-slate-200 shadow-sm rounded-2xl px-3 py-1.5">
               <div className="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-xs">
                 {profile.full_name?.charAt(0) || 'P'}
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-bold text-white max-w-[130px] truncate">{profile.full_name || 'Particular'}</span>
-                <span className="text-[9px] font-extrabold border px-1.5 rounded-md bg-blue-500/20 text-blue-300 border-blue-500/40">Particular</span>
+                <span className="text-xs font-bold text-slate-900 max-w-[130px] truncate">{profile.full_name || 'Particular'}</span>
+                <span className="text-[9px] font-extrabold border px-1.5 rounded-md bg-blue-50 text-blue-700 border-blue-200">Particular</span>
               </div>
             </div>
-            <button onClick={onSignOut} className="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer">
+            <button onClick={onSignOut} className="p-2.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-colors cursor-pointer border border-slate-200">
               <LogOut className="w-4 h-4" />
             </button>
           </div>
@@ -273,7 +273,7 @@ export default function DashboardParticular({
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
         {/* Hero Banner con alerta si no tiene plan */}
-        <div className="relative rounded-3xl bg-gradient-to-r from-blue-950/80 via-[#0F172A] to-slate-900 border border-blue-900/40 p-6 sm:p-8 shadow-2xl overflow-hidden">
+        <div className="relative rounded-3xl bg-gradient-to-r from-blue-950 via-[#0F172A] to-slate-900 border border-blue-900/40 p-6 sm:p-8 shadow-2xl overflow-hidden text-white">
           <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
             <div className="space-y-2">
@@ -296,7 +296,7 @@ export default function DashboardParticular({
               )}
               {planStatus === 'active' && (
                 <p className="text-xs sm:text-sm text-emerald-300 font-bold">
-                  ✅ Plan activo: $15.000 / publicación durante 30 días.
+                  ✅ Plan activo: {PLAN_INFO[currentPlanKey]?.label || 'Suscripción activa'}
                 </p>
               )}
             </div>
@@ -316,17 +316,17 @@ export default function DashboardParticular({
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-slate-800 gap-2 overflow-x-auto pb-1">
+        <div className="flex border-b border-slate-200 gap-2 overflow-x-auto pb-1">
           {tabs.map(tab => {
             const Icon = tab.icon;
             return (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                 className={`px-5 py-3 rounded-2xl font-extrabold text-xs transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}>
-                <Icon className={`w-4 h-4 ${tab.id === 'planes' ? 'text-amber-300' : ''}`} />
+                <Icon className={`w-4 h-4 ${tab.id === 'planes' ? 'text-amber-500' : ''}`} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -507,7 +507,7 @@ export default function DashboardParticular({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-black text-white">Mis Publicaciones</h3>
-                <p className="text-xs text-slate-400 mt-1">Cada publicación tiene una duración de <strong className="text-white">30 días</strong> por $15.000.</p>
+                <p className="text-xs text-slate-400 mt-1">Publicá tu vehículo en la plataforma con el Plan Base ($55.000/mes) o planes superiores.</p>
               </div>
               <button onClick={onOpenPublishModal}
                 className="px-4 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs flex items-center gap-2 cursor-pointer">
@@ -523,7 +523,7 @@ export default function DashboardParticular({
                 </div>
                 <button onClick={onOpenPublishModal}
                   className="px-6 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm cursor-pointer transition-all">
-                  + Publicar mi Vehículo — $15.000
+                  + Publicar mi Vehículo
                 </button>
               </div>
             ) : (
@@ -633,33 +633,10 @@ export default function DashboardParticular({
 
             <div className="text-center space-y-1">
               <h2 className="text-2xl font-black text-white">Planes Oficiales • Sitio Automotor</h2>
-              <p className="text-sm text-slate-400">Publicá tu auto individualmente o pasate a un plan comercial.</p>
+              <p className="text-sm text-slate-400">Elegí la suscripción mensual adecuada para publicar en la plataforma.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {/* Particular */}
-              <PlanCard
-                planKey="particular"
-                title={<><Car className="w-3.5 h-3.5" /> Particular</>}
-                priceLabel="$15.000"
-                priceNote="/ publicación · 30 días"
-                features={['1 vehículo por publicación', '30 días de visibilidad', 'Consultas directas al WhatsApp', 'Galería de fotos']}
-                disabledFeatures={['Publicaciones ilimitadas', 'Perfil de Concesionaria']}
-                accentColor={{
-                  gradient: 'from-blue-950/40 to-slate-900',
-                  border: 'border-blue-500/50', ring: 'ring-blue-500/30',
-                  borderSoft: 'border-slate-800', borderHover: 'border-blue-500/40',
-                  chip: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-                  check: 'text-blue-400', note: 'text-slate-400',
-                  badge: 'bg-blue-700', payBtn: 'bg-blue-700 hover:bg-blue-600 text-white',
-                }}
-                isHighlighted={false}
-                isCurrent={currentPlanKey === 'particular'}
-                isPending={planStatus === 'pending'}
-                onPaymentClaim={handlePaymentClaim}
-                submitting={submittingPayment}
-              />
-
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {/* Plan Base */}
               <PlanCard
                 planKey="base"
