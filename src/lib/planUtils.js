@@ -21,10 +21,14 @@ export const PLAN_STATUS = {
 
 export const PLAN_KEYS = {
   PARTICULAR: 'particular',
-  AGENCIA_BASE: 'agencia_base',
-  AGENCIA_PRO: 'agencia_pro',
-  NEGOCIO_BASE: 'negocio_base',
-  NEGOCIO_PRO: 'negocio_pro',
+  BASE: 'base',
+  PREMIUM: 'premium',
+  SUPER_PREMIUM: 'super_premium',
+  // Aliases de compatibilidad previa
+  AGENCIA_BASE: 'premium',
+  AGENCIA_PRO: 'super_premium',
+  NEGOCIO_BASE: 'base',
+  NEGOCIO_PRO: 'super_premium',
 };
 
 export const PLAN_INFO = {
@@ -33,30 +37,94 @@ export const PLAN_INFO = {
     price: 15000,
     priceLabel: '$15.000 / publicación',
     userType: 'particular',
+    vehicleLimit: 1,
+    features: ['1 aviso activo por 30 días', 'Fotos HD', 'Consultas directo a WhatsApp'],
   },
-  agencia_base: {
-    label: 'Agencia Base',
-    price: 90000,
-    priceLabel: '$90.000 / mes',
+  base: {
+    label: 'Plan Base',
+    price: 55000,
+    priceLabel: '$55.000 / mes',
+    userType: 'negocio_automotor',
+    vehicleLimit: 1,
+    target: 'Comercios relacionados con el automotor y agencias virtuales',
+    features: [
+      'Comercios relacionados con el automotor y agencias virtuales',
+      '1 aviso en la plataforma',
+    ],
+  },
+  premium: {
+    label: 'Plan Premium',
+    price: 110000,
+    priceLabel: '$110.000 / mes',
     userType: 'agencia',
+    vehicleLimit: 20,
+    target: 'Agencias multimarca y grandes comercios del mundo automotor',
+    features: [
+      'Agencias multimarca y grandes comercios del mundo automotor',
+      'Hasta 20 avisos en la plataforma',
+    ],
+  },
+  super_premium: {
+    label: 'Plan Súper Premium',
+    price: 220000,
+    priceLabel: '$220.000 / mes',
+    userType: 'agencia',
+    vehicleLimit: 50,
+    target: 'Agencias oficiales y comercios Súper Premium',
+    features: [
+      'Agencias oficiales y comercios Súper Premium',
+      'Hasta 50 avisos en la plataforma',
+      'Banners de promoción en la página',
+    ],
+  },
+  // Mappings retrocompatibles para registros previos
+  agencia_base: {
+    label: 'Plan Premium',
+    price: 110000,
+    priceLabel: '$110.000 / mes',
+    userType: 'agencia',
+    vehicleLimit: 20,
+    target: 'Agencias multimarca y grandes comercios del mundo automotor',
+    features: [
+      'Agencias multimarca y grandes comercios del mundo automotor',
+      'Hasta 20 avisos en la plataforma',
+    ],
   },
   agencia_pro: {
-    label: 'Agencia Pro',
-    price: 190000,
-    priceLabel: '$190.000 / mes',
+    label: 'Plan Súper Premium',
+    price: 220000,
+    priceLabel: '$220.000 / mes',
     userType: 'agencia',
+    vehicleLimit: 50,
+    target: 'Agencias oficiales y comercios Súper Premium',
+    features: [
+      'Agencias oficiales y comercios Súper Premium',
+      'Hasta 50 avisos en la plataforma',
+      'Banners de promoción en la página',
+    ],
   },
   negocio_base: {
-    label: 'Negocio Base',
-    price: 49000,
-    priceLabel: '$49.000 / mes',
+    label: 'Plan Base',
+    price: 55000,
+    priceLabel: '$55.000 / mes',
     userType: 'negocio_automotor',
+    vehicleLimit: 1,
+    target: 'Comercios relacionados con el automotor y agencias virtuales',
+    features: [
+      'Comercios relacionados con el automotor y agencias virtuales',
+      '1 aviso en la plataforma',
+    ],
   },
   negocio_pro: {
-    label: 'Negocio Pro',
-    price: 99000,
-    priceLabel: '$99.000 / mes',
+    label: 'Plan Premium',
+    price: 110000,
+    priceLabel: '$110.000 / mes',
     userType: 'negocio_automotor',
+    vehicleLimit: 20,
+    features: [
+      'Grandes comercios del mundo automotor',
+      'Hasta 20 avisos en la plataforma',
+    ],
   },
 };
 

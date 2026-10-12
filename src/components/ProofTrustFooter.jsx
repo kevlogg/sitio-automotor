@@ -86,7 +86,7 @@ export default function ProofTrustFooter({ cardTheme = 'dark', onOpenSuperAdmin 
             <h5 className="text-xs font-bold uppercase text-white mb-3 tracking-wider">Publicar</h5>
             <ul className="space-y-2 text-xs font-medium text-slate-400">
               <li><a href="#vender" className="hover:text-purple-400 transition-colors">Particular (1 auto x 30 días)</a></li>
-              <li><a href="#vender" className="hover:text-purple-400 transition-colors">Red de Agencias (Plan Base / Pro)</a></li>
+              <li><a href="#vender" className="hover:text-purple-400 transition-colors">Planes Comerciales (Base / Premium / Súper Premium)</a></li>
               <li><a href="#vender" className="hover:text-purple-400 transition-colors">Mundo Automotor (Servicios &amp; Repuestos)</a></li>
               <li><a href="#contacto" className="hover:text-purple-400 transition-colors">Preguntas Frecuentes</a></li>
             </ul>

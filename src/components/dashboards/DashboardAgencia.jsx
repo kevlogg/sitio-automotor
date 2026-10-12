@@ -625,62 +625,96 @@ export default function DashboardAgencia({
             )}
 
             <div className="text-center space-y-1">
-              <h2 className="text-2xl font-black text-white">Planes de Agencia / Concesionaria</h2>
-              <p className="text-sm text-slate-400">Elegí el nivel que mejor se adapte al volumen de tu agencia.</p>
+              <h2 className="text-2xl font-black text-white">Planes Oficiales • Sitio Automotor</h2>
+              <p className="text-sm text-slate-400">Elegí la suscripción que mejor se adapte al volumen de tu negocio.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-              {/* Agencia Base */}
-              {['agencia_base', 'agencia_pro'].map(planKey => {
-                const isBase = planKey === 'agencia_base';
-                const isCurrent = currentPlanKey === planKey;
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {[
+                {
+                  key: 'base',
+                  name: 'BASE',
+                  price: '$55.000',
+                  color: 'border-[#B38054]/60',
+                  badgeColor: 'bg-[#B38054]/20 text-[#D4AF37] border-[#B38054]/40',
+                  target: 'Comercios relacionados con el automotor y agencias virtuales',
+                  features: [
+                    'Comercios relacionados con el automotor y agencias virtuales',
+                    '1 aviso en la plataforma',
+                    'Perfil de negocio verificado',
+                    'Contacto directo a WhatsApp'
+                  ]
+                },
+                {
+                  key: 'premium',
+                  name: 'PREMIUM',
+                  price: '$110.000',
+                  color: 'border-slate-400/60',
+                  badgeColor: 'bg-slate-700/50 text-slate-200 border-slate-500/40',
+                  target: 'Agencias multimarca y grandes comercios del mundo automotor',
+                  features: [
+                    'Agencias multimarca y grandes comercios del mundo automotor',
+                    'Hasta 20 avisos en la plataforma',
+                    'Ficha de catálogo e inventario',
+                    'Insignia Verificada Premium'
+                  ]
+                },
+                {
+                  key: 'super_premium',
+                  name: 'SÚPER PREMIUM',
+                  price: '$220.000',
+                  color: 'border-[#D4AF37] ring-2 ring-[#D4AF37]/40 shadow-2xl shadow-amber-950/30',
+                  badgeColor: 'bg-[#D4AF37]/20 text-[#D4AF37] border-[#D4AF37]/40',
+                  highlight: '⭐ Máximo Alcance',
+                  target: 'Agencias oficiales y comercios Súper Premium',
+                  features: [
+                    'Agencias oficiales y comercios Súper Premium',
+                    'Hasta 50 avisos en la plataforma',
+                    'Banners de promoción en la página',
+                    'Posicionamiento prioritario en catálogo',
+                    'Soporte comercial dedicado'
+                  ]
+                }
+              ].map(plan => {
+                const planKey = plan.key;
+                const isCurrent = currentPlanKey === planKey || 
+                  (planKey === 'premium' && currentPlanKey === 'agencia_base') ||
+                  (planKey === 'super_premium' && currentPlanKey === 'agencia_pro') ||
+                  (planKey === 'base' && currentPlanKey === 'negocio_base');
                 const isPendingThis = planStatus === 'pending' && isCurrent;
                 const claimed = paymentClaimResult[planKey] === 'success';
+
                 return (
-                  <div key={planKey} className={`rounded-3xl p-7 border relative flex flex-col justify-between space-y-6 transition-all ${
-                    isBase
-                      ? 'bg-slate-900/80 border-purple-900/50 hover:border-purple-500/40'
-                      : 'bg-gradient-to-b from-purple-950/60 to-slate-900 border-purple-500 ring-2 ring-purple-500/50 shadow-2xl'
-                  }`}>
-                    {!isBase && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-0.5 rounded-full bg-[#6D28D9] text-white text-[10px] font-black tracking-wider shadow-md uppercase whitespace-nowrap">
-                        ⭐ Pro — Máximo Alcance
+                  <div key={planKey} className={`rounded-3xl p-7 border relative flex flex-col justify-between space-y-6 transition-all bg-[#0F172A] ${plan.color}`}>
+                    {plan.highlight && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-0.5 rounded-full bg-[#5328D7] text-white text-[10px] font-black tracking-wider shadow-md uppercase whitespace-nowrap">
+                        {plan.highlight}
                       </div>
                     )}
                     <div className="space-y-4 pt-1">
                       <div className="flex items-center justify-between">
-                        <span className={`px-3 py-1 rounded-xl text-xs font-black flex items-center gap-1 border ${isBase ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'}`}>
-                          {isBase ? <><Building2 className="w-3.5 h-3.5" /> Agencia Base</> : <><Zap className="w-3.5 h-3.5" /> Agencia Pro</>}
+                        <span className={`px-3 py-1 rounded-xl text-xs font-black flex items-center gap-1 border ${plan.badgeColor}`}>
+                          <Building2 className="w-3.5 h-3.5" /> Plan {plan.name}
                         </span>
                         {isCurrent && planStatus === 'pending' && <span className="text-[10px] font-black text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30 flex items-center gap-1"><Clock className="w-3 h-3" /> Pendiente</span>}
                         {isCurrent && planStatus === 'active' && <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">✓ Activo</span>}
                       </div>
                       <div>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-4xl font-black text-white">{isBase ? '$90.000' : '$190.000'}</span>
+                          <span className="text-4xl font-black text-white">{plan.price}</span>
                           <span className="text-xs text-slate-400 font-bold">/ mes</span>
                         </div>
-                        <p className={`text-xs mt-1 font-bold ${isBase ? 'text-purple-300' : 'text-amber-300'}`}>
-                          {isBase ? 'Hasta 30 vehículos publicados simultáneamente' : 'Autos ilimitados + Publicidad web y medios'}
+                        <p className="text-xs mt-1 font-bold text-slate-300">
+                          {plan.target}
                         </p>
                       </div>
-                      <ul className="space-y-2 text-xs text-slate-300">
-                        {(isBase
-                          ? ['Hasta 30 autos activos al mismo tiempo', 'Perfil de Concesionaria', 'Insignia Verificada', 'Logo + Banner oficial', 'WhatsApp comercial']
-                          : [
-                            { text: 'Autos ilimitados', bold: true },
-                            { text: 'Publicidad en web y medios', bold: true },
-                            'Posicionamiento prioritario',
-                            'Insignia Verificada Premium',
-                            'Soporte comercial dedicado',
-                          ]
-                        ).map((item, i) => (
+                      <ul className="space-y-2.5 text-xs text-slate-300">
+                        {plan.features.map((item, i) => (
                           <li key={i} className="flex items-start gap-2">
-                            <Check className={`w-4 h-4 flex-shrink-0 mt-0.5 ${isBase ? 'text-purple-400' : 'text-amber-400'}`} />
-                            <span className={typeof item === 'object' && item.bold ? 'font-extrabold text-white' : ''}>{typeof item === 'object' ? item.text : item}</span>
+                            <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-[#8B5CF6]" />
+                            <span>{item}</span>
                           </li>
                         ))}
-                        {isBase && <li className="flex items-start gap-2 opacity-40"><X className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" /><span>Publicidad en web y medios</span></li>}
                       </ul>
                     </div>
                     {/* CTA */}
@@ -698,9 +732,7 @@ export default function DashboardAgencia({
                       <button
                         onClick={() => handlePaymentClaim(planKey)}
                         disabled={submittingPayment}
-                        className={`w-full py-4 rounded-2xl text-xs font-black flex items-center justify-center gap-2 cursor-pointer shadow-lg transition-all disabled:opacity-50 ${
-                          isBase ? 'bg-purple-700 hover:bg-purple-600 text-white' : 'bg-[#6D28D9] hover:bg-[#5B21B6] text-white shadow-purple-900/50'
-                        }`}>
+                        className="w-full py-4 rounded-2xl text-xs font-black flex items-center justify-center gap-2 cursor-pointer shadow-lg transition-all disabled:opacity-50 bg-[#5328D7] hover:bg-[#431fb5] text-white shadow-purple-900/40">
                         {submittingPayment ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
                         Ya pagué en efectivo / transferencia
                       </button>

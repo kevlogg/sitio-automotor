@@ -1,271 +1,256 @@
 import React from 'react';
 import { 
-  Car, Building2, Wrench, CheckCircle2, ArrowRight, Flag, Sparkles
+  Check, Car, ArrowRight, ShieldCheck, Sparkles, Building2
 } from 'lucide-react';
 import useScrollReveal from '../hooks/useScrollReveal';
+
+// Logo oficial estilizado idéntico al encabezado de las tarjetas
+function PlanLogoHeader({ color, lineColor }) {
+  return (
+    <div className="w-full flex flex-col items-center select-none">
+      <div className="flex flex-col items-center" style={{ color }}>
+        <span className="text-3xl sm:text-[34px] font-black tracking-wider leading-tight">
+          SITIO
+        </span>
+        <span className="text-[10px] sm:text-[11px] font-black tracking-[0.38em] uppercase -mt-0.5 pl-[0.38em]">
+          ΛUTOMOTOR
+        </span>
+      </div>
+      <div className="w-full h-[1px] mt-4 opacity-80" style={{ backgroundColor: lineColor || color }} />
+    </div>
+  );
+}
 
 export default function MonetizationSection({
   cardTheme = 'violet',
   onOpenPublishModal,
   onOpenRegisterBusiness,
-  onOpenAuthModal
+  onOpenAuthModal,
+  onSelectPlan,
 }) {
   const containerRef = useScrollReveal({ threshold: 0.1 });
 
+  const handlePlanAction = (planKey) => {
+    if (onSelectPlan) {
+      onSelectPlan(planKey);
+    } else if (onOpenRegisterBusiness) {
+      onOpenRegisterBusiness(planKey);
+    } else if (onOpenAuthModal) {
+      onOpenAuthModal('signup');
+    }
+  };
+
   return (
-    <section id="vender" ref={containerRef} className="w-full bg-transparent space-y-8">
-      <div>
+    <section id="vender" ref={containerRef} className="w-full bg-transparent space-y-8 py-4">
+      <div className="w-full">
         
         {/* Header Section */}
-        <div className="text-center max-w-3xl mx-auto space-y-3 reveal-on-scroll">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#6D28D9]/10 text-[#6D28D9] border border-[#6D28D9]/20 text-xs font-black uppercase tracking-widest">
-            <Flag className="w-3.5 h-3.5 text-[#6D28D9]" />
-            <span>Soluciones Automotrices para Cada Perfil</span>
+        <div className="text-center max-w-3xl mx-auto space-y-3 mb-10 reveal-on-scroll">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#5328D7]/10 text-[#5328D7] border border-[#5328D7]/20 text-xs font-black uppercase tracking-widest">
+            <Sparkles className="w-3.5 h-3.5 text-[#5328D7]" />
+            <span>Membresías & Soluciones Comerciales</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-            ¿Qué querés hacer en <span className="text-[#6D28D9]">Sitio Automotor</span>?
+            Planes de <span className="text-[#5328D7]">Sitio Automotor</span>
           </h2>
           <p className="text-sm sm:text-base text-slate-600 font-semibold leading-relaxed">
-            Elegí la opción según tu objetivo. Las 3 modalidades cuentan con atención personalizada y publicación inmediata.
+            Elegí la suscripción mensual adecuada para tu volumen de publicaciones y presencia comercial en toda la provincia.
           </p>
         </div>
 
-        {/* 3 Action Cards Grid (Strict Visual & Architectural Consistency across all 3 profiles) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+        {/* 3 Action Cards Grid — Réplica exacta y estricta de la imagen */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch max-w-7xl mx-auto">
 
-          {/* CARD 1: PARTICULARES (Vender tu Auto) */}
-          <div className="reveal-on-scroll delay-75 rounded-3xl bg-gradient-to-br from-[#261647] via-[#1E1138] to-[#160B2B] border-2 border-purple-500/70 p-7 text-white shadow-2xl shadow-purple-950/40 flex flex-col justify-between space-y-6 hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden group">
-            {/* Ambient Background Accent */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500" />
+          {/* ═══════════════════════════════════════════════════════
+              CARD 1: BASE ($55.000)
+             ═══════════════════════════════════════════════════════ */}
+          <div className="reveal-on-scroll delay-75 bg-white rounded-3xl p-7 sm:p-8 border border-[#B38054]/50 shadow-xl shadow-slate-200/50 flex flex-col justify-between space-y-6 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 relative group">
             
-            <div className="space-y-5 relative z-10">
-              {/* Header Badges */}
-              <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-400/30 text-xs font-black flex items-center gap-1.5">
-                  <Car className="w-3.5 h-3.5 text-purple-300" /> Particular
-                </span>
-                <span className="text-[10px] font-mono text-purple-300 font-extrabold uppercase bg-white/10 px-2.5 py-1 rounded-md tracking-wider">
-                  Venta Rápida
-                </span>
-              </div>
+            <div className="space-y-5">
+              {/* Logo Header */}
+              <PlanLogoHeader color="#B38054" lineColor="#B38054" />
 
-              {/* Title & Description */}
-              <div className="space-y-1">
-                <h3 className="text-2xl font-black text-white tracking-tight">
-                  Publicá tu Vehículo
+              {/* Title & Price */}
+              <div className="text-center space-y-1">
+                <h3 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight uppercase">
+                  BASE
                 </h3>
-                <p className="text-xs text-purple-200/80 leading-relaxed min-h-[36px]">
-                  Para dueños particulares que buscan vender su auto, camioneta, moto o embarcación.
-                </p>
+                <div className="text-4xl sm:text-5xl font-black text-slate-950 tracking-tight pt-1">
+                  $55.000
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-widest pt-1">
+                  ABONO MENSUAL
+                </div>
               </div>
 
-              {/* Price Box */}
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-3xl sm:text-4xl font-black font-mono text-white">$15.000</span>
-                  <span className="text-xs text-purple-200/80 font-medium">/ 30 días</span>
-                </div>
-                <p className="text-[11px] text-purple-300 font-bold">
-                  Publicación destacada sin comisiones de venta
-                </p>
-              </div>
+              {/* Gray Divider */}
+              <div className="w-full h-px bg-slate-200/90 my-5" />
 
               {/* Checklist */}
-              <ul className="space-y-3 text-xs text-purple-100 min-h-[100px]">
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-                  <span>Publicación activa por 30 días con fotos HD</span>
+              <ul className="space-y-4 text-sm font-medium text-slate-800 leading-snug">
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-[#5328D7] flex items-center justify-center shrink-0 text-white mt-0.5 shadow-sm">
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  </span>
+                  <span>Comercios relacionados con el automotor y agencias virtuales</span>
                 </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-                  <span>Contacto directo a tu WhatsApp personal</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-                  <span>Alcance a compradores en todo el país</span>
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-[#5328D7] flex items-center justify-center shrink-0 text-white mt-0.5 shadow-sm">
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  </span>
+                  <span>1 aviso en la plataforma</span>
                 </li>
               </ul>
             </div>
 
             {/* CTA Button */}
-            <div className="pt-2 relative z-10">
+            <div className="pt-4">
               <button
-                onClick={onOpenPublishModal}
-                className="w-full py-4 rounded-2xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-extrabold text-xs shadow-lg shadow-purple-900/50 flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-98 border border-purple-400/40"
+                onClick={() => handlePlanAction('base')}
+                className="w-full py-4 rounded-2xl bg-[#5328D7] hover:bg-[#431fb5] text-white font-black text-base shadow-lg shadow-indigo-950/20 transition-all duration-200 cursor-pointer text-center active:scale-98"
               >
-                <Car className="w-4 h-4" />
-                <span>Publicar mi vehículo</span>
-                <ArrowRight className="w-4 h-4" />
+                Adherir mi negocio
               </button>
             </div>
           </div>
 
-          {/* CARD 2: AGENCIAS Y CONCESIONARIAS */}
-          <div className="reveal-on-scroll delay-150 rounded-3xl bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#090D16] border-2 border-slate-700/80 p-7 text-white shadow-2xl shadow-slate-950/50 flex flex-col justify-between space-y-6 hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden group">
-            {/* Ambient Background Accent */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500" />
+          {/* ═══════════════════════════════════════════════════════
+              CARD 2: PREMIUM ($110.000)
+             ═══════════════════════════════════════════════════════ */}
+          <div className="reveal-on-scroll delay-150 bg-white rounded-3xl p-7 sm:p-8 border border-slate-300 shadow-xl shadow-slate-200/50 flex flex-col justify-between space-y-6 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 relative group">
             
-            <div className="space-y-5 relative z-10">
-              {/* Header Badges */}
-              <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs font-black flex items-center gap-1.5">
-                  <Building2 className="w-3.5 h-3.5 text-blue-400" /> Agencia / Concesionaria
-                </span>
-                <span className="text-[10px] font-mono text-blue-300 font-extrabold uppercase bg-white/10 px-2.5 py-1 rounded-md tracking-wider">
-                  Red Oficial
-                </span>
-              </div>
+            <div className="space-y-5">
+              {/* Logo Header */}
+              <PlanLogoHeader color="#71717A" lineColor="#9CA3AF" />
 
-              {/* Title & Description */}
-              <div className="space-y-1">
-                <h3 className="text-2xl font-black text-white tracking-tight">
-                  Potenciá tu Agencia
+              {/* Title & Price */}
+              <div className="text-center space-y-1">
+                <h3 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight uppercase">
+                  PREMIUM
                 </h3>
-                <p className="text-xs text-slate-300 leading-relaxed min-h-[36px]">
-                  Para concesionarias oficiales y multimarca que buscan publicar su catálogo completo.
-                </p>
+                <div className="text-4xl sm:text-5xl font-black text-slate-950 tracking-tight pt-1">
+                  $110.000
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-widest pt-1">
+                  ABONO MENSUAL
+                </div>
               </div>
 
-              {/* Price Box */}
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-3xl sm:text-4xl font-black font-mono text-white">$90.000</span>
-                  <span className="text-xs text-slate-300 font-medium">/ mes</span>
-                </div>
-                <p className="text-[11px] text-blue-300 font-bold">
-                  Planes de Agencia con catálogo de inventario
-                </p>
-              </div>
+              {/* Gray Divider */}
+              <div className="w-full h-px bg-slate-200/90 my-5" />
 
               {/* Checklist */}
-              <ul className="space-y-3 text-xs text-slate-200 min-h-[100px]">
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                  <span>Ficha oficial con logo, portada y horarios</span>
+              <ul className="space-y-4 text-sm font-medium text-slate-800 leading-snug">
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-[#5328D7] flex items-center justify-center shrink-0 text-white mt-0.5 shadow-sm">
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  </span>
+                  <span>Agencias multimarca y grandes comercios del mundo automotor</span>
                 </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                  <span>Insignia de Concesionaria Verificada</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                  <span>Posicionamiento prioritario y stock amplio</span>
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-[#5328D7] flex items-center justify-center shrink-0 text-white mt-0.5 shadow-sm">
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  </span>
+                  <span>Hasta 20 avisos en la plataforma</span>
                 </li>
               </ul>
             </div>
 
             {/* CTA Button */}
-            <div className="pt-2 relative z-10">
+            <div className="pt-4">
               <button
-                onClick={() => {
-                  if (onOpenAuthModal) onOpenAuthModal('signup');
-                }}
-                className="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs shadow-lg shadow-blue-900/40 flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-98 border border-blue-400/30"
+                onClick={() => handlePlanAction('premium')}
+                className="w-full py-4 rounded-2xl bg-[#5328D7] hover:bg-[#431fb5] text-white font-black text-base shadow-lg shadow-indigo-950/20 transition-all duration-200 cursor-pointer text-center active:scale-98"
               >
-                <Building2 className="w-4 h-4" />
-                <span>Ingresar como Agencia</span>
-                <ArrowRight className="w-4 h-4" />
+                Adherir mi negocio
               </button>
             </div>
           </div>
 
-          {/* CARD 3: NEGOCIOS AUTOMOTRICES (Mundo Automotor) */}
-          <div className="reveal-on-scroll delay-250 rounded-3xl bg-gradient-to-br from-[#2D1A04] via-[#1E1138] to-[#0F172A] border-2 border-amber-500/70 p-7 text-white shadow-2xl shadow-amber-950/40 flex flex-col justify-between space-y-6 hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden group">
-            {/* Ambient Background Accent */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500" />
+          {/* ═══════════════════════════════════════════════════════
+              CARD 3: SÚPER PREMIUM ($220.000)
+             ═══════════════════════════════════════════════════════ */}
+          <div className="reveal-on-scroll delay-250 bg-white rounded-3xl p-7 sm:p-8 border border-[#D4AF37] shadow-xl shadow-amber-200/30 flex flex-col justify-between space-y-6 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 relative group">
             
-            <div className="space-y-5 relative z-10">
-              {/* Header Badges */}
-              <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-black flex items-center gap-1.5">
-                  <Wrench className="w-3.5 h-3.5 text-amber-400" /> Comercio Automotor
-                </span>
-                <span className="text-[10px] font-mono text-amber-300 font-extrabold uppercase bg-white/10 px-2.5 py-1 rounded-md tracking-wider">
-                  Mundo Automotor
-                </span>
-              </div>
+            <div className="space-y-5">
+              {/* Logo Header */}
+              <PlanLogoHeader color="#C59B27" lineColor="#D4AF37" />
 
-              {/* Title & Description */}
-              <div className="space-y-1">
-                <h3 className="text-2xl font-black text-white tracking-tight">
-                  Sumá tu Comercio
+              {/* Title & Price */}
+              <div className="text-center space-y-1">
+                <h3 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight uppercase">
+                  SÚPER PREMIUM
                 </h3>
-                <p className="text-xs text-amber-200/80 leading-relaxed min-h-[36px]">
-                  Para talleres mecánicos, lubricentros, repuestos, gomerías, detailing y gestorías.
-                </p>
+                <div className="text-4xl sm:text-5xl font-black text-slate-950 tracking-tight pt-1">
+                  $220.000
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-widest pt-1">
+                  ABONO MENSUAL
+                </div>
               </div>
 
-              {/* Price Box */}
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-3xl sm:text-4xl font-black font-mono text-[#F59E0B]">$49.000</span>
-                  <span className="text-xs text-amber-200/80 font-medium">/ mes</span>
-                </div>
-                <p className="text-[11px] text-amber-300 font-bold">
-                  Ficha activa en el directorio Mundo Automotor
-                </p>
-              </div>
+              {/* Gray Divider */}
+              <div className="w-full h-px bg-slate-200/90 my-5" />
 
               {/* Checklist */}
-              <ul className="space-y-3 text-xs text-amber-100 min-h-[100px]">
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <span>Ficha visible en el directorio oficial</span>
+              <ul className="space-y-4 text-sm font-medium text-slate-800 leading-snug">
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-[#5328D7] flex items-center justify-center shrink-0 text-white mt-0.5 shadow-sm">
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  </span>
+                  <span>Agencias oficiales y comercios Súper Premium</span>
                 </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <span>Conexión directa con clientes de tu zona</span>
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-[#5328D7] flex items-center justify-center shrink-0 text-white mt-0.5 shadow-sm">
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  </span>
+                  <span>Hasta 50 avisos en la plataforma</span>
                 </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <span>Botón directo de consultas a tu WhatsApp</span>
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-[#5328D7] flex items-center justify-center shrink-0 text-white mt-0.5 shadow-sm">
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  </span>
+                  <span>Banners de promoción en la página</span>
                 </li>
               </ul>
             </div>
 
             {/* CTA Button */}
-            <div className="pt-2 relative z-10">
+            <div className="pt-4">
               <button
-                onClick={onOpenRegisterBusiness}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs shadow-lg shadow-amber-900/40 flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-98 border border-amber-300/40"
+                onClick={() => handlePlanAction('super_premium')}
+                className="w-full py-4 rounded-2xl bg-[#5328D7] hover:bg-[#431fb5] text-white font-black text-base shadow-lg shadow-indigo-950/20 transition-all duration-200 cursor-pointer text-center active:scale-98"
               >
-                <Sparkles className="w-4 h-4 text-amber-200" />
-                <span>Registrar mi Comercio</span>
-                <ArrowRight className="w-4 h-4" />
+                Adherir mi negocio
               </button>
             </div>
           </div>
 
         </div>
 
-        {/* Bottom Banner: 3 Pasos sencillos y claros */}
-        <div className="reveal-on-scroll delay-300 mt-8 sm:mt-10 p-6 sm:p-8 rounded-3xl bg-white border-2 border-purple-300/80 shadow-xl shadow-purple-900/10 flex flex-col lg:flex-row items-center justify-between gap-6">
+        {/* Bottom Banner: Vendedores Particulares */}
+        <div className="reveal-on-scroll delay-300 mt-10 p-6 sm:p-7 rounded-3xl bg-white border border-slate-200 shadow-lg shadow-slate-200/40 flex flex-col sm:flex-row items-center justify-between gap-5 max-w-7xl mx-auto">
           <div className="flex items-center gap-4 text-left">
-            <div className="w-12 h-12 rounded-2xl bg-[#6D28D9] text-white flex items-center justify-center font-black text-xl shrink-0 shadow-lg shadow-purple-900/20">
-              ⚡
+            <div className="w-12 h-12 rounded-2xl bg-purple-100 text-[#5328D7] flex items-center justify-center font-black text-xl shrink-0">
+              <Car className="w-6 h-6 text-[#5328D7]" />
             </div>
             <div>
               <h4 className="text-base sm:text-lg font-black text-slate-900">
-                Proceso 100% digital, directo y transparente
+                ¿Querés vender tu auto como particular?
               </h4>
               <p className="text-xs text-slate-500 font-semibold mt-0.5">
-                Elegí tu perfil ➔ Registrá tus datos y plan ➔ Recibí consultas directo a tu WhatsApp
+                Publicación activa por 30 días, fotos en alta resolución y consultas directas a tu WhatsApp por <strong>$15.000</strong> sin comisiones de venta.
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto shrink-0">
+          <div className="shrink-0 w-full sm:w-auto">
             <button
               onClick={onOpenPublishModal}
-              className="flex-1 lg:flex-none px-6 py-3.5 rounded-xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-bold text-xs shadow-md cursor-pointer transition-all whitespace-nowrap"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs shadow-md cursor-pointer transition-all whitespace-nowrap flex items-center justify-center gap-2"
             >
-              Publicar Vehículo ($15.000)
-            </button>
-            <button
-              onClick={onOpenRegisterBusiness}
-              className="flex-1 lg:flex-none px-6 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-md cursor-pointer transition-all whitespace-nowrap"
-            >
-              Registrar Comercio
+              <span>Publicar Vehículo ($15.000)</span>
+              <ArrowRight className="w-4 h-4 text-purple-400" />
             </button>
           </div>
         </div>

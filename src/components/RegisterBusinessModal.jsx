@@ -359,7 +359,7 @@ export default function RegisterBusinessModal({ isOpen, onClose, onBusinessRegis
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 text-amber-200" />
-                  <span>Registrar mi Comercio (Plan $49.000/mes)</span>
+                  <span>Registrar mi Comercio (Plan Base $55.000/mes)</span>
                 </>
               )}
             </button>

@@ -683,46 +683,72 @@ export default function DashboardNegocio({
               <p className="text-sm text-slate-400">Gestioná tu visibilidad en el directorio de Mundo Automotor.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {[
-                { key: 'negocio_base', title: 'Negocio Base', price: '$49.000', note: 'Ficha activa en el directorio de Mundo Automotor', features: ['Ficha en directorio de Negocios','Rubro categorizado y filtrable','Horarios y dirección','WhatsApp de contacto directo','Descripción de servicios','Logo del negocio'], disabled: ['Perfil optimizado y beneficios destacados'], isHighlighted: false },
-                { key: 'negocio_pro', title: 'Negocio Pro', price: '$99.000', note: 'Perfil optimizado + beneficios destacados', features: [{text:'Perfil optimizado y destacado',bold:true},{text:'Beneficios y posicionamiento premium',bold:true},'Todo lo del plan Base','Banner de portada del local','Estadísticas de visitas','Posicionamiento prioritario por zona'], disabled: [], isHighlighted: true },
-              ].map(plan => (
-                <div key={plan.key} className={`rounded-3xl p-7 border relative flex flex-col justify-between space-y-6 transition-all ${
-                  plan.isHighlighted
-                    ? 'bg-gradient-to-b from-amber-950/50 to-slate-900 border-amber-500 ring-2 ring-amber-500/40 shadow-2xl'
-                    : 'bg-slate-900/80 border-amber-900/50 hover:border-amber-500/40'
-                }`}>
-                  {plan.isHighlighted && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-0.5 rounded-full bg-amber-600 text-white text-[10px] font-black tracking-wider shadow-md uppercase whitespace-nowrap">
-                      ⭐ Pro — Perfil Optimizado
+                {
+                  key: 'base',
+                  title: 'BASE',
+                  price: '$55.000',
+                  target: 'Comercios relacionados con el automotor y agencias virtuales',
+                  features: ['1 aviso en la plataforma', 'Ficha en directorio de Negocios', 'Rubro categorizado y filtrable', 'Horarios y dirección', 'WhatsApp de contacto directo'],
+                  disabled: ['Hasta 20 o 50 avisos', 'Banners de promoción en la página'],
+                  accent: 'border-[#B38054]/40 hover:border-[#B38054]',
+                  badge: null
+                },
+                {
+                  key: 'premium',
+                  title: 'PREMIUM',
+                  price: '$110.000',
+                  target: 'Agencias multimarca y grandes comercios del mundo automotor',
+                  features: ['Hasta 20 avisos en la plataforma', 'Ficha destacada en directorio', 'Posicionamiento prioritario por zona', 'Estadísticas de visitas', 'WhatsApp directo y catálogo'],
+                  disabled: ['Banners de promoción en la página'],
+                  accent: 'border-slate-400/50 hover:border-slate-300 ring-1 ring-slate-400/30',
+                  badge: 'DESTACADO'
+                },
+                {
+                  key: 'super_premium',
+                  title: 'SÚPER PREMIUM',
+                  price: '$220.000',
+                  target: 'Agencias oficiales y comercios Súper Premium',
+                  features: ['Hasta 50 avisos en la plataforma', 'Banners de promoción en la página', 'Máxima exposición en portada y búsquedas', 'Soporte prioritario exclusivo', 'Ficha VIP verificada'],
+                  disabled: [],
+                  accent: 'border-[#D4AF37] ring-2 ring-[#D4AF37]/40 shadow-2xl bg-gradient-to-b from-[#D4AF37]/10 to-slate-900',
+                  badge: '⭐ MÁXIMO IMPACTO'
+                },
+              ].map(plan => {
+                const isCurrentPlan = currentPlanKey === plan.key || (plan.key === 'base' && currentPlanKey === 'negocio_base') || (plan.key === 'premium' && currentPlanKey === 'negocio_pro');
+                return (
+                <div key={plan.key} className={`rounded-3xl p-6 border relative flex flex-col justify-between space-y-6 transition-all bg-slate-900/90 ${plan.accent}`}>
+                  {plan.badge && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-0.5 rounded-full bg-purple-600 text-white text-[10px] font-black tracking-wider shadow-md uppercase whitespace-nowrap">
+                      {plan.badge}
                     </div>
                   )}
                   <div className="space-y-4 pt-1">
                     <div className="flex items-center justify-between">
-                      <span className="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 text-xs font-black flex items-center gap-1.5 border border-amber-500/30">
-                        {plan.isHighlighted ? <Zap className="w-3.5 h-3.5" /> : <Wrench className="w-3.5 h-3.5" />}
+                      <span className="px-3 py-1 rounded-xl bg-purple-500/20 text-purple-300 text-xs font-black flex items-center gap-1.5 border border-purple-500/30">
+                        <Zap className="w-3.5 h-3.5 text-purple-400" />
                         {plan.title}
                       </span>
-                      {currentPlanKey === plan.key && planStatus === 'pending' && (
+                      {isCurrentPlan && planStatus === 'pending' && (
                         <span className="text-[10px] font-black text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30 flex items-center gap-1"><Clock className="w-3 h-3" /> Pendiente</span>
                       )}
-                      {currentPlanKey === plan.key && planStatus === 'active' && (
+                      {isCurrentPlan && planStatus === 'active' && (
                         <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">✓ Activo</span>
                       )}
                     </div>
                     <div>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-4xl font-black text-white">{plan.price}</span>
-                        <span className="text-xs text-slate-400 font-bold">/ mes</span>
+                        <span className="text-3xl font-black text-white">{plan.price}</span>
+                        <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">ABONO MENSUAL</span>
                       </div>
-                      <p className="text-xs text-amber-300 mt-1 font-bold">{plan.note}</p>
+                      <p className="text-xs text-purple-300 mt-2 font-bold leading-relaxed">{plan.target}</p>
                     </div>
                     <ul className="space-y-2 text-xs text-slate-300">
                       {plan.features.map((item, i) => (
                         <li key={i} className="flex items-start gap-2">
-                          <Check className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-                          <span className={typeof item === 'object' && item.bold ? 'font-extrabold text-white' : ''}>{typeof item === 'object' ? item.text : item}</span>
+                          <Check className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+                          <span>{item}</span>
                         </li>
                       ))}
                       {plan.disabled.map(item => (
@@ -738,7 +764,7 @@ export default function DashboardNegocio({
                         <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                         ¡Solicitud enviada! El equipo verificará tu pago y activará el plan.
                       </div>
-                    ) : planStatus === 'pending' && currentPlanKey === plan.key ? (
+                    ) : planStatus === 'pending' && isCurrentPlan ? (
                       <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 font-bold flex items-center gap-2">
                         <Clock className="w-4 h-4 text-amber-400 flex-shrink-0" />
                         Solicitud enviada. Esperando verificación del equipo.
@@ -747,16 +773,16 @@ export default function DashboardNegocio({
                       <button
                         onClick={() => handlePaymentClaim(plan.key)}
                         disabled={submittingPayment}
-                        className={`w-full py-4 rounded-2xl text-xs font-black flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 ${
-                          plan.isHighlighted ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-xl' : 'bg-amber-700 hover:bg-amber-600 text-white shadow-lg'
-                        }`}>
+                        className="w-full py-3.5 rounded-2xl text-xs font-black flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 bg-[#5328D7] hover:bg-[#431fb5] text-white shadow-lg shadow-purple-950/40"
+                      >
                         {submittingPayment ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
-                        Ya pagué en efectivo / transferencia
+                        Adherir mi negocio (Ya pagué)
                       </button>
                     )}
                   </div>
                 </div>
-              ))}
+              );
+              })}
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-900/90 border border-amber-900/30 text-center">

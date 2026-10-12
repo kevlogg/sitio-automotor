@@ -632,11 +632,11 @@ export default function DashboardParticular({
             )}
 
             <div className="text-center space-y-1">
-              <h2 className="text-2xl font-black text-white">Planes Disponibles para Particulares</h2>
-              <p className="text-sm text-slate-400">Si vendés más de un auto, considerá un plan de Agencia.</p>
+              <h2 className="text-2xl font-black text-white">Planes Oficiales • Sitio Automotor</h2>
+              <p className="text-sm text-slate-400">Publicá tu auto individualmente o pasate a un plan comercial.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               {/* Particular */}
               <PlanCard
                 planKey="particular"
@@ -660,53 +660,86 @@ export default function DashboardParticular({
                 submitting={submittingPayment}
               />
 
-              {/* Agencia Base */}
+              {/* Plan Base */}
               <PlanCard
-                planKey="agencia_base"
-                title={<><Building2 className="w-3.5 h-3.5" /> Agencia Base</>}
-                priceLabel="$90.000"
-                priceNote="/ mes · Hasta 30 autos"
-                features={['Hasta 30 autos publicados', 'Perfil de Concesionaria', 'Insignia Verificada', 'Banner y Logo oficial', 'WhatsApp comercial']}
-                disabledFeatures={['Publicidad en web y medios']}
+                planKey="base"
+                title={<><Building2 className="w-3.5 h-3.5" /> Plan Base</>}
+                priceLabel="$55.000"
+                priceNote="/ mes · Abono mensual"
+                features={[
+                  'Comercios del automotor y agencias virtuales',
+                  '1 aviso en la plataforma',
+                  'Insignia de comercio verificado',
+                  'WhatsApp comercial'
+                ]}
+                disabledFeatures={['Catálogo amplio']}
                 accentColor={{
-                  gradient: 'from-purple-950/40 to-slate-900',
-                  border: 'border-purple-500', ring: 'ring-purple-500/40',
-                  borderSoft: 'border-purple-900/50', borderHover: 'border-purple-500/40',
-                  chip: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-                  check: 'text-purple-400', note: 'text-purple-300',
-                  badge: 'bg-purple-700', payBtn: 'bg-purple-700 hover:bg-purple-600 text-white',
+                  gradient: 'from-[#3A2410]/50 to-slate-900',
+                  border: 'border-[#B38054]', ring: 'ring-[#B38054]/40',
+                  borderSoft: 'border-[#B38054]/40', borderHover: 'border-[#B38054]/70',
+                  chip: 'bg-[#B38054]/20 text-[#D4AF37] border-[#B38054]/30',
+                  check: 'text-[#D4AF37]', note: 'text-amber-200/70',
+                  badge: 'bg-[#B38054]', payBtn: 'bg-[#B38054] hover:bg-[#966336] text-white',
                 }}
                 isHighlighted={false}
-                isCurrent={currentPlanKey === 'agencia_base'}
+                isCurrent={currentPlanKey === 'base' || currentPlanKey === 'negocio_base'}
                 isPending={planStatus === 'pending'}
                 onPaymentClaim={handlePaymentClaim}
                 submitting={submittingPayment}
               />
 
-              {/* Agencia Pro */}
+              {/* Plan Premium */}
               <PlanCard
-                planKey="agencia_pro"
-                title={<><Zap className="w-3.5 h-3.5 text-amber-300" /> Agencia Pro</>}
-                priceLabel="$190.000"
-                priceNote="/ mes · Autos ilimitados + Publicidad"
+                planKey="premium"
+                title={<><Building2 className="w-3.5 h-3.5" /> Plan Premium</>}
+                priceLabel="$110.000"
+                priceNote="/ mes · Hasta 20 autos"
                 features={[
-                  { text: 'Autos ilimitados', bold: true },
-                  { text: 'Publicidad en web y medios', bold: true },
-                  'Perfil Pro de Concesionaria',
+                  'Agencias multimarca y grandes comercios',
+                  'Hasta 20 avisos en la plataforma',
+                  'Ficha y catálogo oficial',
+                  'Insignia de Concesionaria Verificada'
+                ]}
+                disabledFeatures={['Banners de promoción']}
+                accentColor={{
+                  gradient: 'from-slate-900 to-slate-950',
+                  border: 'border-slate-400', ring: 'ring-slate-400/40',
+                  borderSoft: 'border-slate-700', borderHover: 'border-slate-400',
+                  chip: 'bg-slate-700/50 text-slate-200 border-slate-500/40',
+                  check: 'text-slate-300', note: 'text-slate-400',
+                  badge: 'bg-slate-600', payBtn: 'bg-slate-700 hover:bg-slate-600 text-white',
+                }}
+                isHighlighted={false}
+                isCurrent={currentPlanKey === 'premium' || currentPlanKey === 'agencia_base'}
+                isPending={planStatus === 'pending'}
+                onPaymentClaim={handlePaymentClaim}
+                submitting={submittingPayment}
+              />
+
+              {/* Plan Súper Premium */}
+              <PlanCard
+                planKey="super_premium"
+                title={<><Zap className="w-3.5 h-3.5 text-amber-300" /> Súper Premium</>}
+                priceLabel="$220.000"
+                priceNote="/ mes · Hasta 50 autos + Banners"
+                features={[
+                  { text: 'Agencias oficiales y comercios Súper Premium', bold: true },
+                  { text: 'Hasta 50 avisos en la plataforma', bold: true },
+                  { text: 'Banners de promoción en la página', bold: true },
                   'Insignia Verificada Premium',
-                  'Posicionamiento prioritario',
+                  'Posicionamiento prioritario'
                 ]}
                 accentColor={{
                   gradient: 'from-purple-950/60 to-slate-900',
-                  border: 'border-purple-500', ring: 'ring-purple-500/50',
-                  borderSoft: 'border-purple-900/50', borderHover: 'border-purple-500/40',
-                  chip: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-                  check: 'text-amber-400', note: 'text-purple-300',
-                  badge: 'bg-[#6D28D9]', payBtn: 'bg-[#6D28D9] hover:bg-[#5B21B6] text-white',
+                  border: 'border-[#D4AF37]', ring: 'ring-[#D4AF37]/50',
+                  borderSoft: 'border-[#D4AF37]/40', borderHover: 'border-[#D4AF37]',
+                  chip: 'bg-[#D4AF37]/20 text-[#D4AF37] border-[#D4AF37]/30',
+                  check: 'text-[#D4AF37]', note: 'text-amber-200/70',
+                  badge: 'bg-[#5328D7]', payBtn: 'bg-[#5328D7] hover:bg-[#431fb5] text-white',
                 }}
                 badge="⭐ Máximo Alcance"
                 isHighlighted={true}
-                isCurrent={currentPlanKey === 'agencia_pro'}
+                isCurrent={currentPlanKey === 'super_premium' || currentPlanKey === 'agencia_pro'}
                 isPending={planStatus === 'pending'}
                 onPaymentClaim={handlePaymentClaim}
                 submitting={submittingPayment}

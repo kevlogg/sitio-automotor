@@ -19,7 +19,7 @@ export default function PlanKevDevSection() {
           </div>
           <h2 className="text-3xl font-black text-white">Plan KevDev & Acuerdo Técnico</h2>
           <p className="text-blue-100/90 text-sm md:text-base max-w-3xl leading-relaxed font-medium">
-            Gestión transparente del abono mensual, matriz de escalabilidad técnica por cantidad de comercios, soporte SLA y control de pagos sincronizado con Firebase KevDev.
+            Gestión transparente del abono mensual, matriz de escalabilidad técnica por cantidad de planes Premium y Súper Premium, soporte SLA y control de pagos sincronizado con Firebase KevDev.
           </p>
           
           <div className="flex flex-wrap gap-2 pt-4">
@@ -83,11 +83,11 @@ function TabEstado() {
         <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">TRAMO DE CAPACIDAD</div>
         <h3 className="text-2xl font-black text-slate-900 mb-3">Tramo 1: Semilla</h3>
         <p className="text-sm text-slate-600 mb-6 flex-1">
-          Suscripción actual para inicio ágil con hasta <strong>15 comercios</strong> activos.
+          Suscripción actual para inicio ágil con hasta <strong>15 planes Premium y Súper Premium</strong> activos.
         </p>
         <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-sm">
           <span className="text-slate-500 font-bold">Capacidad Máxima:</span>
-          <span className="text-blue-700 font-black">15 Comercios</span>
+          <span className="text-blue-700 font-black">15 Planes Premium / Súper Premium</span>
         </div>
       </div>
 
@@ -123,11 +123,11 @@ function TabEstado() {
         <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">ESCALA FUTURA</div>
         <h3 className="text-2xl font-black text-slate-900 mb-3">Tramo 2: Crecimiento</h3>
         <p className="text-sm text-slate-600 mb-6 flex-1">
-          Al superar los 15 comercios (16 a 40), el abono pasa automáticamente a <strong>$68.000 ARS/mes</strong>.
+          Al superar los 15 planes (16 a 40 planes Premium y Súper Premium), el abono pasa automáticamente a <strong>$68.000 ARS/mes</strong>.
         </p>
         <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-sm">
           <span className="text-slate-500 font-bold">Recaudación Estimada:</span>
-          <span className="text-slate-900 font-black">$800.000 ARS / mes</span>
+          <span className="text-slate-900 font-black">$1.760.000 a $4.400.000 ARS / mes</span>
         </div>
       </div>
     </div>
@@ -137,38 +137,38 @@ function TabEstado() {
 function TabMatriz() {
   const tramos = [
     {
-      id: 1, name: 'Semilla', limits: 'Hasta 15 comercios', isCurrent: true,
-      recaudacion: '$300.000 ARS / mes', margen: '84%',
+      id: 1, name: 'Semilla', limits: 'Hasta 15 planes Premium / Súper Premium', isCurrent: true,
+      recaudacion: '$300.000 a $1.650.000 ARS / mes', margen: '97%',
       abono: '$39.000 ARS / mes', abonoSub: '$39.000 ARS (Bonificado)',
       licencia: '$336.000 ARS', anual: '$96.000 ARS / año'
     },
     {
-      id: 2, name: 'Crecimiento', limits: '16 a 40 comercios',
-      recaudacion: '$800.000 ARS / mes', margen: '89%',
+      id: 2, name: 'Crecimiento', limits: '16 a 40 planes Premium / Súper Premium',
+      recaudacion: '$1.760.000 a $4.400.000 ARS / mes', margen: '98%',
       abono: '$68.000 ARS / mes', abonoSub: '',
       licencia: '+$208.000 ARS', licenciaSub: '(Acum. $544k)', anual: '$152.000 ARS / año'
     },
     {
-      id: 3, name: 'Expansión', limits: '41 a 80 comercios',
-      recaudacion: '$1.600.000 ARS / mes', margen: '91%',
+      id: 3, name: 'Expansión', limits: '41 a 80 planes Premium / Súper Premium',
+      recaudacion: '$4.510.000 a $8.800.000 ARS / mes', margen: '98%',
       abono: '$112.000 ARS / mes', abonoSub: '(Tope Abono)',
       licencia: '+$304.000 ARS', licenciaSub: '(Acum. $848k)', anual: '$224.000 ARS / año'
     },
     {
-      id: 4, name: 'Escala Regional', limits: '81 a 200 comercios',
-      recaudacion: '$4.000.000 ARS / mes', margen: 'Facturación Masiva',
+      id: 4, name: 'Escala Regional', limits: '81 a 200 planes Premium / Súper Premium',
+      recaudacion: '$8.910.000 a $22.000.000 ARS / mes', margen: 'Facturación Masiva',
       abono: 'Exclusivo Licencia Perpetua', abonoSub: '',
       licencia: '+$520.000 ARS', licenciaSub: '(Acum. $1.368k)', anual: '$360.000 ARS / año'
     },
     {
-      id: 5, name: 'Consolidación', limits: '201 a 500 comercios',
-      recaudacion: '$10.000.000 ARS / mes', margen: 'Líder Regional',
+      id: 5, name: 'Consolidación', limits: '201 a 500 planes Premium / Súper Premium',
+      recaudacion: '$22.110.000 a $55.000.000 ARS / mes', margen: 'Líder Regional',
       abono: 'Exclusivo Licencia Perpetua', abonoSub: '',
       licencia: '+$1.000.000 ARS', licenciaSub: '(Acum. $2.368k)', anual: '$680.000 ARS / año'
     },
     {
-      id: 6, name: 'Macro Provincial', limits: '501 a 1.000 comercios',
-      recaudacion: '$20.000.000 ARS / mes', margen: 'Portal Referente',
+      id: 6, name: 'Macro Provincial', limits: '501 a 1.000 planes Premium / Súper Premium',
+      recaudacion: '$55.110.000 a $110.000.000 ARS / mes', margen: 'Portal Referente',
       abono: 'Exclusivo Licencia Perpetua', abonoSub: '',
       licencia: '+$1.560.000 ARS', licenciaSub: '(Acum. $3.928k)', anual: '$1.280.000 ARS / año'
     }
@@ -180,7 +180,7 @@ function TabMatriz() {
         <div>
           <h3 className="text-lg font-black text-slate-900">Matriz Maestra de Inversión & Escala Provincial</h3>
           <p className="text-xs text-slate-500 mt-1">
-            Estructurada en Modalidad 1 (Abono Mensual hasta 80 comercios) y Modalidad 2 (Licencia Perpetua hasta 1.000 comercios).
+            Estructurada en Modalidad 1 (Abono Mensual hasta 80 planes Premium y Súper Premium) y Modalidad 2 (Licencia Perpetua hasta 1.000 planes Premium y Súper Premium). La escala técnica se determina por la cantidad de planes Premium ($110.000/mes) y Súper Premium ($220.000/mes) activos.
           </p>
         </div>
         <div className="px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-black flex items-center gap-1 flex-shrink-0">
@@ -192,7 +192,7 @@ function TabMatriz() {
         <table className="w-full min-w-[800px] text-left border-collapse">
           <thead>
             <tr className="bg-[#0F172A] text-white">
-              <th className="px-4 py-3 rounded-tl-xl text-[10px] font-black uppercase tracking-wider">Tramo / Capacidad</th>
+              <th className="px-4 py-3 rounded-tl-xl text-[10px] font-black uppercase tracking-wider">Tramo / Capacidad (Planes Premium & Súper Premium)</th>
               <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider">Recaudación Estimada Cliente</th>
               <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider">Modalidad 1: Abono Mensual</th>
               <th className="px-4 py-3 text-[10px] font-black uppercase tracking-wider">Modalidad 2: Licencia Perpetua</th>
