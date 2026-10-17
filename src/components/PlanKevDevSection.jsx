@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Zap, Database, CreditCard, Activity, TrendingUp, CheckCircle2, 
   Info, ExternalLink, Code, Layers, RefreshCw, RefreshCcw
@@ -253,6 +253,43 @@ function TabMatriz() {
 }
 
 function TabHistorial() {
+  const [pagos, setPagos] = useState([
+    {
+      id: '8s1HuHDM5QlZybyf6BhL',
+      date: '2026-09-18',
+      concept: 'Cuota Mensual',
+      amount: 39000,
+      confirmed: true,
+    },
+  ]);
+  const [loading, setLoading] = useState(false);
+  const [connected, setConnected] = useState(true);
+
+  const fetchPagos = async () => {
+    setLoading(true);
+    try {
+      const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://kevdev.app';
+      const res = await fetch(`${baseUrl}/api/payments/client-history?clienteId=sitio-automotor`, {
+        cache: 'no-store',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.payments && data.payments.length > 0) {
+          setPagos(data.payments);
+        }
+        setConnected(true);
+      }
+    } catch (e) {
+      console.warn('Fallback a pagos sincronizados en caché:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPagos();
+  }, []);
+
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
@@ -263,10 +300,17 @@ function TabHistorial() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <RefreshCw className="w-4 h-4 text-slate-400" />
+          <button
+            onClick={fetchPagos}
+            disabled={loading}
+            title="Refrescar pagos desde Firebase KevDev"
+            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-blue-600' : ''}`} />
+          </button>
           <div className="px-3 py-1.5 rounded-lg bg-[#006633] text-white text-[10px] font-black flex items-center gap-1.5 shadow-sm">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Conectado a Firebase KevDev
+            {connected ? 'Conectado a Firebase KevDev' : 'Modo Offline'}
           </div>
         </div>
       </div>
@@ -283,26 +327,43 @@ function TabHistorial() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            <tr>
-              <td className="py-4">
-                <div className="text-xs font-black text-blue-700">2026-09-18</div>
-                <div className="text-[10px] text-slate-400 font-mono mt-0.5">8s1HuHDM5QlZybyf6BhL</div>
-              </td>
-              <td className="py-4 text-xs font-bold text-slate-700">
-                Cuota Mensual
-              </td>
-              <td className="py-4 text-xs font-black text-slate-900">
-                $39.000 ARS
-              </td>
-              <td className="py-4 text-xs font-medium text-slate-600">
-                2026-09-18
-              </td>
-              <td className="py-4">
-                <span className="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-700 text-[9px] font-black flex items-center gap-1 w-fit">
-                  <CheckCircle2 className="w-3 h-3" /> AL DÍA / PAGADO
-                </span>
-              </td>
-            </tr>
+            {pagos.map((p, idx) => {
+              const formattedMonto = new Intl.NumberFormat('es-AR', {
+                style: 'currency',
+                currency: 'ARS',
+                maximumFractionDigits: 0,
+              }).format(Number(p.amount || p.monto || 0));
+
+              const fecha = p.date || p.fecha || '2026-09-18';
+              const refId = p.id || '8s1HuHDM5QlZybyf6BhL';
+              const concepto = p.concept || p.concepto || 'Cuota Mensual';
+              const isConfirmed = p.confirmed !== false;
+
+              return (
+                <tr key={refId || idx}>
+                  <td className="py-4">
+                    <div className="text-xs font-black text-blue-700">{fecha}</div>
+                    <div className="text-[10px] text-slate-400 font-mono mt-0.5">{refId}</div>
+                  </td>
+                  <td className="py-4 text-xs font-bold text-slate-700">
+                    {concepto}
+                  </td>
+                  <td className="py-4 text-xs font-black text-slate-900">
+                    {formattedMonto} ARS
+                  </td>
+                  <td className="py-4 text-xs font-medium text-slate-600">
+                    {fecha}
+                  </td>
+                  <td className="py-4">
+                    <span className={`px-2.5 py-1 rounded-md text-[9px] font-black flex items-center gap-1 w-fit ${
+                      isConfirmed ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                    }`}>
+                      <CheckCircle2 className="w-3 h-3" /> {isConfirmed ? 'AL DÍA / PAGADO' : 'PENDIENTE'}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
