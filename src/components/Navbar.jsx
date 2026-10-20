@@ -16,6 +16,7 @@ export default function Navbar({
   const [logoError, setLogoError] = useState(false);
 
   const navLinks = [
+    { name: 'Inicio', id: 'home', href: '#inicio' },
     { name: 'Vehículos', id: 'vehicles', href: '#vehiculos' },
     { name: 'Agencias', id: 'agencies', href: '#agencias' },
     { name: 'Negocios', id: 'businesses', href: '#negocios' },
@@ -77,15 +78,15 @@ export default function Navbar({
             )}
           </div>
 
-          {/* Links Centrales (Vehículos, Agencias, Negocios) - Perfectamente Centrados */}
-          <nav className="hidden lg:flex items-center space-x-3 xl:space-x-6 absolute left-1/2 -translate-x-1/2 z-10">
+          {/* Links Centrales (Inicio, Vehículos, Agencias, Negocios) - Centrados */}
+          <nav className="hidden md:flex items-center space-x-1.5 lg:space-x-3 xl:space-x-4 absolute left-1/2 -translate-x-1/2 z-10">
             {navLinks.map((link) => {
               const isActive = currentView === link.id;
               return (
                 <button
                   key={link.name}
                   onClick={() => handleNavClick(link.id, link.href)}
-                  className={`px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${
+                  className={`px-3 lg:px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer whitespace-nowrap ${
                     isActive
                       ? 'bg-[#6D28D9] text-white shadow-md shadow-purple-900/40 border border-purple-400/40'
                       : 'text-slate-300 hover:text-white hover:bg-slate-800/80'

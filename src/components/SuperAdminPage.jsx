@@ -21,7 +21,8 @@ import {
   AlertCircle, ChevronDown, ChevronUp, Upload, ExternalLink,
   Building2, MapPin, Phone, Mail, Ban, Check, Zap,
   BarChart3, Activity, DollarSign, UserCheck, FileText,
-  Globe, Bell, Lock, EyeOff, Save
+  Globe, Bell, Lock, EyeOff, Save, Plus, ArrowUp, ArrowDown,
+  ChevronLeft, ChevronRight, Layers
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { PLAN_INFO } from '../lib/planUtils';
@@ -705,200 +706,503 @@ function SectionVehiculos({ toast }) {
 }
 
 // =============================================================================
-// SECTION 5: HERO / BANNER — conectado a Supabase site_settings
+// SECTION 5: HERO / BANNER — conectado a Supabase site_settings (Carrusel Dinámico)
 // =============================================================================
 function SectionHero({ toast }) {
-  const [heroUrl, setHeroUrl] = useState('');
-  const [heroLink, setHeroLink] = useState('');
-  const [previewUrl, setPreviewUrl] = useState('/hero_daylight_fleet.png');
+  const [slides, setSlides] = useState([]);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
   const [loadingCurrent, setLoadingCurrent] = useState(true);
+  const [previewIdx, setPreviewIdx] = useState(0);
+  const [urlInput, setUrlInput] = useState('');
+  const [showAddUrl, setShowAddUrl] = useState(false);
 
   useEffect(() => {
     (async () => {
       setLoadingCurrent(true);
-      const [imgVal, linkVal] = await Promise.all([
-        getSetting('hero_image_url'),
-        getSetting('hero_link_url')
-      ]);
-      if (imgVal) { setHeroUrl(imgVal); setPreviewUrl(imgVal); }
-      if (linkVal) { setHeroLink(linkVal); }
-      setLoadingCurrent(false);
+      try {
+        const { data } = await supabase
+          .from('site_settings')
+          .select('id, value')
+          .in('id', ['hero_slides', 'hero_image_url', 'hero_link_url']);
+
+        const slidesRow = data?.find(r => r.id === 'hero_slides');
+        const imgRow = data?.find(r => r.id === 'hero_image_url');
+        const linkRow = data?.find(r => r.id === 'hero_link_url');
+
+        if (slidesRow?.value?.trim()) {
+          try {
+            const parsed = JSON.parse(slidesRow.value);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setSlides(parsed);
+              setLoadingCurrent(false);
+              return;
+            }
+          } catch (e) {
+            console.warn('Error parsing hero_slides:', e);
+          }
+        }
+
+        if (imgRow?.value?.trim()) {
+          setSlides([{
+            id: 'legacy-1',
+            imageUrl: imgRow.value.trim(),
+            linkUrl: linkRow?.value?.trim() || ''
+          }]);
+        } else {
+          setSlides([]);
+        }
+      } catch (err) {
+        console.error('Error cargando configuración del Hero:', err);
+      } finally {
+        setLoadingCurrent(false);
+      }
     })();
   }, []);
 
-  const handleUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // Subir una o varias imágenes en lote
+  const handleMultipleUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
     setUploading(true);
+    setUploadProgress(`Preparando ${files.length} archivo(s)...`);
     try {
       const { uploadVehicleImage } = await import('../lib/supabase');
-      const url = await uploadVehicleImage(file);
-      setHeroUrl(url);
-      setPreviewUrl(url);
-      toast.show('Imagen subida exitosamente. Guardá para aplicar los cambios.');
+      const newSlides = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        setUploadProgress(`Subiendo imagen ${i + 1} de ${files.length}...`);
+        const url = await uploadVehicleImage(file);
+        if (url) {
+          newSlides.push({
+            id: `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+            imageUrl: url,
+            linkUrl: ''
+          });
+        }
+      }
+
+      setSlides(prev => [...prev, ...newSlides]);
+      toast.show(`Se subieron ${newSlides.length} imágenes exitosamente. Guardá para aplicar los cambios.`);
     } catch (err) {
-      toast.show('Error al subir: ' + err.message, 'error');
+      toast.show('Error al subir imágenes: ' + err.message, 'error');
     } finally {
       setUploading(false);
+      setUploadProgress('');
+      e.target.value = '';
     }
   };
 
-  const handleSave = async () => {
-    if (!heroUrl.trim()) return toast.show('Subí una imagen antes de guardar', 'error');
-    setSaving(true);
-    await Promise.all([
-      setSetting('hero_image_url', heroUrl.trim()),
-      setSetting('hero_link_url', heroLink.trim()),
+  // Agregar imagen mediante URL directa
+  const handleAddUrl = () => {
+    const trimmed = urlInput.trim();
+    if (!trimmed) return;
+    setSlides(prev => [
+      ...prev,
+      {
+        id: `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        imageUrl: trimmed,
+        linkUrl: ''
+      }
     ]);
-    localStorage.setItem('sa_hero_image_url', heroUrl.trim());
-    localStorage.setItem('sa_hero_link_url', heroLink.trim());
-    toast.show('✅ Banner y redirección guardados en Supabase.');
-    setSaving(false);
+    setUrlInput('');
+    setShowAddUrl(false);
+    toast.show('Imagen agregada. Recordá hacer clic en Guardar.');
+  };
+
+  const handleUpdateSlideLink = (index, newLink) => {
+    setSlides(prev => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], linkUrl: newLink };
+      return copy;
+    });
+  };
+
+  const handleMoveSlide = (index, direction) => {
+    setSlides(prev => {
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
+      const copy = [...prev];
+      const temp = copy[index];
+      copy[index] = copy[targetIndex];
+      copy[targetIndex] = temp;
+      return copy;
+    });
+    if (previewIdx === index) {
+      setPreviewIdx(index + direction);
+    } else if (previewIdx === index + direction) {
+      setPreviewIdx(index);
+    }
+  };
+
+  const handleDeleteSlide = (index) => {
+    setSlides(prev => {
+      const filtered = prev.filter((_, i) => i !== index);
+      if (previewIdx >= filtered.length) {
+        setPreviewIdx(Math.max(0, filtered.length - 1));
+      }
+      return filtered;
+    });
+    toast.show('Diapositiva eliminada. Recordá guardar para aplicar.');
+  };
+
+  const handleSave = async () => {
+    if (slides.length === 0) {
+      return toast.show('Subí al menos una imagen antes de guardar', 'error');
+    }
+    setSaving(true);
+    try {
+      const primaryUrl = slides[0]?.imageUrl || '';
+      const primaryLink = slides[0]?.linkUrl || '';
+      const slidesJson = JSON.stringify(slides);
+
+      await Promise.all([
+        setSetting('hero_slides', slidesJson),
+        setSetting('hero_image_url', primaryUrl),
+        setSetting('hero_link_url', primaryLink),
+      ]);
+
+      localStorage.setItem('sa_hero_slides', slidesJson);
+      localStorage.setItem('sa_hero_image_url', primaryUrl);
+      localStorage.setItem('sa_hero_link_url', primaryLink);
+
+      toast.show(`✅ Carrusel guardado con ${slides.length} diapositiva(s).`);
+    } catch (err) {
+      toast.show('Error al guardar carrusel: ' + err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleReset = async () => {
     await Promise.all([
+      setSetting('hero_slides', ''),
       setSetting('hero_image_url', ''),
       setSetting('hero_link_url', ''),
     ]);
+    localStorage.removeItem('sa_hero_slides');
     localStorage.removeItem('sa_hero_image_url');
     localStorage.removeItem('sa_hero_link_url');
-    setHeroUrl('');
-    setHeroLink('');
-    setPreviewUrl('/hero_daylight_fleet.png');
-    toast.show('Hero restaurado a la imagen original');
+    setSlides([]);
+    setPreviewIdx(0);
+    toast.show('Hero restaurado al banner original por defecto.');
   };
+
+  const activePreviewSlide = slides[previewIdx] || slides[0];
 
   return (
     <div className="space-y-6">
-      <SectionHeader icon={Image} title="Banner Principal / Hero"
-        sub="Subí la imagen del banner de la home y configurá la URL de redireccionamiento al hacer clic" />
+      <SectionHeader 
+        icon={Image} 
+        title="Banner Principal / Carrusel del Hero"
+        sub="Subí varias imágenes para crear un carrusel dinámico. Podés ordenarlas y asignar enlaces de redirección independientes." 
+      />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-[#0F172A] border border-slate-800 rounded-2xl p-6 space-y-5">
-          <h3 className="text-sm font-black text-white flex items-center gap-2">
-            <Edit3 className="w-4 h-4 text-violet-400" /> Configurar Banner
-          </h3>
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        
+        {/* Columna Izquierda: Gestión y Subida de Imágenes */}
+        <div className="xl:col-span-7 bg-[#0F172A] border border-slate-800 rounded-2xl p-6 space-y-5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-black text-white flex items-center gap-2">
+              <Layers className="w-4 h-4 text-violet-400" />
+              <span>Imágenes del Carrusel ({slides.length})</span>
+            </h3>
+            <button
+              onClick={() => setShowAddUrl(!showAddUrl)}
+              className="text-[11px] font-bold text-violet-400 hover:text-violet-300 transition-colors flex items-center gap-1 cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              {showAddUrl ? 'Cancelar URL' : 'Agregar por URL'}
+            </button>
+          </div>
 
-          {loadingCurrent ? (
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <Loader2 className="w-4 h-4 animate-spin text-violet-400" /> Cargando banner actual...
-            </div>
-          ) : heroUrl ? (
-            <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-700/30 text-xs text-emerald-300 flex items-center justify-between gap-2">
-              <span className="flex items-center gap-2 font-bold">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                Imagen subida y activa
-              </span>
-              <span className="text-[10px] text-emerald-400/80 font-mono">En Supabase Storage</span>
-            </div>
-          ) : (
-            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-400">
-              Mostrando imagen predeterminada de la plataforma. Subí una nueva imagen para personalizarla.
+          {/* Formulario rápido para URL externa */}
+          {showAddUrl && (
+            <div className="p-3.5 bg-slate-900/90 border border-violet-500/30 rounded-xl space-y-2">
+              <label className="text-[11px] font-bold text-slate-300">Pegar URL de la imagen:</label>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={urlInput}
+                  onChange={e => setUrlInput(e.target.value)}
+                  placeholder="https://ejemplo.com/banner.jpg"
+                  className="flex-1 px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddUrl}
+                  className="px-3.5 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-xs font-bold transition-all cursor-pointer"
+                >
+                  Agregar
+                </button>
+              </div>
             </div>
           )}
 
-          {/* Subida de Imagen */}
+          {/* Zona de Subida Múltiple */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-slate-300">Subir imagen del banner</label>
-            <label className="flex flex-col items-center justify-center gap-2 w-full py-6 rounded-2xl border-2 border-dashed border-slate-700 hover:border-violet-500/50 bg-slate-900/50 cursor-pointer transition-all group">
-              <input type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+            <label className="block text-xs font-bold text-slate-300">
+              Subir imágenes desde tu dispositivo (podés seleccionar varias a la vez)
+            </label>
+            <label className="flex flex-col items-center justify-center gap-2 w-full py-6 px-4 rounded-2xl border-2 border-dashed border-slate-700 hover:border-violet-500/60 bg-slate-900/40 hover:bg-slate-900/70 cursor-pointer transition-all group">
+              <input 
+                type="file" 
+                multiple 
+                accept="image/*" 
+                onChange={handleMultipleUpload} 
+                className="hidden" 
+                disabled={uploading}
+              />
               {uploading ? (
                 <>
-                  <Loader2 className="w-6 h-6 text-violet-400 animate-spin" />
-                  <span className="text-xs text-violet-300 font-bold">Subiendo imagen a Storage...</span>
+                  <Loader2 className="w-7 h-7 text-violet-400 animate-spin" />
+                  <span className="text-xs text-violet-300 font-bold">{uploadProgress}</span>
+                  <span className="text-[10px] text-slate-500">Por favor esperá mientras se suben a Supabase Storage...</span>
                 </>
               ) : (
                 <>
                   <div className="p-3 rounded-xl bg-violet-600/10 text-violet-400 group-hover:bg-violet-600/20 group-hover:text-violet-300 transition-colors">
                     <Upload className="w-5 h-5" />
                   </div>
-                  <span className="text-xs text-slate-300 group-hover:text-white font-bold">
-                    Hacé clic para seleccionar una imagen
+                  <span className="text-xs text-slate-200 group-hover:text-white font-bold text-center">
+                    Hacé clic para seleccionar una o varias imágenes
                   </span>
-                  <span className="text-[10px] text-slate-500 font-medium">
-                    JPG, PNG o WebP — Resolución recomendada 1920×1080px
+                  <span className="text-[10px] text-slate-400 font-medium text-center">
+                    Formatos recomendados: JPG, PNG o WebP. Podés arrastrar o seleccionar varios archivos juntos.
                   </span>
                 </>
               )}
             </label>
           </div>
 
-          {/* URL de Redireccionamiento */}
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-slate-300 flex items-center justify-between">
-              <span>URL de redireccionamiento al hacer clic</span>
-              <span className="text-[10px] text-slate-500 font-normal">Opcional</span>
+          {/* Lista de Diapositivas cargadas */}
+          <div className="space-y-3 pt-2">
+            <label className="block text-xs font-bold text-slate-300">
+              Orden y Redirecciones de cada diapositiva
             </label>
-            <input
-              type="url"
-              value={heroLink}
-              onChange={e => setHeroLink(e.target.value)}
-              placeholder="https://ejemplo.com/promocion-o-contacto"
-              className="w-full px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none"
-            />
-            <p className="text-[10px] text-slate-500">
-              Si se especifica, el usuario será redirigido a este enlace cuando haga clic sobre el banner en la home.
-            </p>
+
+            {loadingCurrent ? (
+              <div className="flex items-center gap-2 text-xs text-slate-400 py-4 justify-center">
+                <Loader2 className="w-4 h-4 animate-spin text-violet-400" /> Cargando diapositivas actuales...
+              </div>
+            ) : slides.length === 0 ? (
+              <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-400 text-center">
+                No hay imágenes personalizadas. Se muestra el banner predeterminado. Subí imágenes arriba para activar el carrusel dinámico.
+              </div>
+            ) : (
+              <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+                {slides.map((slide, idx) => (
+                  <div
+                    key={slide.id || idx}
+                    className={`p-3 rounded-xl border transition-all ${
+                      previewIdx === idx 
+                        ? 'bg-violet-950/20 border-violet-500/50 shadow-md shadow-violet-900/20' 
+                        : 'bg-slate-900/90 border-slate-800 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                      
+                      {/* Miniatura con Badge */}
+                      <div 
+                        onClick={() => setPreviewIdx(idx)}
+                        className="relative w-full sm:w-28 h-16 rounded-lg overflow-hidden bg-black/60 border border-slate-700/60 shrink-0 cursor-pointer group/thumb"
+                        title="Hacé clic para previsualizar"
+                      >
+                        <img 
+                          src={slide.imageUrl} 
+                          alt={`Banner ${idx + 1}`} 
+                          className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform" 
+                          onError={e => { e.currentTarget.src = '/hero_daylight_fleet.png'; }}
+                        />
+                        <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-sm text-[9px] font-bold text-white">
+                          #{idx + 1}
+                        </div>
+                      </div>
+
+                      {/* Configuración de Enlace */}
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold text-slate-200">
+                            {idx === 0 ? '🌟 Diapositiva Inicial' : `Diapositiva ${idx + 1}`}
+                          </span>
+                          {slide.linkUrl && (
+                            <span className="text-[10px] text-violet-400 flex items-center gap-1">
+                              <ExternalLink className="w-3 h-3" /> Redirige al clic
+                            </span>
+                          )}
+                        </div>
+                        <input
+                          type="url"
+                          value={slide.linkUrl || ''}
+                          onChange={e => handleUpdateSlideLink(idx, e.target.value)}
+                          placeholder="https://ejemplo.com/promocion (opcional al hacer clic)"
+                          className="w-full px-3 py-1.5 bg-slate-950 border border-slate-700/70 rounded-lg text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Acciones de Orden y Eliminación */}
+                      <div className="flex items-center gap-1 self-end sm:self-center shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handleMoveSlide(idx, -1)}
+                          disabled={idx === 0}
+                          title="Subir orden"
+                          className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMoveSlide(idx, 1)}
+                          disabled={idx === slides.length - 1}
+                          title="Bajar orden"
+                          className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteSlide(idx)}
+                          title="Eliminar diapositiva"
+                          className="p-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 hover:text-rose-200 border border-rose-500/20 transition-colors ml-1 cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="flex gap-3 pt-2">
+          {/* Botones de Acción */}
+          <div className="flex gap-3 pt-3 border-t border-slate-800">
             <button
               onClick={handleSave}
-              disabled={saving || !heroUrl}
+              disabled={saving || slides.length === 0}
               className="flex-1 py-3.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-black text-xs flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 shadow-lg shadow-violet-900/30"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Guardar Banner y Redirección
+              Guardar Carrusel ({slides.length} diapositivas)
             </button>
             <button
               onClick={handleReset}
               className="px-4 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold text-xs flex items-center gap-2 cursor-pointer transition-all"
             >
-              <RefreshCw className="w-4 h-4" /> Reset
+              <RefreshCw className="w-4 h-4" /> Restablecer
             </button>
           </div>
         </div>
 
-        {/* Preview */}
-        <div className="bg-[#0F172A] border border-slate-800 rounded-2xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-black text-white flex items-center gap-2">
-              <Eye className="w-4 h-4 text-blue-400" /> Vista Previa del Banner
-            </h3>
-            {heroLink && (
-              <span className="text-[10px] font-bold text-violet-300 bg-violet-500/20 px-2 py-0.5 rounded-md border border-violet-500/30 flex items-center gap-1">
-                <ExternalLink className="w-3 h-3" /> Clic activo
-              </span>
-            )}
-          </div>
-          <div className={`relative rounded-xl overflow-hidden aspect-video border border-slate-700/50 ${heroLink ? 'ring-1 ring-violet-500/40' : ''}`}>
-            <img src={previewUrl} alt="Preview" className="w-full h-full object-cover"
-              onError={e => { e.target.src = '/hero_daylight_fleet.png'; }} />
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-900/40 to-transparent" />
-            <div className="absolute inset-0 flex items-center px-6">
-              <div className="space-y-1.5">
-                <div className="h-3 w-32 bg-white/90 rounded-sm" />
-                <div className="h-2 w-48 bg-white/60 rounded-sm" />
-                <div className="flex gap-2 mt-2">
-                  <div className="h-5 w-20 bg-violet-600 rounded-md" />
-                  <div className="h-5 w-20 bg-white/10 border border-white/20 rounded-md" />
-                </div>
-              </div>
+        {/* Columna Derecha: Vista Previa en Tiempo Real del Carrusel */}
+        <div className="xl:col-span-5 bg-[#0F172A] border border-slate-800 rounded-2xl p-6 space-y-4 flex flex-col justify-between">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-black text-white flex items-center gap-2">
+                <Eye className="w-4 h-4 text-blue-400" />
+                <span>Vista Previa del Carrusel</span>
+              </h3>
+              {slides.length > 0 && (
+                <span className="text-[11px] font-bold text-slate-400">
+                  {previewIdx + 1} de {slides.length}
+                </span>
+              )}
             </div>
-            {heroLink && (
-              <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur-md text-[10px] text-violet-200 border border-violet-500/40 flex items-center gap-1.5">
-                <ExternalLink className="w-3 h-3 text-violet-400" />
-                <span className="truncate max-w-[200px]">{heroLink}</span>
+
+            {/* Simulación del Hero tal como se verá en la Home */}
+            <div className="relative rounded-2xl overflow-hidden bg-[#0B0F19] border border-slate-700/60 shadow-xl group/preview">
+              
+              {/* Contenedor con brillo ambiental */}
+              <div className="relative w-full min-h-[180px] sm:min-h-[220px] flex items-center justify-center overflow-hidden">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center blur-2xl opacity-25 scale-110 pointer-events-none"
+                  style={{ 
+                    backgroundImage: `url(${activePreviewSlide?.imageUrl || '/hero_daylight_fleet.png'})` 
+                  }}
+                />
+
+                {/* Imagen completa sin recortes */}
+                <img
+                  src={activePreviewSlide?.imageUrl || '/hero_daylight_fleet.png'}
+                  alt="Vista previa del hero"
+                  className="relative z-10 w-full h-auto max-h-[260px] object-contain mx-auto block brightness-105 contrast-105"
+                  onError={e => { e.currentTarget.src = '/hero_daylight_fleet.png'; }}
+                />
+
+                {/* Badge de Redirección si tiene link */}
+                {activePreviewSlide?.linkUrl && (
+                  <div className="absolute top-2.5 right-2.5 z-20 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur-md text-[10px] text-violet-300 border border-violet-500/40 flex items-center gap-1.5 shadow-md">
+                    <ExternalLink className="w-3 h-3 text-violet-400" />
+                    <span className="truncate max-w-[160px]">{activePreviewSlide.linkUrl}</span>
+                  </div>
+                )}
+
+                {/* Controles del Carrusel en Preview si hay más de 1 */}
+                {slides.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewIdx(prev => (prev - 1 + slides.length) % slides.length)}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 z-20 p-1.5 rounded-full bg-black/60 hover:bg-[#6D28D9] text-white border border-white/20 transition-all cursor-pointer"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewIdx(prev => (prev + 1) % slides.length)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-20 p-1.5 rounded-full bg-black/60 hover:bg-[#6D28D9] text-white border border-white/20 transition-all cursor-pointer"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+
+                    {/* Dots de Navegación */}
+                    <div className="absolute bottom-2.5 inset-x-0 z-20 flex items-center justify-center gap-1.5">
+                      {slides.map((_, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setPreviewIdx(idx)}
+                          className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                            idx === previewIdx ? 'w-5 bg-violet-400' : 'w-1.5 bg-white/40'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
-            )}
+
+            </div>
+
+            {/* Info complementaria */}
+            <div className="space-y-1 text-center">
+              <p className="text-[11px] text-slate-300 font-medium">
+                {slides.length > 1 
+                  ? `El carrusel rotará automáticamente cada 5 segundos entre las ${slides.length} diapositivas en la página principal.`
+                  : slides.length === 1
+                  ? 'Se mostrará esta imagen fija en el banner principal.'
+                  : 'Se muestra el banner predeterminado del sistema.'}
+              </p>
+              <p className="text-[10px] text-emerald-400 font-bold">
+                ✓ Ajuste de altura completa activo: La imagen se muestra 100% entera sin recortes en celulares, tablets o monitores grandes.
+              </p>
+            </div>
           </div>
-          <p className="text-[10px] text-slate-500 text-center">
-            {heroLink ? `Al hacer clic redirige a: ${heroLink}` : 'Sin redirección al hacer clic'}
-          </p>
+
+          {/* Tips de Diseño */}
+          <div className="p-3.5 rounded-xl bg-violet-950/20 border border-violet-800/30 text-[11px] text-slate-400 space-y-1">
+            <span className="font-bold text-violet-300 block">💡 Consejo para banners:</span>
+            <span>
+              Para una experiencia visual óptima, podés subir imágenes en resolución horizontal panorámica (por ejemplo, 1920×600 o 1600×500 píxeles).
+            </span>
+          </div>
         </div>
+
       </div>
     </div>
   );
