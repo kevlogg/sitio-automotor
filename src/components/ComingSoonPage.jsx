@@ -14,6 +14,7 @@ import {
   ChevronRight,
   PhoneCall
 } from 'lucide-react';
+import PwaInstallCard from './PwaInstallCard';
 
 export default function ComingSoonPage({ onGoToInicio }) {
   const [email, setEmail] = useState('');
@@ -62,14 +63,7 @@ export default function ComingSoonPage({ onGoToInicio }) {
   return (
     <div className="min-h-screen bg-home-canvas text-slate-900 flex flex-col relative overflow-hidden font-sans selection:bg-[#6D28D9] selection:text-white">
       
-      {/* Background Racing Pattern & Gradient Glows */}
-      <div 
-        className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='36' height='36' viewBox='0 0 36 36' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h18v18H0V0zm18 18h18v18H18V18z' fill='%238B5CF6' fill-opacity='1'/%3E%3C/svg%3E")`,
-          backgroundSize: '32px 32px'
-        }}
-      />
+      {/* Gradient Glows */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-purple-200/40 via-indigo-100/20 to-transparent blur-[140px] pointer-events-none" />
       <div className="absolute -bottom-20 right-0 w-[500px] h-[500px] bg-purple-200/30 rounded-full blur-[160px] pointer-events-none" />
 
@@ -247,6 +241,9 @@ export default function ComingSoonPage({ onGoToInicio }) {
         </div>
 
       </main>
+
+      {/* Banner Fijo de Descarga de App al Fondo de la Página */}
+      <PwaInstallCard variant="banner" />
 
       {/* Footer minimalista */}
       <footer className="relative z-10 border-t border-slate-200 py-6 px-6 text-center text-xs text-slate-600 bg-white/50 backdrop-blur-sm">

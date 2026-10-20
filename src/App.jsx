@@ -24,6 +24,7 @@ import AgenciesPage from './components/AgenciesPage';
 import BusinessesPage from './components/BusinessesPage';
 import ComingSoonPage from './components/ComingSoonPage';
 import { LeftAdCard, RightAdCard } from './components/SideAdBanners';
+import PwaInstallCard from './components/PwaInstallCard';
 import { MOCK_VEHICLES } from './data/mockVehicles';
 import { supabase } from './lib/supabase';
 
@@ -335,6 +336,7 @@ export default function App() {
   const [detailVehicle, setDetailVehicle] = useState(null);
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [favoritesModalOpen, setFavoritesModalOpen] = useState(false);
+  const [pwaModalOpen, setPwaModalOpen] = useState(true);
   const [toastMessage, setToastMessage] = useState(null);
 
   // Trigger Toast Notification
@@ -514,9 +516,18 @@ export default function App() {
   // Render Dedicated Coming Soon Page when currentView === 'coming-soon'
   if (currentView === 'coming-soon') {
     return (
-      <ComingSoonPage
-        onGoToInicio={() => handleNavigate('home')}
-      />
+      <>
+        <ComingSoonPage
+          onGoToInicio={() => handleNavigate('home')}
+        />
+        {/* Cartel Dinámico PWA que se puede cerrar */}
+        <PwaInstallCard
+          variant="modal"
+          isOpen={pwaModalOpen}
+          onClose={() => setPwaModalOpen(false)}
+          cardTheme={cardTheme}
+        />
+      </>
     );
   }
 
@@ -612,15 +623,7 @@ export default function App() {
         {/* Vista Principal */}
         <main className="flex-1 min-w-0">
         {currentView === 'home' && (
-          <div className="relative w-full bg-[#FAF7F2] overflow-x-clip">
-            {/* Checkered Racing Pattern Background Overlay in Brand Violet */}
-            <div 
-              className="absolute inset-0 opacity-[0.06] pointer-events-none"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='36' height='36' viewBox='0 0 36 36' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h18v18H0V0zm18 18h18v18H18V18z' fill='%236D28D9' fill-opacity='1'/%3E%3C/svg%3E")`,
-                backgroundSize: '28px 28px'
-              }}
-            />
+          <div className="relative w-full bg-[#FDF2F4] overflow-x-clip">
             {/* Soft Glow Radial Accent */}
             <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-purple-200/20 rounded-full blur-3xl pointer-events-none" />
 
@@ -776,6 +779,12 @@ export default function App() {
       </main>
       </div>
 
+      {/* Banner Fijo de Descarga de App al Fondo de la Página */}
+      <PwaInstallCard
+        variant="banner"
+        cardTheme={cardTheme}
+      />
+
       {/* Footer Consistente en todas las páginas */}
       <ProofTrustFooter
         cardTheme={cardTheme}
@@ -784,6 +793,14 @@ export default function App() {
           window.location.hash = '#superadmin';
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
+      />
+
+      {/* Cartel Dinámico PWA que se puede cerrar */}
+      <PwaInstallCard
+        variant="modal"
+        isOpen={pwaModalOpen}
+        onClose={() => setPwaModalOpen(false)}
+        cardTheme={cardTheme}
       />
 
       {/* Modals compartidos */}

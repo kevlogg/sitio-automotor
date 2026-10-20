@@ -16,13 +16,13 @@ body {
   
   html {
     color-scheme: light !important;
-    background-color: #FAF7F2 !important;
+    background-color: #FDF2F4 !important;
     color: #0F172A !important;
   }
 
   body {
     color-scheme: light !important;
-    background-color: #FAF7F2 !important;
+    background-color: #FDF2F4 !important;
     color: #0F172A !important;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     overflow-x: clip;
@@ -34,21 +34,20 @@ body {
   html,
   body {
     color-scheme: light !important;
-    background-color: #FAF7F2 !important;
+    background-color: #FDF2F4 !important;
     color: #0F172A !important;
   }
 }
 
-/* Signature Home Page Background Pattern */
+/* Solid Light Pink Canvas Background (Sin cuadrillé) */
 .bg-home-canvas {
-  background-color: #FAF7F2 !important;
-  background-image: url("data:image/svg+xml,%3Csvg width='36' height='36' viewBox='0 0 36 36' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h18v18H0V0zm18 18h18v18H18V18z' fill='%236D28D9' fill-opacity='0.05'/%3E%3C/svg%3E");
-  background-size: 28px 28px;
+  background-color: #FDF2F4 !important;
+  background-image: none !important;
 }
 
 /* Custom Light System */
 .bg-light-base {
-  background-color: #FAF7F2;
+  background-color: #FDF2F4;
 }
 
 .bg-light-card {
