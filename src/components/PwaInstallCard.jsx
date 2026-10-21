@@ -80,13 +80,13 @@ export default function PwaInstallCard({
             
             {/* App Icon Badge */}
             <div className="relative shrink-0">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-black border-2 border-violet-500/30 shadow-xl shadow-purple-900/20 p-2 flex items-center justify-center overflow-hidden">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#0B0F17] border-2 border-violet-500/30 shadow-xl shadow-purple-900/20 p-2 flex items-center justify-center overflow-hidden">
                 <img
-                  src="/logo.jpg"
+                  src="/android-chrome-192x192.png"
                   alt="Sitio Automotor App Icon"
                   className="w-full h-full object-contain rounded-xl"
                   onError={(e) => {
-                    e.currentTarget.src = '/android-chrome-192x192.png';
+                    e.currentTarget.src = '/apple-touch-icon.png';
                   }}
                 />
               </div>
