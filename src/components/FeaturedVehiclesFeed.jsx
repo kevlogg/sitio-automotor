@@ -441,12 +441,12 @@ export default function FeaturedVehiclesFeed({
         )}
       </section>
 
-      {/* SECCIÓN 2: Scroll Horizontal de 1 línea de Negocios Destacados (Sin usar naranja, identidad violeta) */}
+      {/* SECCIÓN 2: Scroll Horizontal de 1 línea de Negocios Destacados (Con detalle naranja cálido) */}
       <section id="negocios" className="bg-transparent reveal-on-scroll w-full max-w-full overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between mb-3 px-0.5">
           <div className="flex items-center gap-2">
-            <Store className="w-5 h-5 text-[#6D28D9]" />
+            <Store className="w-5 h-5 text-amber-600" />
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
               Negocios destacados
             </h2>
@@ -457,7 +457,7 @@ export default function FeaturedVehiclesFeed({
             <div className="hidden sm:flex items-center gap-1 mr-1">
               <button
                 onClick={() => scrollBusinessStep('left')}
-                className="p-1.5 rounded-xl bg-white border border-purple-200 text-slate-700 hover:text-[#6D28D9] hover:border-purple-400 active:scale-95 shadow-sm transition-all cursor-pointer"
+                className="p-1.5 rounded-xl bg-white border border-amber-200 text-slate-700 hover:text-amber-600 hover:border-amber-400 active:scale-95 shadow-sm transition-all cursor-pointer"
                 title="Anterior"
                 aria-label="Negocio anterior"
               >
@@ -465,7 +465,7 @@ export default function FeaturedVehiclesFeed({
               </button>
               <button
                 onClick={() => scrollBusinessStep('right')}
-                className="p-1.5 rounded-xl bg-white border border-purple-200 text-slate-700 hover:text-[#6D28D9] hover:border-purple-400 active:scale-95 shadow-sm transition-all cursor-pointer"
+                className="p-1.5 rounded-xl bg-white border border-amber-200 text-slate-700 hover:text-amber-600 hover:border-amber-400 active:scale-95 shadow-sm transition-all cursor-pointer"
                 title="Siguiente"
                 aria-label="Negocio siguiente"
               >
@@ -476,7 +476,7 @@ export default function FeaturedVehiclesFeed({
             {onNavigateToBusinesses && (
               <button
                 onClick={onNavigateToBusinesses}
-                className="text-xs font-extrabold text-[#6D28D9] hover:text-[#5B21B6] flex items-center gap-1.5 bg-purple-100 hover:bg-purple-200 px-3 py-1.5 rounded-xl border border-purple-300/60 transition-all cursor-pointer"
+                className="text-xs font-extrabold text-amber-900 hover:text-amber-950 flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-xl border border-amber-300/70 transition-all cursor-pointer"
               >
                 <span>Ver todos ({businesses.length})</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -495,7 +495,7 @@ export default function FeaturedVehiclesFeed({
           {businesses.map((b) => (
             <div
               key={b.id || b.name}
-              className="w-[86%] sm:w-[255px] flex-shrink-0 snap-start rounded-2xl border-2 border-purple-300 sm:hover:border-[#6D28D9] overflow-hidden flex flex-col justify-between sm:transition-all sm:duration-300 shadow-md shadow-purple-900/10 sm:hover:shadow-xl sm:hover:shadow-purple-900/20 bg-white text-slate-900 group"
+              className="w-[86%] sm:w-[255px] flex-shrink-0 snap-start rounded-2xl border-2 border-amber-300 sm:hover:border-amber-500 overflow-hidden flex flex-col justify-between sm:transition-all sm:duration-300 shadow-md shadow-amber-900/10 sm:hover:shadow-xl sm:hover:shadow-amber-900/20 bg-white text-slate-900 group"
             >
               {/* Imagen del Comercio */}
               <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-slate-900 cursor-pointer">
@@ -505,9 +505,9 @@ export default function FeaturedVehiclesFeed({
                   className="w-full h-full object-cover sm:group-hover:scale-106 sm:transition-transform sm:duration-400"
                 />
 
-                {/* Badge Rubro (Violeta y oscuro) */}
+                {/* Badge Rubro (Naranja cálido y oscuro) */}
                 <div className="absolute top-2.5 left-2.5 z-10 flex flex-col gap-1 items-start">
-                  <span className="px-2.5 py-0.5 rounded-md bg-slate-950/85 backdrop-blur-md text-purple-200 text-[9px] font-black uppercase tracking-wider border border-purple-400/30 shadow-sm">
+                  <span className="px-2.5 py-0.5 rounded-md bg-slate-950/85 backdrop-blur-md text-amber-300 text-[9px] font-black uppercase tracking-wider border border-amber-400/30 shadow-sm">
                     {b.rubroLabel || b.rubro_id || 'SERVICIO'}
                   </span>
                 </div>
@@ -526,24 +526,24 @@ export default function FeaturedVehiclesFeed({
               {/* Info del Comercio */}
               <div className="p-3 sm:p-2.5 flex-1 flex flex-col justify-between space-y-2">
                 <div>
-                  <h3 className="text-xs font-black text-slate-900 transition-colors line-clamp-1 group-hover:text-[#6D28D9]">
+                  <h3 className="text-xs font-black text-slate-900 transition-colors line-clamp-1 group-hover:text-amber-600">
                     {b.name}
                   </h3>
 
                   <div className="flex items-center justify-between text-[11px] sm:text-[10px] font-bold text-slate-600 mt-1">
-                    <span className="flex items-center gap-1 text-[#6D28D9]">
-                      <Star className="w-3.5 h-3.5 fill-[#6D28D9] text-[#6D28D9]" />
+                    <span className="flex items-center gap-1 text-amber-600">
+                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
                       <span className="font-extrabold text-slate-900">{b.rating || 5.0} / 5.0</span>
                     </span>
 
                     <span className="flex items-center gap-0.5 text-slate-600 truncate max-w-[120px]">
-                      <MapPin className="w-3 h-3 text-[#6D28D9] flex-shrink-0" />
+                      <MapPin className="w-3 h-3 text-amber-500 flex-shrink-0" />
                       <span className="truncate">{b.city}</span>
                     </span>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-purple-200/80">
+                <div className="pt-2 border-t border-amber-200/80">
                   <button
                     onClick={() => handleBusinessWhatsApp(b)}
                     className="w-full py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-[11px] shadow-sm flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95"
@@ -563,13 +563,13 @@ export default function FeaturedVehiclesFeed({
             <button
               onClick={() => scrollBusinessStep('left')}
               disabled={activeBusinessIndex === 0}
-              className="sm:hidden p-1.5 rounded-xl bg-white border border-purple-200 text-slate-700 hover:text-[#6D28D9] hover:border-purple-400 active:scale-95 disabled:opacity-25 disabled:pointer-events-none transition-all shadow-xs cursor-pointer"
+              className="sm:hidden p-1.5 rounded-xl bg-white border border-amber-200 text-slate-700 hover:text-amber-600 hover:border-amber-400 active:scale-95 disabled:opacity-25 disabled:pointer-events-none transition-all shadow-xs cursor-pointer"
               aria-label="Negocio anterior"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-2 bg-purple-50/80 px-2.5 py-1 rounded-full border border-purple-200/60 shadow-xs">
+            <div className="flex items-center gap-2 bg-amber-50/80 px-2.5 py-1 rounded-full border border-amber-200/60 shadow-xs">
               <div className="flex items-center justify-center gap-1.5">
                 {getVisibleBusinessDotIndices().map((idx) => {
                   const isActive = idx === activeBusinessIndex;
@@ -580,7 +580,7 @@ export default function FeaturedVehiclesFeed({
                       onClick={() => scrollToBusiness(idx)}
                       className="p-0 m-0 border-0 outline-none rounded-full cursor-pointer block transition-all duration-300"
                       style={{
-                        backgroundColor: isActive ? '#6D28D9' : '#DDD6FE',
+                        backgroundColor: isActive ? '#D97706' : '#FDE68A',
                         width: isActive ? '20px' : '6px',
                         height: '6px'
                       }}
@@ -591,7 +591,7 @@ export default function FeaturedVehiclesFeed({
                 })}
               </div>
 
-              <span className="text-[10px] font-extrabold text-[#6D28D9] font-mono tracking-tight pl-1 border-l border-purple-200">
+              <span className="text-[10px] font-extrabold text-amber-800 font-mono tracking-tight pl-1 border-l border-amber-200">
                 {activeBusinessIndex + 1}/{businesses.length}
               </span>
             </div>
@@ -599,7 +599,7 @@ export default function FeaturedVehiclesFeed({
             <button
               onClick={() => scrollBusinessStep('right')}
               disabled={activeBusinessIndex >= businesses.length - 1}
-              className="sm:hidden p-1.5 rounded-xl bg-white border border-purple-200 text-slate-700 hover:text-[#6D28D9] hover:border-purple-400 active:scale-95 disabled:opacity-25 disabled:pointer-events-none transition-all shadow-xs cursor-pointer"
+              className="sm:hidden p-1.5 rounded-xl bg-white border border-amber-200 text-slate-700 hover:text-amber-600 hover:border-amber-400 active:scale-95 disabled:opacity-25 disabled:pointer-events-none transition-all shadow-xs cursor-pointer"
               aria-label="Negocio siguiente"
             >
               <ChevronRight className="w-4 h-4" />

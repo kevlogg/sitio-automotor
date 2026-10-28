@@ -24,6 +24,7 @@ export default function FloatingSearchBar({
   cardTheme = 'violet'
 }) {
   const containerRef = useScrollReveal({ threshold: 0.1 });
+  const [mobileFiltersOpen, setMobileFiltersOpen] = React.useState(false);
 
   const categoryOptions = [
     { value: 'all', label: 'Todos' },
@@ -76,8 +77,8 @@ export default function FloatingSearchBar({
   return (
     <div id="search-section" ref={containerRef} className="w-full z-20 reveal-on-scroll">
       
-      {/* Header Title with Reset Action */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
+      {/* Header Title with Reset Action (Desktop) */}
+      <div className="hidden sm:flex flex-wrap items-center justify-between gap-4 mb-3">
         <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
           <SlidersHorizontal className="w-6 h-6 text-[#6D28D9]" />
           ¿Qué vehículo estás buscando?
@@ -97,26 +98,172 @@ export default function FloatingSearchBar({
       </div>
 
       {/* Main Filter Container */}
-      <div className={`relative p-4 sm:p-5 rounded-2xl border-2 transition-all duration-300 space-y-3 ${
+      <div className={`relative p-2 sm:p-5 rounded-2xl border-2 transition-all duration-300 ${
         isDark
           ? 'bg-[#0D121F]/95 backdrop-blur-md border-slate-800 shadow-2xl shadow-slate-950/60 text-white'
           : 'bg-white border-purple-300 shadow-xl shadow-purple-900/10 text-slate-900'
       }`}>
 
-        {/* Logo SA apoyado en la parte de arriba derecha de la card */}
-        <div className="absolute -top-7 sm:-top-9 right-4 sm:right-6 z-30 pointer-events-none">
+        {/* Logo SA apoyado en la parte de arriba derecha de la card (Desktop) */}
+        <div className="hidden sm:block absolute -top-7 sm:-top-9 right-4 sm:right-6 z-30 pointer-events-none">
           <img
             src="/logo.png"
             alt="Sitio Automotor Logo"
             className="h-12 sm:h-16 lg:h-18 w-auto object-contain filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.3)] hover:scale-105 transition-transform duration-300"
           />
         </div>
+
+        {/* =========================================
+            MOBILE VIEW: Barra en 1 sola línea reducida
+            ========================================= */}
+        <div className="block sm:hidden">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSearchSubmit();
+            }}
+            className="space-y-2"
+          >
+            {/* 1 SOLA LÍNEA: Input + Botón Filtros + Botón Buscar */}
+            <div className="flex items-center gap-1.5">
+              <div className="relative flex-1">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-purple-600 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar auto, marca o modelo..."
+                  className="w-full pl-8 pr-2.5 py-2 bg-white border border-purple-300 rounded-xl text-slate-900 placeholder-purple-400 text-xs focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-400/30 transition-all font-medium"
+                />
+              </div>
+
+              {/* Botón toggle para filtros avanzados */}
+              <button
+                type="button"
+                onClick={() => setMobileFiltersOpen((prev) => !prev)}
+                className={`p-2 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
+                  mobileFiltersOpen || hasActiveFilters
+                    ? 'bg-purple-600 text-white border-purple-600 shadow-xs'
+                    : 'bg-purple-50 text-[#6D28D9] border-purple-200 hover:bg-purple-100'
+                }`}
+                aria-label="Filtros avanzados"
+                title="Filtros avanzados"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                {hasActiveFilters && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 ml-1"></span>
+                )}
+              </button>
+
+              {/* Botón Buscar */}
+              <button
+                type="submit"
+                className="px-3 py-2 rounded-xl bg-[#6D28D9] hover:bg-[#5B21B6] active:scale-95 text-white font-extrabold text-xs shadow-sm shadow-purple-600/30 transition-all flex items-center justify-center gap-1 shrink-0 cursor-pointer"
+              >
+                <Search className="w-3.5 h-3.5" />
+                <span>Buscar</span>
+              </button>
+            </div>
+
+            {/* Filtros colapsables en mobile si el usuario los abre */}
+            {mobileFiltersOpen && (
+              <div className="pt-2 border-t border-purple-100 space-y-2">
+                <div className="grid grid-cols-2 gap-1.5">
+                  {/* Tipo */}
+                  <div>
+                    <label className="block text-[10px] font-extrabold text-slate-700 mb-0.5">Tipo</label>
+                    <div className="relative">
+                      <select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className="w-full appearance-none px-2 py-1.5 bg-white border border-purple-300 rounded-lg text-slate-900 text-xs focus:outline-none focus:border-purple-600 pr-6 font-medium"
+                      >
+                        {categoryOptions.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-purple-600 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Marca */}
+                  <div>
+                    <label className="block text-[10px] font-extrabold text-slate-700 mb-0.5">Marca</label>
+                    <div className="relative">
+                      <select
+                        value={selectedBrand}
+                        onChange={(e) => setSelectedBrand(e.target.value)}
+                        className="w-full appearance-none px-2 py-1.5 bg-white border border-purple-300 rounded-lg text-slate-900 text-xs focus:outline-none focus:border-purple-600 pr-6 font-medium"
+                      >
+                        <option value="all">Todas</option>
+                        {BRAND_OPTIONS.filter(b => b !== 'Todas las marcas').map((b) => (
+                          <option key={b} value={b}>{b}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-purple-600 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Año */}
+                  <div>
+                    <label className="block text-[10px] font-extrabold text-slate-700 mb-0.5">Año mínimo</label>
+                    <div className="relative">
+                      <select
+                        value={selectedYear}
+                        onChange={(e) => setSelectedYear(e.target.value)}
+                        className="w-full appearance-none px-2 py-1.5 bg-white border border-purple-300 rounded-lg text-slate-900 text-xs focus:outline-none focus:border-purple-600 pr-6 font-medium"
+                      >
+                        {yearOptions.map((y) => (
+                          <option key={y.value} value={y.value}>{y.label}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-purple-600 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Ubicación */}
+                  <div>
+                    <label className="block text-[10px] font-extrabold text-slate-700 mb-0.5">Ubicación</label>
+                    <div className="relative">
+                      <select
+                        value={selectedLocation}
+                        onChange={(e) => setSelectedLocation(e.target.value)}
+                        className="w-full appearance-none px-2 py-1.5 bg-white border border-purple-300 rounded-lg text-slate-900 text-xs focus:outline-none focus:border-purple-600 pr-6 font-medium"
+                      >
+                        <option value="all">Todas</option>
+                        {PROVINCE_OPTIONS.filter(p => p !== 'Todas las ubicaciones').map((p) => (
+                          <option key={p} value={p}>{p}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-purple-600 pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+
+                {hasActiveFilters && (
+                  <button
+                    type="button"
+                    onClick={handleResetFilters}
+                    className="w-full py-1.5 text-[11px] font-bold text-[#6D28D9] flex items-center justify-center gap-1 bg-purple-50 rounded-lg border border-purple-200 cursor-pointer"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>Limpiar filtros</span>
+                  </button>
+                )}
+              </div>
+            )}
+          </form>
+        </div>
+
+        {/* =========================================
+            DESKTOP VIEW: Grilla completa habitual
+            ========================================= */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
             onSearchSubmit();
           }}
-          className="space-y-3"
+          className="hidden sm:block space-y-3"
         >
           {/* Main Top Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">

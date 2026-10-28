@@ -29,16 +29,14 @@ import { MOCK_VEHICLES } from './data/mockVehicles';
 import { supabase } from './lib/supabase';
 
 export default function App() {
-  // Navigation View State: 'coming-soon' | 'home' | 'auth' | 'dashboard' | 'vehicles' | 'agencies' | 'businesses' | 'superadmin'
+  // Navigation View State: 'home' | 'auth' | 'dashboard' | 'vehicles' | 'agencies' | 'businesses' | 'superadmin' | 'coming-soon'
   const [currentView, setCurrentView] = useState(() => {
     const hash = window.location.hash.toLowerCase();
     const path = window.location.pathname.toLowerCase();
     const params = new URLSearchParams(window.location.search);
     const viewParam = params.get('page') || params.get('view');
     
-    if (hash === '#inicio' || hash === '#home' || path === '/inicio' || viewParam === 'inicio') {
-      return 'home';
-    }
+    if (hash === '#proximamente' || hash === '#coming-soon' || path === '/proximamente') return 'coming-soon';
     if (hash === '#vehiculos' || hash === '#catalogo' || path === '/vehiculos') return 'vehicles';
     if (hash === '#agencias' || hash === '#concesionarias' || path === '/agencias') return 'agencies';
     if (hash === '#negocios' || hash === '#servicios' || path === '/negocios') return 'businesses';
@@ -46,7 +44,7 @@ export default function App() {
     if (hash === '#panel' || hash === '#dashboard' || path === '/panel') return 'dashboard';
     if (hash === '#registro' || hash === '#ingresar' || hash === '#auth' || path === '/auth') return 'auth';
 
-    return 'coming-soon';
+    return 'home';
   });
   const [authMode, setAuthMode] = useState('signup'); // 'login' | 'signup'
   const [catalogCategory, setCatalogCategory] = useState('all');
@@ -76,9 +74,7 @@ export default function App() {
       const params = new URLSearchParams(window.location.search);
       const viewParam = params.get('page') || params.get('view');
 
-      if (hash === '#inicio' || hash === '#home' || path === '/inicio' || viewParam === 'inicio') {
-        setCurrentView('home');
-      } else if (hash === '#proximamente' || hash === '#coming-soon') {
+      if (hash === '#proximamente' || hash === '#coming-soon') {
         setCurrentView('coming-soon');
       } else if (hash === '#login' || hash === '#ingresar') {
         setAuthMode('login');
@@ -96,8 +92,9 @@ export default function App() {
         setCurrentView('businesses');
       } else if (hash === '#superadmin' || hash === '#admin-total') {
         setCurrentView('superadmin');
-      } else if (hash === '' && (path === '/' || path === '')) {
-        setCurrentView('coming-soon');
+      } else {
+        // Por defecto siempre la página de inicio
+        setCurrentView('home');
       }
     };
     handleUrl();
