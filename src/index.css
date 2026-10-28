@@ -18,6 +18,8 @@ body {
     color-scheme: light !important;
     background-color: #FDF2F4 !important;
     color: #0F172A !important;
+    overflow-x: clip;
+    max-width: 100%;
   }
 
   body {
@@ -26,6 +28,12 @@ body {
     color: #0F172A !important;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     overflow-x: clip;
+    max-width: 100%;
+  }
+
+  #root {
+    overflow-x: clip;
+    max-width: 100%;
   }
 }
 

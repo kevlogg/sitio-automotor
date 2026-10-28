@@ -679,37 +679,25 @@ export default function App() {
                   />
 
                   <div className="w-full">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                      {/* Barra de menú Mundo Automotor alineada de arriba a abajo con los scrolls */}
-                      <div className="lg:col-span-4 xl:col-span-3 flex">
-                        <MundoAutomotorSidebar
-                          cardTheme={cardTheme}
-                          activeRubro={activeRubro}
-                          onSelectRubro={(rubroId) => {
-                            setActiveRubro(rubroId);
-                            if (rubroId && rubroId !== 'all') {
-                              setBusinessDirectoryModalOpen(true);
-                            }
-                          }}
-                          onOpenRegisterBusiness={() => setRegisterBusinessModalOpen(true)}
-                          onNavigateToBusinesses={() => handleNavigate('businesses')}
-                        />
-                      </div>
-
-                      {/* Scrolls horizontales de Vehículos y Negocios Destacados */}
-                      <div className="lg:col-span-8 xl:col-span-9 flex flex-col justify-between">
-                        <FeaturedVehiclesFeed
-                          cardTheme={cardTheme}
-                          vehicles={filteredVehicles}
-                          favorites={favorites}
-                          onToggleFavorite={handleToggleFavorite}
-                          onOpenDetailModal={(v) => setDetailVehicle(v)}
-                          onWhatsAppContact={handleWhatsAppContact}
-                          onNavigateToAllVehicles={() => handleNavigate('vehicles', 'all', searchTerm)}
-                          onNavigateToBusinesses={() => handleNavigate('businesses')}
-                        />
-                      </div>
-                    </div>
+                    <FeaturedVehiclesFeed
+                      cardTheme={cardTheme}
+                      vehicles={filteredVehicles}
+                      favorites={favorites}
+                      onToggleFavorite={handleToggleFavorite}
+                      onOpenDetailModal={(v) => setDetailVehicle(v)}
+                      onWhatsAppContact={handleWhatsAppContact}
+                      onNavigateToAllVehicles={() => handleNavigate('vehicles', 'all', searchTerm)}
+                      onNavigateToBusinesses={() => handleNavigate('businesses')}
+                      onSelectRubro={(rubroId) => {
+                        setActiveRubro(rubroId);
+                        if (rubroId && rubroId !== 'all') {
+                          setBusinessDirectoryModalOpen(true);
+                        } else {
+                          handleNavigate('businesses');
+                        }
+                      }}
+                      onOpenRegisterBusiness={() => setRegisterBusinessModalOpen(true)}
+                    />
                   </div>
 
                   {/* Scroll Horizontal de Últimos Vehículos Publicados */}
