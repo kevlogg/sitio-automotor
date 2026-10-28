@@ -27,26 +27,50 @@ import { LeftAdCard, RightAdCard } from './components/SideAdBanners';
 import PwaInstallCard from './components/PwaInstallCard';
 import { MOCK_VEHICLES } from './data/mockVehicles';
 import { supabase } from './lib/supabase';
+import { updateSeoMetadata, buildVehicleSchema } from './utils/seo';
 
 export default function App() {
-  // Navigation View State: 'home' | 'auth' | 'dashboard' | 'vehicles' | 'agencies' | 'businesses' | 'superadmin' | 'coming-soon'
-  const [currentView, setCurrentView] = useState(() => {
+  // Helper para resolver rutas limpias (HTML5 History API) y redirigir hashes antiguos para SEO
+  const parseCurrentRoute = () => {
+    let path = window.location.pathname.toLowerCase();
     const hash = window.location.hash.toLowerCase();
-    const path = window.location.pathname.toLowerCase();
-    const params = new URLSearchParams(window.location.search);
-    const viewParam = params.get('page') || params.get('view');
-    
-    if (hash === '#proximamente' || hash === '#coming-soon' || path === '/proximamente') return 'coming-soon';
-    if (hash === '#vehiculos' || hash === '#catalogo' || path === '/vehiculos') return 'vehicles';
-    if (hash === '#agencias' || hash === '#concesionarias' || path === '/agencias') return 'agencies';
-    if (hash === '#negocios' || hash === '#servicios' || path === '/negocios') return 'businesses';
-    if (hash === '#superadmin' || path === '/superadmin') return 'superadmin';
-    if (hash === '#panel' || hash === '#dashboard' || path === '/panel') return 'dashboard';
-    if (hash === '#registro' || hash === '#ingresar' || hash === '#auth' || path === '/auth') return 'auth';
 
-    return 'home';
-  });
-  const [authMode, setAuthMode] = useState('signup'); // 'login' | 'signup'
+    // Retrocompatibilidad SEO: si alguien entra con un '#' antiguo,
+    // lo convertimos inmediatamente a una URL limpia con replaceState (sin recargar)
+    if (hash) {
+      if (hash === '#vehiculos' || hash === '#catalogo' || hash === '#todos-los-autos') path = '/vehiculos';
+      else if (hash === '#agencias' || hash === '#concesionarias') path = '/agencias';
+      else if (hash === '#negocios' || hash === '#servicios' || hash === '#directorio') path = '/negocios';
+      else if (hash === '#panel' || hash === '#dashboard') path = '/panel';
+      else if (hash === '#ingresar' || hash === '#login') path = '/ingresar';
+      else if (hash === '#registro' || hash === '#signup' || hash === '#auth') path = '/registro';
+      else if (hash === '#superadmin' || hash === '#admin-total') path = '/superadmin';
+      else if (hash === '#proximamente' || hash === '#coming-soon') path = '/proximamente';
+      else if (hash === '#inicio' || hash === '#home') path = '/';
+
+      const cleanQuery = window.location.search || '';
+      window.history.replaceState(null, '', `${path}${cleanQuery}`);
+    }
+
+    if (path.startsWith('/vehiculos')) {
+      const parts = path.split('/').filter(Boolean);
+      const vehicleParam = parts.length > 1 ? parts[1] : null;
+      return { view: 'vehicles', vehicleParam, path };
+    }
+    if (path === '/agencias' || path === '/concesionarias') return { view: 'agencies', path };
+    if (path === '/negocios' || path === '/servicios') return { view: 'businesses', path };
+    if (path === '/panel' || path === '/dashboard') return { view: 'dashboard', path };
+    if (path === '/ingresar' || path === '/login') return { view: 'auth', authMode: 'login', path };
+    if (path === '/registro' || path === '/signup' || path === '/auth') return { view: 'auth', authMode: 'signup', path };
+    if (path === '/superadmin') return { view: 'superadmin', path };
+    if (path === '/proximamente') return { view: 'coming-soon', path };
+
+    return { view: 'home', path: '/' };
+  };
+
+  const initialRoute = parseCurrentRoute();
+  const [currentView, setCurrentView] = useState(initialRoute.view);
+  const [authMode, setAuthMode] = useState(initialRoute.authMode || 'signup');
   const [catalogCategory, setCatalogCategory] = useState('all');
   const [catalogSearch, setCatalogSearch] = useState('');
 
@@ -66,45 +90,111 @@ export default function App() {
     return MOCK_VEHICLES;
   });
 
-  // Escuchar navegación por Hash (#inicio, #auth, #login, #registro, #panel, #dashboard, #vehiculos, #agencias, #negocios, #proximamente)
-  useEffect(() => {
-    const handleUrl = () => {
-      const hash = window.location.hash.toLowerCase();
-      const path = window.location.pathname.toLowerCase();
-      const params = new URLSearchParams(window.location.search);
-      const viewParam = params.get('page') || params.get('view');
+  // Modal States
+  const [detailVehicle, setDetailVehicle] = useState(null);
 
-      if (hash === '#proximamente' || hash === '#coming-soon') {
-        setCurrentView('coming-soon');
-      } else if (hash === '#login' || hash === '#ingresar') {
-        setAuthMode('login');
-        setCurrentView('auth');
-      } else if (hash === '#registro' || hash === '#signup' || hash === '#auth') {
-        setAuthMode('signup');
-        setCurrentView('auth');
-      } else if (hash === '#panel' || hash === '#dashboard') {
-        setCurrentView('dashboard');
-      } else if (hash === '#vehiculos' || hash === '#catalogo' || hash === '#todos-los-autos') {
-        setCurrentView('vehicles');
-      } else if (hash === '#agencias' || hash === '#concesionarias') {
-        setCurrentView('agencies');
-      } else if (hash === '#negocios' || hash === '#servicios' || hash === '#directorio') {
-        setCurrentView('businesses');
-      } else if (hash === '#superadmin' || hash === '#admin-total') {
-        setCurrentView('superadmin');
-      } else {
-        // Por defecto siempre la página de inicio
-        setCurrentView('home');
+  // Escuchar navegación por History API (popstate) y sincronizar rutas
+  useEffect(() => {
+    const handlePopState = () => {
+      const route = parseCurrentRoute();
+      setCurrentView(route.view);
+      if (route.authMode) setAuthMode(route.authMode);
+
+      if (route.vehicleParam) {
+        const found = vehicles.find((v) => {
+          const vSlug = `${v.id}-${(v.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`;
+          return String(v.id) === String(route.vehicleParam) || vSlug === route.vehicleParam;
+        });
+        if (found) setDetailVehicle(found);
+      } else if (window.location.pathname === '/vehiculos' || window.location.pathname === '/') {
+        setDetailVehicle(null);
       }
     };
-    handleUrl();
-    window.addEventListener('hashchange', handleUrl);
-    window.addEventListener('popstate', handleUrl);
-    return () => {
-      window.removeEventListener('hashchange', handleUrl);
-      window.removeEventListener('popstate', handleUrl);
-    };
-  }, []);
+
+    handlePopState();
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [vehicles]);
+
+  // Actualización dinámica de SEO (Title, Meta Description, Open Graph y Schema.org)
+  useEffect(() => {
+    const siteUrl = window.location.origin;
+
+    if (detailVehicle) {
+      const priceStr = detailVehicle.price ? ` - US$ ${Number(detailVehicle.price).toLocaleString('es-AR')}` : '';
+      const yearStr = detailVehicle.year ? ` (${detailVehicle.year})` : '';
+      const title = `${detailVehicle.title}${yearStr}${priceStr} | Sitio Automotor`;
+      const description = `${detailVehicle.title} en venta en Argentina. ${detailVehicle.year ? 'Año ' + detailVehicle.year + '. ' : ''}${detailVehicle.mileage ? detailVehicle.mileage + ' km. ' : ''}Ubicación: ${detailVehicle.location || 'Argentina'}. Contactá directo por WhatsApp.`;
+      const slug = `${detailVehicle.id}-${(detailVehicle.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`;
+
+      updateSeoMetadata({
+        title,
+        description,
+        image: detailVehicle.image || `${siteUrl}/logo.png`,
+        url: `${siteUrl}/vehiculos/${slug}`,
+        type: 'product',
+        schema: buildVehicleSchema(detailVehicle)
+      });
+      return;
+    }
+
+    switch (currentView) {
+      case 'vehicles':
+        updateSeoMetadata({
+          title: 'Catálogo de Autos, Camionetas y Motos en Venta | Sitio Automotor',
+          description: 'Explorá los mejores vehículos nuevos y usados de Argentina. Filtrá por marca, modelo, precio y ubicación. Trato directo con agencias y particulares.',
+          url: `${siteUrl}/vehiculos`,
+          type: 'website'
+        });
+        break;
+      case 'agencies':
+        updateSeoMetadata({
+          title: 'Directorio de Concesionarias y Agencias de Autos | Sitio Automotor',
+          description: 'Encontrá las agencias de autos oficiales y concesionarias más confiables de Argentina. Consultá su stock disponible con garantía.',
+          url: `${siteUrl}/agencias`,
+          type: 'website'
+        });
+        break;
+      case 'businesses':
+        updateSeoMetadata({
+          title: 'Mundo Automotor | Talleres Mecánicos, Repuestos y Servicios | Sitio Automotor',
+          description: 'Guía comercial automotriz: talleres mecánicos, casas de repuestos, lubricentros, detailing, gomerías y seguros para tu vehículo en Argentina.',
+          url: `${siteUrl}/negocios`,
+          type: 'website'
+        });
+        break;
+      case 'auth':
+        updateSeoMetadata({
+          title: authMode === 'login' ? 'Iniciar Sesión | Sitio Automotor' : 'Registrarse | Sitio Automotor',
+          description: 'Accedé a tu cuenta en Sitio Automotor para publicar tus vehículos o administrar tu agencia.',
+          url: `${siteUrl}/${authMode === 'login' ? 'ingresar' : 'registro'}`
+        });
+        break;
+      case 'dashboard':
+        updateSeoMetadata({
+          title: 'Mi Panel de Control | Sitio Automotor',
+          description: 'Panel de administración y gestión de publicaciones de vehículos y negocios.',
+          url: `${siteUrl}/panel`
+        });
+        break;
+      case 'superadmin':
+        updateSeoMetadata({
+          title: 'Administración Total | Sitio Automotor',
+          description: 'Panel de administración central de Sitio Automotor.',
+          url: `${siteUrl}/superadmin`
+        });
+        break;
+      case 'home':
+      default:
+        updateSeoMetadata({
+          title: 'Sitio Automotor | El Marketplace Automotor Líder de Argentina',
+          description: 'Todo el mundo automotor en un solo sitio. Comprá y vendé autos, camionetas, motos y náutica con agencias oficiales y particulares verificados.',
+          url: `${siteUrl}/`,
+          type: 'website'
+        });
+        break;
+    }
+  }, [currentView, detailVehicle, authMode]);
 
   // Fetch live vehicles from Supabase Cloud on mount
   // Fetch live vehicles from Supabase Cloud on mount (ONLY FROM USERS WITH ACTIVE PLAN)
@@ -312,25 +402,58 @@ export default function App() {
   const handleOpenAuthPage = (mode = 'signup') => {
     setAuthMode(mode);
     setCurrentView('auth');
-    window.location.hash = mode === 'login' ? '#ingresar' : '#registro';
+    const path = mode === 'login' ? '/ingresar' : '/registro';
+    window.history.pushState(null, '', path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleNavigate = (viewId, cat = 'all', search = '') => {
     setCatalogCategory(cat);
     setCatalogSearch(search);
     setCurrentView(viewId);
-    if (viewId === 'home') window.location.hash = '#inicio';
-    else if (viewId === 'coming-soon') window.location.hash = '#proximamente';
-    else if (viewId === 'vehicles') window.location.hash = '#vehiculos';
-    else if (viewId === 'agencies') window.location.hash = '#agencias';
-    else if (viewId === 'businesses') window.location.hash = '#negocios';
-    else if (viewId === 'superadmin') window.location.hash = '#superadmin';
-    else window.location.hash = '';
+    let targetPath = '/';
+
+    if (viewId === 'vehicles') {
+      const params = new URLSearchParams();
+      if (cat && cat !== 'all') params.set('categoria', cat);
+      if (search) params.set('buscar', search);
+      const queryStr = params.toString() ? `?${params.toString()}` : '';
+      targetPath = `/vehiculos${queryStr}`;
+    } else if (viewId === 'agencies') {
+      targetPath = '/agencias';
+    } else if (viewId === 'businesses') {
+      targetPath = '/negocios';
+    } else if (viewId === 'superadmin') {
+      targetPath = '/superadmin';
+    } else if (viewId === 'dashboard') {
+      targetPath = '/panel';
+    } else if (viewId === 'coming-soon') {
+      targetPath = '/proximamente';
+    } else {
+      targetPath = '/';
+    }
+
+    window.history.pushState(null, '', targetPath);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleOpenDetailModal = (vehicle) => {
+    setDetailVehicle(vehicle);
+    if (vehicle) {
+      const slug = `${vehicle.id}-${(vehicle.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`;
+      window.history.pushState(null, '', `/vehiculos/${slug}`);
+    }
+  };
+
+  const handleCloseDetailModal = () => {
+    setDetailVehicle(null);
+    if (window.location.pathname.startsWith('/vehiculos/')) {
+      const fallback = currentView === 'vehicles' ? '/vehiculos' : '/';
+      window.history.pushState(null, '', fallback);
+    }
+  };
+
   // Modal States
-  const [detailVehicle, setDetailVehicle] = useState(null);
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [favoritesModalOpen, setFavoritesModalOpen] = useState(false);
   const [pwaModalOpen, setPwaModalOpen] = useState(true);
@@ -536,12 +659,12 @@ export default function App() {
         onAuthSuccess={(userSession) => {
           setCurrentUser(userSession);
           setCurrentView('home');
-          window.location.hash = '';
+          window.history.pushState(null, '', '/');
           showToast(`¡Bienvenido/a, ${userSession.profile?.full_name || 'Usuario'}! 🎉`);
         }}
         onBackToHome={() => {
           setCurrentView('home');
-          window.location.hash = '';
+          window.history.pushState(null, '', '/');
         }}
       />
     );
@@ -558,14 +681,14 @@ export default function App() {
         }}
         onBackToHome={() => {
           setCurrentView('home');
-          window.location.hash = '';
+          window.history.pushState(null, '', '/');
         }}
         onSignOut={handleSignOut}
         onOpenPublishModal={() => setPublishModalOpen(true)}
         vehicles={vehicles}
         favorites={favorites}
         onToggleFavorite={handleToggleFavorite}
-        onOpenDetailModal={(v) => setDetailVehicle(v)}
+        onOpenDetailModal={handleOpenDetailModal}
         onWhatsAppContact={handleWhatsAppContact}
       />
     );
@@ -578,7 +701,7 @@ export default function App() {
         currentUser={currentUser}
         onBackToHome={() => {
           setCurrentView('home');
-          window.location.hash = '';
+          window.history.pushState(null, '', '/');
         }}
         onSignOut={handleSignOut}
       />
@@ -603,11 +726,11 @@ export default function App() {
         onOpenAuthModal={() => handleOpenAuthPage('signup')}
         onOpenDashboard={() => {
           setCurrentView('dashboard');
-          window.location.hash = '#panel';
+          window.history.pushState(null, '', '/panel');
         }}
         onOpenSuperAdmin={() => {
           setCurrentView('superadmin');
-          window.location.hash = '#superadmin';
+          window.history.pushState(null, '', '/superadmin');
         }}
         onSignOut={handleSignOut}
         currentView={currentView}
@@ -681,7 +804,7 @@ export default function App() {
                       vehicles={filteredVehicles}
                       favorites={favorites}
                       onToggleFavorite={handleToggleFavorite}
-                      onOpenDetailModal={(v) => setDetailVehicle(v)}
+                      onOpenDetailModal={handleOpenDetailModal}
                       onWhatsAppContact={handleWhatsAppContact}
                       onNavigateToAllVehicles={() => handleNavigate('vehicles', 'all', searchTerm)}
                       onNavigateToBusinesses={() => handleNavigate('businesses')}
@@ -702,7 +825,7 @@ export default function App() {
                     vehicles={vehicles}
                     favorites={favorites}
                     onToggleFavorite={handleToggleFavorite}
-                    onOpenDetailModal={(v) => setDetailVehicle(v)}
+                    onOpenDetailModal={handleOpenDetailModal}
                     onWhatsAppContact={handleWhatsAppContact}
                     onNavigateToAllVehicles={() => handleNavigate('vehicles', 'all', searchTerm)}
                   />
@@ -731,7 +854,7 @@ export default function App() {
             vehicles={vehicles}
             favorites={favorites}
             onToggleFavorite={handleToggleFavorite}
-            onOpenDetailModal={(v) => setDetailVehicle(v)}
+            onOpenDetailModal={handleOpenDetailModal}
             onWhatsAppContact={handleWhatsAppContact}
             onBackToHome={() => handleNavigate('home')}
             onOpenPublishModal={() => setPublishModalOpen(true)}
@@ -739,7 +862,7 @@ export default function App() {
             onOpenAuthModal={() => handleOpenAuthPage('signup')}
             onOpenDashboard={() => {
               setCurrentView('dashboard');
-              window.location.hash = '#panel';
+              window.history.pushState(null, '', '/panel');
             }}
             onSignOut={handleSignOut}
             cardTheme={cardTheme}
@@ -775,7 +898,7 @@ export default function App() {
         cardTheme={cardTheme}
         onOpenSuperAdmin={() => {
           setCurrentView('superadmin');
-          window.location.hash = '#superadmin';
+          window.history.pushState(null, '', '/superadmin');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
       />
@@ -791,7 +914,7 @@ export default function App() {
       {/* Modals compartidos */}
       <VehicleDetailModal
         vehicle={detailVehicle}
-        onClose={() => setDetailVehicle(null)}
+        onClose={handleCloseDetailModal}
         isFavorite={detailVehicle ? favorites.includes(detailVehicle.id) : false}
         onToggleFavorite={handleToggleFavorite}
         onWhatsAppContact={handleWhatsAppContact}
@@ -826,7 +949,7 @@ export default function App() {
         favorites={favorites}
         allVehicles={vehicles}
         onRemoveFavorite={handleToggleFavorite}
-        onOpenDetailModal={(v) => setDetailVehicle(v)}
+        onOpenDetailModal={handleOpenDetailModal}
         onWhatsAppContact={handleWhatsAppContact}
       />
     </div>

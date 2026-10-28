@@ -1,0 +1,17 @@
+# Robots.txt para Sitio Automotor (sitioautomotor.com)
+User-agent: *
+Allow: /
+Allow: /vehiculos
+Allow: /vehiculos/*
+Allow: /agencias
+Allow: /negocios
+Disallow: /panel
+Disallow: /panel/*
+Disallow: /superadmin
+Disallow: /superadmin/*
+Disallow: /auth
+Disallow: /ingresar
+Disallow: /registro
+
+# Sitemap XML index
+Sitemap: https://sitioautomotor.com/sitemap.xml

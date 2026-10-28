@@ -16,10 +16,10 @@ export default function Navbar({
   const [logoError, setLogoError] = useState(false);
 
   const navLinks = [
-    { name: 'Inicio', id: 'home', href: '#inicio' },
-    { name: 'Vehículos', id: 'vehicles', href: '#vehiculos' },
-    { name: 'Agencias', id: 'agencies', href: '#agencias' },
-    { name: 'Negocios', id: 'businesses', href: '#negocios' },
+    { name: 'Inicio', id: 'home', href: '/' },
+    { name: 'Vehículos', id: 'vehicles', href: '/vehiculos' },
+    { name: 'Agencias', id: 'agencies', href: '/agencias' },
+    { name: 'Negocios', id: 'businesses', href: '/negocios' },
   ];
 
   const getUserBadge = () => {
@@ -36,7 +36,8 @@ export default function Navbar({
     if (onNavigate) {
       onNavigate(viewId);
     } else {
-      window.location.hash = href;
+      window.history.pushState(null, '', href);
+      window.dispatchEvent(new PopStateEvent('popstate'));
     }
     setMobileMenuOpen(false);
   };
@@ -47,17 +48,23 @@ export default function Navbar({
         <div className="relative flex items-center justify-between h-20">
           
           {/* Logo en el margen izquierdo */}
-          <div
+          <a
+            href="/"
             className="flex items-center cursor-pointer shrink-0 z-10"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               if (onNavigate) onNavigate('home');
+              else {
+                window.history.pushState(null, '', '/');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           >
             {!logoError ? (
               <img
                 src="/logofrase.png"
-                alt="SA Sitio Automotor"
+                alt="SA Sitio Automotor - Marketplace Automotor"
                 onError={() => setLogoError(true)}
                 className="h-14 sm:h-[58px] lg:h-[64px] max-h-[64px] w-auto object-contain transition-transform hover:scale-105 drop-shadow-md py-1"
               />
@@ -76,16 +83,20 @@ export default function Navbar({
                 </div>
               </div>
             )}
-          </div>
+          </a>
 
           {/* Links Centrales (Inicio, Vehículos, Agencias, Negocios) - Centrados */}
-          <nav className="hidden md:flex items-center space-x-1.5 lg:space-x-3 xl:space-x-4 absolute left-1/2 -translate-x-1/2 z-10">
+          <nav className="hidden md:flex items-center space-x-1.5 lg:space-x-3 xl:space-x-4 absolute left-1/2 -translate-x-1/2 z-10" aria-label="Navegación principal">
             {navLinks.map((link) => {
               const isActive = currentView === link.id;
               return (
-                <button
+                <a
                   key={link.name}
-                  onClick={() => handleNavClick(link.id, link.href)}
+                  href={link.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavClick(link.id, link.href);
+                  }}
                   className={`px-3 lg:px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer whitespace-nowrap ${
                     isActive
                       ? 'bg-[#6D28D9] text-white shadow-md shadow-purple-900/40 border border-purple-400/40'
@@ -93,7 +104,7 @@ export default function Navbar({
                   }`}
                 >
                   {link.name}
-                </button>
+                </a>
               );
             })}
           </nav>
@@ -169,19 +180,23 @@ export default function Navbar({
       {/* Menú Mobile */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-[#0D111A] border-b border-slate-800 px-4 pt-3 pb-6 space-y-3 shadow-xl">
-          <nav className="flex flex-col space-y-2">
+          <nav className="flex flex-col space-y-2" aria-label="Navegación móvil">
             {navLinks.map((link) => {
               const isActive = currentView === link.id;
               return (
-                <button
+                <a
                   key={link.name}
-                  onClick={() => handleNavClick(link.id, link.href)}
+                  href={link.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavClick(link.id, link.href);
+                  }}
                   className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                     isActive ? 'bg-[#6D28D9] text-white' : 'text-slate-300 hover:bg-slate-800'
                   }`}
                 >
                   {link.name}
-                </button>
+                </a>
               );
             })}
           </nav>
