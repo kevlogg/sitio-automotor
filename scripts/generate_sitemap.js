@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SITE_URL = 'https://sitioautomotor.com';
+const SITE_URL = 'https://sitioautomotor.com.ar';
 
 // Leer .env.local si existe
 let supabaseUrl = 'https://gawbgyicshvyyowkrcdd.supabase.co';

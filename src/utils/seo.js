@@ -4,7 +4,7 @@
  * and Google Schema.org JSON-LD microdata.
  */
 
-const SITE_URL = typeof window !== 'undefined' ? window.location.origin : 'https://sitioautomotor.com';
+const SITE_URL = typeof window !== 'undefined' ? window.location.origin : 'https://sitioautomotor.com.ar';
 const DEFAULT_IMAGE = `${SITE_URL}/logo.png`;
 const DEFAULT_TITLE = 'Sitio Automotor | Marketplace Automotor Líder en Argentina';
 const DEFAULT_DESCRIPTION = 'Comprá y vendé autos, camionetas, motos y náutica en Argentina. Publicaciones de concesionarias oficiales y particulares verificados con contacto directo por WhatsApp.';
