@@ -139,14 +139,28 @@ export default function App() {
     }
 
     switch (currentView) {
-      case 'vehicles':
+      case 'vehicles': {
+        const catLabels = {
+          autos: 'Autos',
+          camionetas: 'Camionetas y SUVs',
+          motos: 'Motos',
+          camiones: 'Camiones',
+          nautica: 'Embarcaciones y Náutica',
+          agro: 'Maquinaria Agrícola'
+        };
+        const catName = catLabels[catalogCategory] || 'Autos, Camionetas y Motos';
+        const searchSuffix = catalogSearch ? ` "${catalogSearch}"` : '';
+        const dynTitle = `Catálogo de ${catName}${searchSuffix} en Venta | Sitio Automotor`;
+        const dynDesc = `Encontrá ${catName.toLowerCase()}${searchSuffix} nuevos y usados en venta en Argentina. Precios actualizados en dólares y pesos, garantía oficial y contacto directo por WhatsApp.`;
+
         updateSeoMetadata({
-          title: 'Catálogo de Autos, Camionetas y Motos en Venta | Sitio Automotor',
-          description: 'Explorá los mejores vehículos nuevos y usados de Argentina. Filtrá por marca, modelo, precio y ubicación. Trato directo con agencias y particulares.',
-          url: `${siteUrl}/vehiculos`,
+          title: dynTitle,
+          description: dynDesc,
+          url: `${siteUrl}/vehiculos${catalogCategory !== 'all' ? `?categoria=${catalogCategory}` : ''}`,
           type: 'website'
         });
         break;
+      }
       case 'agencies':
         updateSeoMetadata({
           title: 'Directorio de Concesionarias y Agencias de Autos | Sitio Automotor',
@@ -194,7 +208,7 @@ export default function App() {
         });
         break;
     }
-  }, [currentView, detailVehicle, authMode]);
+  }, [currentView, detailVehicle, authMode, catalogCategory, catalogSearch]);
 
   // Fetch live vehicles from Supabase Cloud on mount
   // Fetch live vehicles from Supabase Cloud on mount (ONLY FROM USERS WITH ACTIVE PLAN)
@@ -744,6 +758,9 @@ export default function App() {
         <main className="flex-1 min-w-0">
         {currentView === 'home' && (
           <div className="relative w-full bg-[#FDF2F4] overflow-x-clip">
+            {/* H1 Semántico principal para Googlebot y accesibilidad */}
+            <h1 className="sr-only">Sitio Automotor | Marketplace de Autos Usados y Nuevos en Argentina</h1>
+
             {/* Soft Glow Radial Accent */}
             <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-purple-200/20 rounded-full blur-3xl pointer-events-none" />
 

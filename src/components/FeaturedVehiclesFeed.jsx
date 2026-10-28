@@ -300,9 +300,10 @@ export default function FeaturedVehiclesFeed({
                 >
                   <img
                     src={item.image}
-                    alt={item.title}
+                    alt={`${item.title} ${item.year || ''} en venta en ${displayLocation} - Sitio Automotor`}
                     className="w-full h-full object-cover sm:group-hover:scale-105 sm:transition-transform sm:duration-300"
                     loading="lazy"
+                    decoding="async"
                   />
 
                   {/* Badge Categoría ("AUTO", "CAMIONETA", etc.) */}
@@ -501,8 +502,10 @@ export default function FeaturedVehiclesFeed({
               <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-slate-900 cursor-pointer">
                 <img
                   src={b.image || 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=600&q=80'}
-                  alt={b.name}
+                  alt={`${b.name} - ${b.rubroLabel || 'Servicio Automotor'} en ${b.city || 'Argentina'}`}
                   className="w-full h-full object-cover sm:group-hover:scale-106 sm:transition-transform sm:duration-400"
+                  loading="lazy"
+                  decoding="async"
                 />
 
                 {/* Badge Rubro (Naranja cálido y oscuro) */}
@@ -653,9 +656,10 @@ export default function FeaturedVehiclesFeed({
               {/* Foto que corresponde a cada rubro */}
               <img
                 src={rubro.image}
-                alt={rubro.name}
+                alt={`${rubro.name} - Servicios automotores en Argentina`}
                 className="w-full h-full object-cover sm:group-hover:scale-108 sm:transition-transform sm:duration-500 ease-out"
                 loading="lazy"
+                decoding="async"
               />
 
               {/* Franja oscura sutil en la parte inferior */}

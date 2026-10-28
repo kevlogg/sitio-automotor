@@ -128,14 +128,29 @@ export function updateSeoMetadata({
 }
 
 /**
+ * Builds Schema.org BreadcrumbList microdata
+ */
+export function buildBreadcrumbsSchema(items = []) {
+  if (!items || items.length === 0) return null;
+  return {
+    '@type': 'BreadcrumbList',
+    'itemListElement': items.map((item, index) => ({
+      '@type': 'ListItem',
+      'position': index + 1,
+      'name': item.name,
+      'item': item.url.startsWith('http') ? item.url : `${SITE_URL}${item.url}`
+    }))
+  };
+}
+
+/**
  * Builds Schema.org Vehicle data for a car publication
  */
 export function buildVehicleSchema(vehicle) {
   if (!vehicle) return null;
   const canonicalUrl = `${SITE_URL}/vehiculos/${vehicle.id}`;
 
-  return {
-    '@context': 'https://schema.org',
+  const vehicleCarSchema = {
     '@type': 'Car',
     'name': vehicle.title || 'Vehículo en venta',
     'description': vehicle.description || `${vehicle.title} año ${vehicle.year || ''} con ${vehicle.mileage || ''} en venta en Sitio Automotor.`,
@@ -164,5 +179,19 @@ export function buildVehicleSchema(vehicle) {
         'name': vehicle.sellerName || 'Vendedor en Sitio Automotor'
       }
     }
+  };
+
+  const breadcrumbsSchema = buildBreadcrumbsSchema([
+    { name: 'Inicio', url: '/' },
+    { name: 'Vehículos', url: '/vehiculos' },
+    { name: vehicle.title, url: `/vehiculos/${vehicle.id}` }
+  ]);
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      vehicleCarSchema,
+      breadcrumbsSchema
+    ]
   };
 }

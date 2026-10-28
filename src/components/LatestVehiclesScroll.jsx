@@ -119,8 +119,10 @@ export default function LatestVehiclesScroll({
               >
                 <img
                   src={item.image}
-                  alt={item.title}
+                  alt={`${item.title} ${item.year || ''} recién publicado en ${item.location ? item.location.split(',')[0] : 'Argentina'} - Sitio Automotor`}
                   className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-400"
+                  loading="lazy"
+                  decoding="async"
                 />
 
                 {/* Badge Categoría & Nuevo */}

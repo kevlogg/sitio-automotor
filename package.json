@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/generate_sitemap.js",
     "build": "vite build",
+    "generate-sitemap": "node scripts/generate_sitemap.js",
     "lint": "oxlint",
     "preview": "vite preview",
     "seed-demo": "node scripts/seed_demo_vehicles.js",

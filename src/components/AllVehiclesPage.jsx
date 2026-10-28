@@ -175,10 +175,20 @@ export default function AllVehiclesPage({
               🚗 Catálogo Oficial de Vehículos
             </span>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Todos los Vehículos Publicados
+              {selectedBrand !== 'all' && selectedCategory !== 'all'
+                ? `${categoryOptions.find(c => c.value === selectedCategory)?.label || ''} ${selectedBrand} en Venta`
+                : selectedBrand !== 'all'
+                ? `Vehículos ${selectedBrand} en Venta`
+                : selectedCategory !== 'all'
+                ? `${categoryOptions.find(c => c.value === selectedCategory)?.label || ''} en Venta`
+                : searchTerm
+                ? `Vehículos que coinciden con "${searchTerm}"`
+                : 'Todos los Vehículos Publicados'}
             </h1>
             <p className="text-xs text-purple-200/80 mt-1">
-              Encontrá autos, camionetas, motos, comerciales, náutica y maquinaria agrícola en todo el país.
+              {selectedBrand !== 'all' || selectedCategory !== 'all'
+                ? 'Explorá publicaciones con garantía oficial, precios en dólares y contacto directo con vendedores.'
+                : 'Encontrá autos, camionetas, motos, comerciales, náutica y maquinaria agrícola en todo el país.'}
             </p>
           </div>
 
@@ -371,7 +381,9 @@ export default function AllVehiclesPage({
                   <div className="relative aspect-video overflow-hidden bg-slate-900 cursor-pointer" onClick={() => onOpenDetailModal(item)}>
                     <img
                       src={item.image}
-                      alt={item.title}
+                      alt={`${item.title} ${item.year || ''} en venta en ${item.location ? item.location.split(',')[0] : 'Argentina'} - Sitio Automotor`}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
 
