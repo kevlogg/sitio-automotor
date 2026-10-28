@@ -58,7 +58,7 @@ export default function ProofTrustFooter({ cardTheme = 'dark', onOpenSuperAdmin 
           <div className="space-y-3">
             {!logoError ? (
               <img src="/logo.png" alt="SA Sitio Automotor" onError={() => setLogoError(true)}
-                className="h-10 w-auto object-contain rounded-lg" />
+                className="h-11 sm:h-12 w-auto object-contain" />
             ) : (
               <span className="text-lg font-black tracking-tight text-white">
                 SITIO <span className="text-[#8B5CF6]">AUTOMOTOR</span>
