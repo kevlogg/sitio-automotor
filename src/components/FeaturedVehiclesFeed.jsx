@@ -279,7 +279,7 @@ export default function FeaturedVehiclesFeed({
         <div
           ref={vehiclesScrollRef}
           onScroll={handleVehiclesScroll}
-          className="flex items-stretch gap-3 sm:gap-3.5 overflow-x-auto scroll-smooth pb-2 pt-1 px-1 no-scrollbar snap-x snap-mandatory touch-pan-x overscroll-x-contain select-none w-full max-w-full"
+          className="flex items-stretch gap-3 sm:gap-3.5 overflow-x-auto scroll-smooth pb-2 pt-1 px-1 no-scrollbar snap-x snap-mandatory w-full max-w-full"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
         >
           {vehicles.map((item) => {
@@ -291,7 +291,7 @@ export default function FeaturedVehiclesFeed({
             return (
               <div
                 key={item.id}
-                className="w-[86%] sm:w-[255px] flex-shrink-0 snap-start rounded-2xl border-2 border-purple-300 hover:border-[#6D28D9] overflow-hidden flex flex-col justify-between transition-all duration-300 shadow-md shadow-purple-900/10 hover:shadow-xl hover:shadow-purple-900/20 bg-white text-slate-900 group"
+                className="w-[86%] sm:w-[255px] flex-shrink-0 snap-start rounded-2xl border-2 border-purple-300 sm:hover:border-[#6D28D9] overflow-hidden flex flex-col justify-between sm:transition-all sm:duration-300 shadow-md shadow-purple-900/10 sm:hover:shadow-xl sm:hover:shadow-purple-900/20 bg-white text-slate-900 group"
               >
                 {/* Imagen del Vehículo */}
                 <div
@@ -301,7 +301,7 @@ export default function FeaturedVehiclesFeed({
                   <img
                     src={item.image}
                     alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover sm:group-hover:scale-105 sm:transition-transform sm:duration-300"
                     loading="lazy"
                   />
 
@@ -489,20 +489,20 @@ export default function FeaturedVehiclesFeed({
         <div
           ref={businessesScrollRef}
           onScroll={handleBusinessesScroll}
-          className="flex items-stretch gap-3 sm:gap-3.5 overflow-x-auto scroll-smooth pb-2 pt-1 px-1 no-scrollbar snap-x snap-mandatory touch-pan-x overscroll-x-contain select-none w-full max-w-full"
+          className="flex items-stretch gap-3 sm:gap-3.5 overflow-x-auto scroll-smooth pb-2 pt-1 px-1 no-scrollbar snap-x snap-mandatory w-full max-w-full"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
         >
           {businesses.map((b) => (
             <div
               key={b.id || b.name}
-              className="w-[86%] sm:w-[255px] flex-shrink-0 snap-start rounded-2xl border-2 border-purple-300 hover:border-[#6D28D9] overflow-hidden flex flex-col justify-between transition-all duration-300 shadow-md shadow-purple-900/10 hover:shadow-xl hover:shadow-purple-900/20 bg-white text-slate-900 group"
+              className="w-[86%] sm:w-[255px] flex-shrink-0 snap-start rounded-2xl border-2 border-purple-300 sm:hover:border-[#6D28D9] overflow-hidden flex flex-col justify-between sm:transition-all sm:duration-300 shadow-md shadow-purple-900/10 sm:hover:shadow-xl sm:hover:shadow-purple-900/20 bg-white text-slate-900 group"
             >
               {/* Imagen del Comercio */}
               <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-slate-900 cursor-pointer">
                 <img
                   src={b.image || 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=600&q=80'}
                   alt={b.name}
-                  className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-400"
+                  className="w-full h-full object-cover sm:group-hover:scale-106 sm:transition-transform sm:duration-400"
                 />
 
                 {/* Badge Rubro (Violeta y oscuro) */}
@@ -648,13 +648,13 @@ export default function FeaturedVehiclesFeed({
                   onNavigateToBusinesses();
                 }
               }}
-              className="relative group overflow-hidden rounded-2xl border-2 border-purple-200/90 hover:border-[#6D28D9] shadow-md shadow-purple-900/10 hover:shadow-xl hover:shadow-purple-900/20 transition-all duration-300 cursor-pointer active:scale-95 aspect-[4/3] sm:aspect-[16/11] bg-slate-900"
+              className="relative group overflow-hidden rounded-2xl border-2 border-purple-200/90 sm:hover:border-[#6D28D9] shadow-md shadow-purple-900/10 sm:hover:shadow-xl sm:hover:shadow-purple-900/20 sm:transition-all sm:duration-300 cursor-pointer active:scale-95 aspect-[4/3] sm:aspect-[16/11] bg-slate-900"
             >
               {/* Foto que corresponde a cada rubro */}
               <img
                 src={rubro.image}
                 alt={rubro.name}
-                className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
+                className="w-full h-full object-cover sm:group-hover:scale-108 sm:transition-transform sm:duration-500 ease-out"
                 loading="lazy"
               />
 
