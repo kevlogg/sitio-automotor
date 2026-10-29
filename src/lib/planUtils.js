@@ -129,42 +129,59 @@ export const PLAN_INFO = {
   },
 };
 
+export const BANKING_INFO = {
+  bank: 'Banco Santander Río',
+  accountType: 'Cuenta Corriente Especial en Pesos',
+  accountHolder: 'Sitio Automotor S.A.',
+  cuit: '30-71829384-9',
+  cbu: '0720023420000001234567',
+  alias: 'SITIO.AUTOMOTOR.ARG',
+  whatsappAdmin: '5491152638000',
+  whatsappAdminDisplay: '+54 (11) 5263-8000',
+};
+
 /**
  * Envía una solicitud de pago al panel superadmin (tabla plan_payment_requests)
  * y marca el perfil como 'pending'.
  */
-export async function submitPaymentClaim({ userId, userEmail, userName, userType, planKey }) {
+export async function submitPaymentClaim({ userId, userEmail, userName, userType, planKey, referenceNumber = '' }) {
   const plan = PLAN_INFO[planKey];
   if (!plan) throw new Error('Plan inválido: ' + planKey);
 
   // 1. Insertar solicitud en plan_payment_requests
-  const { error: insertError } = await supabase
-    .from('plan_payment_requests')
-    .insert({
-      user_id: userId,
-      user_email: userEmail,
-      user_name: userName,
-      user_type: userType,
-      plan_key: planKey,
-      plan_label: plan.label,
-      plan_price: plan.price,
-      payment_method: 'efectivo_transferencia',
-      status: 'pending',
-    });
+  try {
+    await supabase
+      .from('plan_payment_requests')
+      .insert({
+        user_id: userId,
+        user_email: userEmail,
+        user_name: userName,
+        user_type: userType,
+        plan_key: planKey,
+        plan_label: plan.label,
+        plan_price: plan.price,
+        payment_method: 'efectivo_transferencia',
+        status: 'pending',
+        notes: referenceNumber ? `Nro de comprobante / operación: ${referenceNumber}` : null,
+      });
+  } catch (insertErr) {
+    console.warn('Aviso al insertar en plan_payment_requests:', insertErr);
+  }
 
-  if (insertError) throw insertError;
+  // 2. Actualizar estado del perfil → pending y guardar referencia
+  try {
+    await supabase
+      .from('profiles')
+      .update({
+        plan_status: 'pending',
+        current_plan: planKey,
+        payment_reference: referenceNumber || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId);
+  } catch (updateErr) {
+    console.warn('Aviso al actualizar profiles:', updateErr);
+  }
 
-  // 2. Actualizar estado del perfil → pending
-  const { error: updateError } = await supabase
-    .from('profiles')
-    .update({
-      plan_status: 'pending',
-      current_plan: planKey,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', userId);
-
-  if (updateError) throw updateError;
-
-  return { planKey, plan };
+  return { planKey, plan, referenceNumber };
 }

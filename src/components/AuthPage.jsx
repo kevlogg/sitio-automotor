@@ -209,7 +209,7 @@ export default function AuthPage({ initialMode = 'signup', onAuthSuccess, onBack
           }]);
         }
 
-        setSuccessMsg(`¡Cuenta de ${userType === 'agencia' ? 'Agencia' : userType === 'negocio_automotor' ? 'Negocio' : 'Particular'} registrada e iniciada exitosamente! Bienvenido/a a Sitio Automotor.`);
+        setSuccessMsg(`¡Cuenta de ${userType === 'agencia' ? 'Agencia' : userType === 'negocio_automotor' ? 'Negocio' : 'Particular'} registrada con éxito! Ingresando a tu panel de control...`);
         
         const createdProfile = {
           id: data.user.id,

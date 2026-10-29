@@ -15,8 +15,10 @@ import {
   Star,
   Award,
   PhoneCall,
-  Flame
+  Flame,
+  CreditCard
 } from 'lucide-react';
+import PaymentClaimModal from './PaymentClaimModal';
 
 // Logo oficial estilizado idéntico a la identidad de Sitio Automotor
 function PlanLogoHeader({ color, lineColor }) {
@@ -40,9 +42,12 @@ export default function PlansPage({
   onOpenPublishModal,
   onOpenRegisterBusiness,
   onOpenAuthModal,
+  currentUser,
+  onUpdateUser,
   cardTheme = 'violet',
 }) {
   const [openFaq, setOpenFaq] = useState(null);
+  const [paymentClaimPlan, setPaymentClaimPlan] = useState(null);
 
   const toggleFaq = (index) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -328,6 +333,36 @@ export default function PlansPage({
           </button>
         </div>
 
+        {/* Banner para informar pago de transferencia ("Ya pagué") */}
+        <div className="rounded-3xl bg-[#0F172A] border border-slate-800 p-6 sm:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 text-white">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
+              <CreditCard className="w-7 h-7" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-lg sm:text-xl font-black text-white">
+                ¿Ya realizaste una transferencia bancaria?
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-400 font-medium">
+                Declarar tu pago con el número de comprobante o notificarlo por WhatsApp para que activemos tu cuenta de inmediato.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              if (!currentUser && onOpenAuthModal) {
+                onOpenAuthModal('signup');
+              } else {
+                setPaymentClaimPlan('premium');
+              }
+            }}
+            className="shrink-0 px-6 py-4 rounded-2xl bg-[#5328D7] hover:bg-[#431fb5] text-white font-black text-xs sm:text-sm shadow-lg shadow-indigo-950/40 transition-all cursor-pointer flex items-center gap-2"
+          >
+            <CreditCard className="w-4 h-4" />
+            <span>Informar Pago ("Ya pagué")</span>
+          </button>
+        </div>
+
         {/* Tabla Comparativa Detallada */}
         <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
           <div className="text-center max-w-2xl mx-auto space-y-2">
@@ -437,6 +472,27 @@ export default function PlansPage({
         </div>
 
       </div>
+
+      {/* Modal de Confirmación de Pago */}
+      <PaymentClaimModal
+        isOpen={!!paymentClaimPlan}
+        onClose={() => setPaymentClaimPlan(null)}
+        planKey={paymentClaimPlan || 'premium'}
+        currentUser={currentUser}
+        onSuccess={({ planKey, referenceNumber }) => {
+          if (onUpdateUser && currentUser) {
+            onUpdateUser({
+              ...currentUser,
+              profile: {
+                ...currentUser.profile,
+                plan_status: 'pending',
+                current_plan: planKey,
+                payment_reference: referenceNumber,
+              },
+            });
+          }
+        }}
+      />
     </div>
   );
 }

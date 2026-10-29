@@ -4,7 +4,15 @@ import { uploadVehicleImage } from '../lib/supabase';
 import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../data/locationData';
 import { PLAN_INFO } from '../lib/planUtils';
 
-export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentUser, onRequireAuth }) {
+export default function PublishModal({ 
+  isOpen, 
+  onClose, 
+  onVehicleAdded, 
+  currentUser, 
+  onRequireAuth,
+  vehicles = [],
+  onNavigate
+}) {
   const [formData, setFormData] = useState({
     title: '',
     category: 'autos',
@@ -45,6 +53,18 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentU
   const [uploading, setUploading] = useState(false);
   const [uploadStatusText, setUploadStatusText] = useState('');
   const [submitted, setSubmitted] = useState(false);
+
+  // Verificación de la Política de Publicación para Particulares (1 auto activo a la vez)
+  const isParticular = (currentUser?.profile?.user_type || 'particular') === 'particular';
+  const userVehicles = vehicles.filter((v) => {
+    if (!currentUser) return false;
+    if (v.userId && v.userId === currentUser.user?.id) return true;
+    if (v.sellerWhatsApp && currentUser.profile?.phone_whatsapp) {
+      return v.sellerWhatsApp.replace(/\D/g, '') === currentUser.profile.phone_whatsapp.replace(/\D/g, '');
+    }
+    return false;
+  });
+  const hasParticularLimitReached = isParticular && userVehicles.length >= 1;
 
   if (!isOpen) return null;
 
@@ -200,19 +220,77 @@ export default function PublishModal({ isOpen, onClose, onVehicleAdded, currentU
               </button>
             </div>
           </div>
+        ) : hasParticularLimitReached ? (
+          /* Pantalla Informativa de Cupo Completo para Particulares */
+          <div className="p-8 text-center space-y-6">
+            <div className="w-16 h-16 rounded-3xl bg-amber-50 text-amber-600 border border-amber-200 mx-auto flex items-center justify-center shadow-lg shadow-amber-950/5">
+              <Car className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-2 max-w-md mx-auto">
+              <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-black uppercase tracking-wider">
+                Cupo Particular Completo (1/1)
+              </span>
+              <h4 className="text-xl font-black text-slate-900">
+                Ya tenés 1 vehículo publicado
+              </h4>
+              <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                La política oficial de Sitio Automotor para particulares permite tener <strong>1 aviso activo a la vez por 30 días</strong>.
+              </p>
+              {userVehicles[0] && (
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl text-left text-xs font-medium text-slate-700 flex items-center gap-3">
+                  <img src={userVehicles[0].image} alt="" className="w-12 h-10 object-cover rounded-xl" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-slate-900 truncate">{userVehicles[0].title}</p>
+                    <p className="text-[11px] text-purple-700 font-bold">{userVehicles[0].formattedPrice}</p>
+                  </div>
+                </div>
+              )}
+              <p className="text-[11px] text-slate-500 pt-1">
+                Para publicar otro vehículo podés dar de baja o editar el actual desde tu panel, o adherir tu agencia a un plan comercial para publicar hasta 20 o 50 autos.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-1 max-w-md mx-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  if (onNavigate) onNavigate('dashboard');
+                }}
+                className="w-full py-3.5 px-5 rounded-2xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-extrabold text-xs shadow-md cursor-pointer transition-all"
+              >
+                Ir a Mi Panel de Control
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  if (onNavigate) onNavigate('plans');
+                }}
+                className="w-full py-3.5 px-5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-md cursor-pointer transition-all"
+              >
+                Ver Planes Comerciales
+              </button>
+            </div>
+          </div>
         ) : (
           <>
-            {/* Plan Header Banner */}
-            <div className="p-4 bg-purple-50 border-b border-purple-100 flex items-center justify-between px-6">
+            {/* Banner Oficial de Política de Publicación */}
+            <div className="p-4 bg-purple-50 border-b border-purple-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6">
               <div className="flex items-center gap-3">
-                <div className="px-3 py-1 rounded-full bg-[#5328D7] text-white font-black text-xs">
-                  {currentUser.profile?.current_plan ? (PLAN_INFO[currentUser.profile?.current_plan]?.label || 'Plan Activo') : 'Plan Base'}
+                <div className="px-3 py-1 rounded-full bg-[#5328D7] text-white font-black text-xs shrink-0">
+                  {currentUser.profile?.current_plan ? (PLAN_INFO[currentUser.profile?.current_plan]?.label || 'Plan Activo') : (isParticular ? 'Plan Particular' : 'Plan Base')}
                 </div>
                 <span className="text-xs text-slate-700 font-medium">
-                  Publicación activa en la plataforma con fotos en Supabase Storage.
+                  {isParticular 
+                    ? 'Política para Particulares: 1 vehículo por 30 días con contacto directo por WhatsApp y 0% comisión.'
+                    : 'Publicación activa en la plataforma con fotos en alta definición.'}
                 </span>
               </div>
-              <span className="text-xs font-black text-purple-700 bg-purple-100 px-2.5 py-1 rounded-lg">1 aviso incluido</span>
+              <span className="text-xs font-black text-purple-700 bg-purple-100 px-2.5 py-1 rounded-lg shrink-0">
+                {isParticular ? 'Cupo: 1 aviso activo' : 'Múltiples avisos'}
+              </span>
             </div>
 
         {submitted ? (

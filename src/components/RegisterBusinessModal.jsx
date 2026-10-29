@@ -3,21 +3,48 @@ import { X, Wrench, Building2, MapPin, Phone, CheckCircle2, Loader2, Sparkles, S
 import { supabase } from '../lib/supabase';
 import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../data/locationData';
 
-export default function RegisterBusinessModal({ isOpen, onClose, onBusinessRegistered }) {
+export default function RegisterBusinessModal({ 
+  isOpen, 
+  onClose, 
+  onBusinessRegistered,
+  currentUser,
+  onUpdateUser,
+  onRequireAuth,
+  onNavigate
+}) {
   const [locationType, setLocationType] = useState('single'); // 'single' | 'multiple'
 
+  const profile = currentUser?.profile || {};
+
   const [formData, setFormData] = useState({
-    rubroId: 'talleres',
+    rubroId: profile.rubro || 'talleres',
     customRubro: '',
-    name: '',
-    address: '',
-    province: 'Santa Fe',
-    city: ARGENTINA_LOCATION_DATA['Santa Fe'][0],
+    name: profile.business_name || profile.full_name || '',
+    address: profile.address || '',
+    province: profile.province || 'Santa Fe',
+    city: profile.city || ARGENTINA_LOCATION_DATA['Santa Fe'][0],
     customCity: '',
-    locationDetails: '',
-    phone: '',
-    whatsapp: '',
+    locationDetails: profile.location_details || '',
+    phone: profile.phone_whatsapp || '',
+    whatsapp: profile.phone_whatsapp || '',
   });
+
+  // Si cambia el usuario, actualizar datos
+  React.useEffect(() => {
+    if (currentUser?.profile) {
+      const p = currentUser.profile;
+      setFormData(prev => ({
+        ...prev,
+        name: p.business_name || p.full_name || prev.name,
+        phone: p.phone_whatsapp || prev.phone,
+        whatsapp: p.phone_whatsapp || prev.whatsapp,
+        province: p.province || prev.province,
+        city: p.city || prev.city,
+        address: p.address || prev.address,
+        rubroId: p.rubro || prev.rubroId,
+      }));
+    }
+  }, [currentUser]);
 
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -57,6 +84,7 @@ export default function RegisterBusinessModal({ isOpen, onClose, onBusinessRegis
 
     try {
       const newService = {
+        user_id: currentUser?.user?.id || null,
         rubro_id: finalRubro,
         name: formData.name,
         address: locationType === 'multiple' ? (formData.locationDetails || null) : (formData.address || null),
@@ -78,14 +106,38 @@ export default function RegisterBusinessModal({ isOpen, onClose, onBusinessRegis
         console.warn('Fallback a guardado local por falta de conexión o RLS:', error.message);
       }
 
-      setSubmitted(true);
-      setTimeout(() => {
-        if (onBusinessRegistered) {
-          onBusinessRegistered(data || newService);
+      // Si el usuario está autenticado, sincronizar su perfil en profiles
+      if (currentUser?.user?.id) {
+        try {
+          const updatedProfile = {
+            ...profile,
+            business_name: formData.name,
+            rubro: finalRubro,
+            phone_whatsapp: formData.whatsapp || formData.phone,
+            city: finalCity,
+            province: finalProvince,
+            user_type: profile.user_type === 'particular' ? 'negocio_automotor' : profile.user_type,
+            address: formData.address || profile.address,
+            updated_at: new Date().toISOString(),
+          };
+
+          await supabase.from('profiles').update(updatedProfile).eq('id', currentUser.user.id);
+
+          if (onUpdateUser) {
+            onUpdateUser({
+              ...currentUser,
+              profile: updatedProfile,
+            });
+          }
+        } catch (profileErr) {
+          console.warn('Sync profile warning:', profileErr);
         }
-        setSubmitted(false);
-        onClose();
-      }, 1500);
+      }
+
+      setSubmitted(true);
+      if (onBusinessRegistered) {
+        onBusinessRegistered(data || newService);
+      }
     } catch (err) {
       setErrorMsg(err.message || 'Error al registrar el negocio.');
     } finally {
@@ -143,17 +195,92 @@ export default function RegisterBusinessModal({ isOpen, onClose, onBusinessRegis
         </div>
 
         {submitted ? (
-          <div className="p-10 text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center animate-bounce">
-              <CheckCircle2 className="w-10 h-10" />
+          <div className="p-10 text-center space-y-5">
+            <div className="w-16 h-16 rounded-3xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center animate-bounce shadow-lg shadow-emerald-950/40">
+              <CheckCircle2 className="w-9 h-9" />
             </div>
-            <h4 className="text-2xl font-extrabold text-white">¡Negocio Registrado Exitosamente!</h4>
-            <p className="text-slate-400 text-xs max-w-md mx-auto">
-              Tu comercio ya figura en el directorio destacado de <strong className="text-white">Mundo Automotor</strong>.
-            </p>
+            <div className="space-y-2 max-w-md mx-auto">
+              <h4 className="text-2xl font-black text-white">¡Negocio Registrado con Éxito!</h4>
+              <p className="text-slate-300 text-xs leading-relaxed font-medium">
+                Tu comercio <strong className="text-white">"{formData.name}"</strong> ya figura publicado en la guía oficial de <strong className="text-amber-400">Mundo Automotor</strong>.
+              </p>
+              {currentUser ? (
+                <p className="text-[11px] text-emerald-300 font-bold bg-emerald-950/40 py-2 px-3 rounded-xl border border-emerald-800/40">
+                  ✓ Vinculado a tu cuenta. Podés autogestionar tus datos desde tu panel de negocio.
+                </p>
+              ) : (
+                <p className="text-[11px] text-slate-400">
+                  Si más adelante querés modificar horarios, fotos o datos de contacto, podés crearte una cuenta gratuita.
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 max-w-sm mx-auto">
+              {currentUser && onNavigate ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSubmitted(false);
+                    onClose();
+                    onNavigate('dashboard');
+                  }}
+                  className="w-full py-3.5 px-5 rounded-2xl bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-black text-xs shadow-md cursor-pointer transition-all"
+                >
+                  Ir a Mi Panel de Negocio
+                </button>
+              ) : onRequireAuth ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSubmitted(false);
+                    onClose();
+                    onRequireAuth('signup');
+                  }}
+                  className="w-full py-3.5 px-5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md cursor-pointer transition-all"
+                >
+                  Crear Cuenta de Negocio
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => {
+                  setSubmitted(false);
+                  onClose();
+                }}
+                className="w-full py-3.5 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+            {/* Aviso de doble vía (conectado vs invitado) */}
+            {currentUser ? (
+              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>Sesión activa: tu negocio se vinculará a <strong>{currentUser.profile?.full_name || currentUser.user?.email}</strong>.</span>
+                </div>
+              </div>
+            ) : (
+              <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <span>¿Querés autogestionar fotos, horarios y consultas desde tu panel?</span>
+                {onRequireAuth && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onRequireAuth('signup');
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11px] whitespace-nowrap cursor-pointer transition-colors"
+                  >
+                    Crear Cuenta Gratis
+                  </button>
+                )}
+              </div>
+            )}
+
             {errorMsg && (
               <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
                 ⚠️ {errorMsg}

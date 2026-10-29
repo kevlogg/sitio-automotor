@@ -7,6 +7,7 @@ import {
 import { supabase } from '../../lib/supabase';
 import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../../data/locationData';
 import { submitPaymentClaim, PLAN_STATUS } from '../../lib/planUtils';
+import PaymentClaimModal from '../PaymentClaimModal';
 
 // ─── Tarjeta de plan con botón "Ya pagué" ─────────────────────────────────────
 function PlanCard({ planKey, title, priceLabel, priceNote, features, disabledFeatures = [],
@@ -119,6 +120,7 @@ export default function DashboardParticular({
   const planStatus = profile.plan_status || null;
   const currentPlanKey = profile.current_plan || null;
   const [submittingPayment, setSubmittingPayment] = useState(false);
+  const [claimModalPlan, setClaimModalPlan] = useState(null);
 
   const [formData, setFormData] = useState({
     fullName: profile.full_name || '',
@@ -203,23 +205,8 @@ export default function DashboardParticular({
     }
   };
 
-  const handlePaymentClaim = async (planKey) => {
-    setSubmittingPayment(true);
-    try {
-      await submitPaymentClaim({
-        userId: currentUser.user.id,
-        userEmail: currentUser.user.email,
-        userName: formData.fullName || 'Sin nombre',
-        userType: 'particular',
-        planKey,
-      });
-      onUpdateUser({
-        ...currentUser,
-        profile: { ...profile, plan_status: 'pending', current_plan: planKey },
-      });
-    } finally {
-      setSubmittingPayment(false);
-    }
+  const handlePaymentClaim = (planKey) => {
+    setClaimModalPlan(planKey);
   };
 
   const myVehicles = vehicles.filter(v =>
@@ -504,15 +491,37 @@ export default function DashboardParticular({
         {/* TAB: PUBLICACIONES */}
         {activeTab === 'publicaciones' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-xl font-black text-white">Mis Publicaciones</h3>
-                <p className="text-xs text-slate-400 mt-1">Publicá tu vehículo en la plataforma con el Plan Base ($55.000/mes) o planes superiores.</p>
+                <p className="text-xs text-slate-400 mt-1">Publicación individual de tu vehículo por 30 días con contacto directo por WhatsApp.</p>
               </div>
               <button onClick={onOpenPublishModal}
-                className="px-4 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs flex items-center gap-2 cursor-pointer">
+                className="px-4 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs flex items-center gap-2 cursor-pointer shadow-md">
                 <PlusCircle className="w-4 h-4" /> Nueva Publicación
               </button>
+            </div>
+
+            {/* Banner de Política y Cupo para Particulares */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-blue-950/40 border border-blue-500/30">
+              <div className="flex items-center gap-2.5">
+                <span className="px-3 py-1 rounded-xl text-xs font-black bg-blue-500/20 text-blue-300 border border-blue-500/40">
+                  Cupo Particular: {myVehicles.length} / 1 auto activo
+                </span>
+                <span className="text-xs text-slate-300 font-medium">
+                  {myVehicles.length >= 1 
+                    ? 'Cupo activo cubierto (30 días). Podés administrar tu aviso actual o pasarte a un Plan Comercial.' 
+                    : 'Tenés cupo disponible para publicar 1 auto por 30 días con 0% comisión.'}
+                </span>
+              </div>
+              {myVehicles.length >= 1 && (
+                <button
+                  onClick={() => setActiveTab('planes')}
+                  className="text-xs font-extrabold text-amber-300 hover:text-amber-200 underline cursor-pointer shrink-0"
+                >
+                  Ver Planes Comerciales →
+                </button>
+              )}
             </div>
             {myVehicles.length === 0 ? (
               <div className="text-center py-16 space-y-4 bg-[#0F172A] border border-slate-800 rounded-3xl">
@@ -732,6 +741,25 @@ export default function DashboardParticular({
         )}
 
       </div>
+
+      {/* Modal interactivo de Confirmación de Pago */}
+      <PaymentClaimModal
+        isOpen={!!claimModalPlan}
+        onClose={() => setClaimModalPlan(null)}
+        planKey={claimModalPlan}
+        currentUser={currentUser}
+        onSuccess={({ planKey, referenceNumber }) => {
+          onUpdateUser({
+            ...currentUser,
+            profile: {
+              ...profile,
+              plan_status: 'pending',
+              current_plan: planKey,
+              payment_reference: referenceNumber,
+            },
+          });
+        }}
+      />
     </div>
   );
 }

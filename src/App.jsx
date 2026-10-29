@@ -684,9 +684,10 @@ export default function App() {
         initialMode={authMode}
         onAuthSuccess={(userSession) => {
           setCurrentUser(userSession);
-          setCurrentView('home');
-          window.history.pushState(null, '', '/');
-          showToast(`¡Bienvenido/a, ${userSession.profile?.full_name || 'Usuario'}! 🎉`);
+          setCurrentView('dashboard');
+          window.history.pushState(null, '', '/panel');
+          const name = userSession.profile?.business_name || userSession.profile?.full_name || 'Usuario';
+          showToast(`¡Bienvenido/a, ${name}! Te redirigimos a tu panel 🎉`);
         }}
         onBackToHome={() => {
           setCurrentView('home');
@@ -913,6 +914,8 @@ export default function App() {
             onOpenPublishModal={() => setPublishModalOpen(true)}
             onOpenRegisterBusiness={(planKey) => setRegisterBusinessModalOpen(true)}
             onOpenAuthModal={(mode) => handleOpenAuthPage(mode)}
+            currentUser={currentUser}
+            onUpdateUser={(updated) => setCurrentUser(updated)}
             cardTheme={cardTheme}
           />
         )}
@@ -959,11 +962,17 @@ export default function App() {
         onVehicleAdded={handleAddVehicle}
         currentUser={currentUser}
         onRequireAuth={(mode) => handleOpenAuthPage(mode)}
+        vehicles={vehicles}
+        onNavigate={handleNavigate}
       />
 
       <RegisterBusinessModal
         isOpen={registerBusinessModalOpen}
         onClose={() => setRegisterBusinessModalOpen(false)}
+        currentUser={currentUser}
+        onUpdateUser={(updated) => setCurrentUser(updated)}
+        onRequireAuth={(mode) => handleOpenAuthPage(mode)}
+        onNavigate={handleNavigate}
         onBusinessRegistered={(serviceData) => {
           showToast(`¡Tu negocio "${serviceData.name}" fue agregado a Mundo Automotor! 🚀`);
         }}

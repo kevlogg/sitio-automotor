@@ -7,6 +7,7 @@ import {
 import { supabase } from '../../lib/supabase';
 import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../../data/locationData';
 import { submitPaymentClaim } from '../../lib/planUtils';
+import PaymentClaimModal from '../PaymentClaimModal';
 
 const RUBROS = [
   { value: 'repuestos', label: 'Repuestos' },
@@ -45,6 +46,7 @@ export default function DashboardNegocio({
   const currentPlanKey = profile.current_plan || null;
   const [submittingPayment, setSubmittingPayment] = useState(false);
   const [paymentClaimResult, setPaymentClaimResult] = useState({});
+  const [claimModalPlan, setClaimModalPlan] = useState(null);
 
   const [formData, setFormData] = useState({
     fullName: profile.full_name || '',
@@ -771,11 +773,11 @@ export default function DashboardNegocio({
                       </div>
                     ) : (
                       <button
-                        onClick={() => handlePaymentClaim(plan.key)}
+                        onClick={() => setClaimModalPlan(plan.key)}
                         disabled={submittingPayment}
                         className="w-full py-3.5 rounded-2xl text-xs font-black flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 bg-[#5328D7] hover:bg-[#431fb5] text-white shadow-lg shadow-purple-950/40"
                       >
-                        {submittingPayment ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
+                        <CreditCard className="w-4 h-4" />
                         Adherir mi negocio (Ya pagué)
                       </button>
                     )}
@@ -794,6 +796,26 @@ export default function DashboardNegocio({
         )}
 
       </div>
+
+      {/* Modal interactivo de Confirmación de Pago */}
+      <PaymentClaimModal
+        isOpen={!!claimModalPlan}
+        onClose={() => setClaimModalPlan(null)}
+        planKey={claimModalPlan}
+        currentUser={currentUser}
+        onSuccess={({ planKey, referenceNumber }) => {
+          onUpdateUser({
+            ...currentUser,
+            profile: {
+              ...profile,
+              plan_status: 'pending',
+              current_plan: planKey,
+              payment_reference: referenceNumber,
+            },
+          });
+          setPaymentClaimResult(prev => ({ ...prev, [planKey]: 'success' }));
+        }}
+      />
     </div>
   );
 }
