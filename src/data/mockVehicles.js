@@ -45,7 +45,7 @@ export const CATEGORIES = [
     subtitle: 'Tractores, Cosechadoras & Maquinaria',
     count: '140+ Unidades',
     iconName: 'Tractor',
-    image: 'https://images.unsplash.com/photo-1595246140625-573b715d11dc?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1594771804886-a933bb2d609b?q=80&w=1200&auto=format&fit=crop',
   }
 ];
 
@@ -524,9 +524,9 @@ export const MOCK_VEHICLES = [
     sellerWhatsApp: '5493462554433',
     badge: 'Agro Destacado',
     badgeColor: 'emerald',
-    image: 'https://images.unsplash.com/photo-1595246140625-573b715d11dc?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1594771804886-a933bb2d609b?q=80&w=1200&auto=format&fit=crop',
     images: [
-      'https://images.unsplash.com/photo-1595246140625-573b715d11dc?q=80&w=1200&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1594771804886-a933bb2d609b?q=80&w=1200&auto=format&fit=crop'
     ],
     description: 'Tractor John Deere 6125E de 125 HP. Motor PowerTech 4.5L Turbo intercooler, transmisión 12x12 electrohidráulica PowerReverser, doble tracción (4WD) y cabina original con aire acondicionado.',
     features: ['Motor PowerTech 125 HP', 'Transmisión PowerReverser 12x12', 'Cabina Climatizada Hi-Vision', 'Toma de Fuerza Independiente']
@@ -552,9 +552,9 @@ export const MOCK_VEHICLES = [
     sellerWhatsApp: '5493472445566',
     badge: 'Cosechadora',
     badgeColor: 'amber',
-    image: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?q=80&w=1200&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1530267981375-f0de937f5f13?q=80&w=1200&auto=format&fit=crop',
     images: [
-      'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?q=80&w=1200&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1530267981375-f0de937f5f13?q=80&w=1200&auto=format&fit=crop'
     ],
     description: 'Cosechadora axial New Holland CR 7.90 de doble rotor. Motor FPT Cursor 9 de 425 CV, piloto automático IntelliSteer, mapa de rinde en tiempo real y plataforma Drapper de 35 pies.',
     features: ['Doble Rotor Axial Twin Rotor', 'Motor FPT 425 CV', 'Plataforma Drapper 35ft', 'Piloto Satelital IntelliSteer']

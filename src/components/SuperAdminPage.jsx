@@ -90,24 +90,41 @@ function Badge({ children, className = '' }) {
 
 // ── KPI Card ─────────────────────────────────────────────────────────────────
 function KpiCard({ icon: Icon, label, value, color = 'violet' }) {
-  const colors = {
-    violet:  'from-violet-950/60 border-violet-700/40 text-violet-300',
-    emerald: 'from-emerald-950/60 border-emerald-700/40 text-emerald-300',
-    amber:   'from-amber-950/60 border-amber-700/40 text-amber-300',
-    blue:    'from-blue-950/60 border-blue-700/40 text-blue-300',
-    rose:    'from-rose-950/60 border-rose-700/40 text-rose-300',
+  const colorConfigs = {
+    violet:  {
+      bgIcon: 'bg-purple-100 text-[#6D28D9] border-purple-200/80',
+      glow: 'hover:border-purple-300 hover:shadow-purple-500/10'
+    },
+    emerald: {
+      bgIcon: 'bg-emerald-100 text-emerald-700 border-emerald-200/80',
+      glow: 'hover:border-emerald-300 hover:shadow-emerald-500/10'
+    },
+    amber:   {
+      bgIcon: 'bg-amber-100 text-amber-700 border-amber-200/80',
+      glow: 'hover:border-amber-300 hover:shadow-amber-500/10'
+    },
+    blue:    {
+      bgIcon: 'bg-blue-100 text-blue-700 border-blue-200/80',
+      glow: 'hover:border-blue-300 hover:shadow-blue-500/10'
+    },
+    rose:    {
+      bgIcon: 'bg-rose-100 text-rose-700 border-rose-200/80',
+      glow: 'hover:border-rose-300 hover:shadow-rose-500/10'
+    },
   };
-  const cls = colors[color];
+  const cfg = colorConfigs[color] || colorConfigs.violet;
   return (
-    <div className={`bg-gradient-to-br ${cls} to-[#0F172A] border rounded-2xl p-5 flex flex-col gap-3 shadow-xl`}>
-      <div className={`p-2.5 rounded-xl bg-[#0F172A]/60 border border-white/5 w-fit`}>
-        <Icon className={`w-5 h-5 ${cls.split(' ')[2]}`} />
+    <div className={`group bg-white border border-slate-200/90 rounded-2xl p-5 flex flex-col justify-between gap-3 shadow-xs hover:shadow-md ${cfg.glow} transition-all duration-300 relative overflow-hidden`}>
+      <div className="flex items-center justify-between">
+        <div className={`p-2.5 rounded-xl border ${cfg.bgIcon} shadow-2xs`}>
+          <Icon className="w-5 h-5" />
+        </div>
       </div>
       <div>
-        <div className="text-2xl font-black text-white">
-          {value !== null && value !== undefined ? value : <Loader2 className="w-5 h-5 animate-spin inline" />}
+        <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          {value !== null && value !== undefined ? value : <Loader2 className="w-5 h-5 animate-spin text-slate-400 inline" />}
         </div>
-        <div className="text-xs font-bold text-slate-400 mt-0.5">{label}</div>
+        <div className="text-xs font-bold text-slate-500 mt-1 uppercase tracking-wider">{label}</div>
       </div>
     </div>
   );
@@ -118,11 +135,13 @@ function SectionHeader({ icon: Icon, title, sub, action }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
       <div>
-        <h2 className="text-xl font-black text-white flex items-center gap-2.5">
-          <Icon className="w-5 h-5 text-violet-400" />
+        <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2.5">
+          <div className="p-2 rounded-xl bg-purple-100 text-[#6D28D9] border border-purple-200/80 shadow-2xs">
+            <Icon className="w-5 h-5" />
+          </div>
           {title}
         </h2>
-        {sub && <p className="text-xs text-slate-400 mt-0.5 ml-7">{sub}</p>}
+        {sub && <p className="text-xs font-semibold text-slate-500 mt-1 ml-11">{sub}</p>}
       </div>
       {action}
     </div>
@@ -133,8 +152,8 @@ function SectionHeader({ icon: Icon, title, sub, action }) {
 function ReloadBtn({ onClick, loading }) {
   return (
     <button onClick={onClick} disabled={loading}
-      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-all cursor-pointer disabled:opacity-50">
-      <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 text-xs font-extrabold transition-all shadow-xs hover:shadow-sm cursor-pointer disabled:opacity-50">
+      <RefreshCw className={`w-3.5 h-3.5 text-[#6D28D9] ${loading ? 'animate-spin' : ''}`} />
       Recargar
     </button>
   );
@@ -178,23 +197,23 @@ function SectionDashboard({ stats, loading, onRefresh }) {
       </div>
 
       {/* Barras de distribución */}
-      <div className="bg-[#0F172A] border border-slate-800 rounded-2xl p-6 space-y-4">
-        <h3 className="text-sm font-black text-white flex items-center gap-2">
-          <BarChart3 className="w-4 h-4 text-violet-400" /> Distribución de Usuarios
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs space-y-4">
+        <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+          <BarChart3 className="w-4 h-4 text-[#6D28D9]" /> Distribución de Usuarios
         </h3>
         {[
-          { label: 'Particulares', val: stats?.totalParticulares, color: 'bg-blue-500' },
-          { label: 'Agencias',     val: stats?.totalAgencias,     color: 'bg-purple-500' },
+          { label: 'Particulares', val: stats?.totalParticulares, color: 'bg-blue-600' },
+          { label: 'Agencias',     val: stats?.totalAgencias,     color: 'bg-purple-600' },
           { label: 'Negocios',     val: stats?.totalNegocios,     color: 'bg-amber-500' },
         ].map(({ label, val, color }) => {
           const pct = stats?.totalUsers > 0 ? Math.round(((val ?? 0) / stats.totalUsers) * 100) : 0;
           return (
-            <div key={label} className="space-y-1">
+            <div key={label} className="space-y-1.5">
               <div className="flex justify-between text-xs">
-                <span className="text-slate-300 font-bold">{label}</span>
-                <span className="text-slate-400 font-mono">{val ?? 0} ({pct}%)</span>
+                <span className="text-slate-700 font-bold">{label}</span>
+                <span className="text-slate-500 font-mono font-bold">{val ?? 0} ({pct}%)</span>
               </div>
-              <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
+              <div className="h-2.5 rounded-full bg-slate-100 overflow-hidden border border-slate-200/50">
                 <div className={`h-full ${color} rounded-full transition-all duration-700`} style={{ width: `${pct}%` }} />
               </div>
             </div>
@@ -203,25 +222,24 @@ function SectionDashboard({ stats, loading, onRefresh }) {
       </div>
 
       {/* Estado de pagos */}
-      <div className="bg-[#0F172A] border border-slate-800 rounded-2xl p-6 space-y-4">
-        <h3 className="text-sm font-black text-white flex items-center gap-2">
-          <CreditCard className="w-4 h-4 text-emerald-400" /> Estado de Solicitudes de Pago
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs space-y-4">
+        <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+          <CreditCard className="w-4 h-4 text-emerald-600" /> Estado de Solicitudes de Pago
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: 'Pendientes',      val: stats?.pendingRequests,  color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/20' },
-            { label: 'Aprobados',       val: stats?.approvedRequests, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-            { label: 'Rechazados',      val: stats?.rejectedRequests, color: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/20' },
-            { label: 'Total',           val: stats?.totalRequests,    color: 'text-blue-400',    bg: 'bg-blue-500/10 border-blue-500/20' },
+            { label: 'Pendientes',      val: stats?.pendingRequests,  color: 'text-amber-700',   bg: 'bg-amber-50/70 border-amber-200/80' },
+            { label: 'Aprobados',       val: stats?.approvedRequests, color: 'text-emerald-700', bg: 'bg-emerald-50/70 border-emerald-200/80' },
+            { label: 'Rechazados',      val: stats?.rejectedRequests, color: 'text-rose-700',    bg: 'bg-rose-50/70 border-rose-200/80' },
+            { label: 'Total',           val: stats?.totalRequests,    color: 'text-blue-700',    bg: 'bg-blue-50/70 border-blue-200/80' },
           ].map(({ label, val, color, bg }) => (
-            <div key={label} className={`rounded-xl border p-3 text-center ${bg}`}>
+            <div key={label} className={`rounded-xl border p-4 text-center ${bg} shadow-2xs`}>
               <div className={`text-2xl font-black ${color}`}>{val ?? 0}</div>
-              <div className="text-[10px] text-slate-400 font-bold mt-0.5">{label}</div>
+              <div className="text-xs text-slate-600 font-bold mt-1 uppercase tracking-wider">{label}</div>
             </div>
           ))}
         </div>
-      </div>
-    </div>
+      </div>    </div>
   );
 }
 
@@ -1465,7 +1483,7 @@ function SectionNegocios({ toast }) {
 
   return (
     <div className="space-y-6">
-      <SectionHeader icon={Wrench} title="Directorio de Negocios"
+      <SectionHeader icon={Wrench} title="Negocios Automotores"
         sub={`${filtered.length} de ${services.length} negocios`}
         action={<ReloadBtn onClick={fetch} loading={loading} />} />
 
@@ -1808,9 +1826,8 @@ export default function SuperAdminPage({ currentUser, onBackToHome, onSignOut })
     { id: 'vehiculos', label: 'Vehículos',      icon: Car },
     { id: 'hero',      label: 'Hero / Banner',  icon: Image },
     { id: 'publicidad',label: 'Publicidad Ads', icon: Zap },
-    { id: 'negocios',  label: 'Directorio',     icon: Wrench },
+    { id: 'negocios',  label: 'Negocios',       icon: Wrench },
     { id: 'leads',     label: 'Leads WA',       icon: MessageSquare },
-    { id: 'config',    label: 'Configuración',  icon: Settings },
     { id: 'plankevdev',label: 'Plan KevDev',    icon: ShieldCheck },
   ];
 
@@ -1968,7 +1985,7 @@ export default function SuperAdminPage({ currentUser, onBackToHome, onSignOut })
           {activeSection === 'publicidad'&& <SectionPublicidad toast={toast} />}
           {activeSection === 'negocios'  && <SectionNegocios toast={toast} />}
           {activeSection === 'leads'     && <SectionLeads toast={toast} />}
-          {activeSection === 'config'    && <SectionConfiguracion toast={toast} />}
+          
           {activeSection === 'plankevdev'&& <PlanKevDevSection />}
         </main>
       </div>
