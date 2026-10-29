@@ -20,6 +20,7 @@ export default function Navbar({
     { name: 'Vehículos', id: 'vehicles', href: '/vehiculos' },
     { name: 'Agencias', id: 'agencies', href: '/agencias' },
     { name: 'Negocios', id: 'businesses', href: '/negocios' },
+    { name: 'Planes', id: 'plans', href: '/planes' },
   ];
 
   const getUserBadge = () => {

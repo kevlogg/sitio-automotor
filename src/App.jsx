@@ -22,6 +22,7 @@ import WheelSectionDivider from './components/WheelSectionDivider';
 import AllVehiclesPage from './components/AllVehiclesPage';
 import AgenciesPage from './components/AgenciesPage';
 import BusinessesPage from './components/BusinessesPage';
+import PlansPage from './components/PlansPage';
 import ComingSoonPage from './components/ComingSoonPage';
 import { LeftAdCard, RightAdCard } from './components/SideAdBanners';
 import PwaInstallCard from './components/PwaInstallCard';
@@ -59,6 +60,7 @@ export default function App() {
     }
     if (path === '/agencias' || path === '/concesionarias') return { view: 'agencies', path };
     if (path === '/negocios' || path === '/servicios') return { view: 'businesses', path };
+    if (path === '/planes' || path === '/precios' || path === '/suscripciones') return { view: 'plans', path };
     if (path === '/panel' || path === '/dashboard') return { view: 'dashboard', path };
     if (path === '/ingresar' || path === '/login') return { view: 'auth', authMode: 'login', path };
     if (path === '/registro' || path === '/signup' || path === '/auth') return { view: 'auth', authMode: 'signup', path };
@@ -174,6 +176,14 @@ export default function App() {
           title: 'Mundo Automotor | Talleres Mecánicos, Repuestos y Servicios | Sitio Automotor',
           description: 'Guía comercial automotriz: talleres mecánicos, casas de repuestos, lubricentros, detailing, gomerías y seguros para tu vehículo en Argentina.',
           url: `${siteUrl}/negocios`,
+          type: 'website'
+        });
+        break;
+      case 'plans':
+        updateSeoMetadata({
+          title: 'Planes y Membresías Oficiales | Sitio Automotor',
+          description: 'Conocé los planes de suscripción para agencias, concesionarias y negocios del automotor. Publicaciones simultáneas, posicionamiento preferencial y soporte por WhatsApp.',
+          url: `${siteUrl}/planes`,
           type: 'website'
         });
         break;
@@ -437,6 +447,8 @@ export default function App() {
       targetPath = '/agencias';
     } else if (viewId === 'businesses') {
       targetPath = '/negocios';
+    } else if (viewId === 'plans') {
+      targetPath = '/planes';
     } else if (viewId === 'superadmin') {
       targetPath = '/superadmin';
     } else if (viewId === 'dashboard') {
@@ -846,13 +858,6 @@ export default function App() {
                     onWhatsAppContact={handleWhatsAppContact}
                     onNavigateToAllVehicles={() => handleNavigate('vehicles', 'all', searchTerm)}
                   />
-
-                  <MonetizationSection
-                    cardTheme={cardTheme}
-                    onOpenPublishModal={() => setPublishModalOpen(true)}
-                    onOpenRegisterBusiness={() => setRegisterBusinessModalOpen(true)}
-                    onOpenAuthModal={(mode) => handleOpenAuthPage(mode)}
-                  />
                 </div>
 
                 {/* Publicidad Derecha (arranca luego del Hero y acompaña hasta el footer) */}
@@ -901,6 +906,16 @@ export default function App() {
             onOpenRegisterBusiness={() => setRegisterBusinessModalOpen(true)}
           />
         )}
+
+        {currentView === 'plans' && (
+          <PlansPage
+            onBackToHome={() => handleNavigate('home')}
+            onOpenPublishModal={() => setPublishModalOpen(true)}
+            onOpenRegisterBusiness={(planKey) => setRegisterBusinessModalOpen(true)}
+            onOpenAuthModal={(mode) => handleOpenAuthPage(mode)}
+            cardTheme={cardTheme}
+          />
+        )}
       </main>
       </div>
 
@@ -913,6 +928,7 @@ export default function App() {
       {/* Footer Consistente en todas las páginas */}
       <ProofTrustFooter
         cardTheme={cardTheme}
+        onNavigate={handleNavigate}
         onOpenSuperAdmin={() => {
           setCurrentView('superadmin');
           window.history.pushState(null, '', '/superadmin');

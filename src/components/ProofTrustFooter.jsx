@@ -2,11 +2,21 @@ import React, { useState, useRef } from 'react';
 import { ShieldCheck, Gauge, Globe, Mail, Phone, MapPin } from 'lucide-react';
 import useScrollReveal from '../hooks/useScrollReveal';
 
-export default function ProofTrustFooter({ cardTheme = 'dark', onOpenSuperAdmin }) {
+export default function ProofTrustFooter({ cardTheme = 'dark', onOpenSuperAdmin, onNavigate }) {
   const [logoError, setLogoError] = useState(false);
   const [secretHover, setSecretHover] = useState(false);
   const containerRef = useScrollReveal({ threshold: 0.1 });
   const hoverTimerRef = useRef(null);
+
+  const handleLinkClick = (e, viewId, href) => {
+    e.preventDefault();
+    if (onNavigate) {
+      onNavigate(viewId);
+    } else {
+      window.history.pushState(null, '', href);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+  };
 
   // 🔐 Acceso oculto: mantener hover sobre el punto 1.5s → abre SuperAdmin
   const handleSecretMouseEnter = () => {
@@ -73,11 +83,11 @@ export default function ProofTrustFooter({ cardTheme = 'dark', onOpenSuperAdmin 
           <div>
             <h5 className="text-xs font-bold uppercase text-white mb-3 tracking-wider">Categorías</h5>
             <ul className="space-y-2 text-xs font-medium text-slate-400">
-              <li><a href="#vehiculos" className="hover:text-purple-400 transition-colors">Autos Usados &amp; 0km</a></li>
-              <li><a href="#vehiculos" className="hover:text-purple-400 transition-colors">Camionetas / SUVs</a></li>
-              <li><a href="#vehiculos" className="hover:text-purple-400 transition-colors">Motos</a></li>
-              <li><a href="#vehiculos" className="hover:text-purple-400 transition-colors">Camiones &amp; Pesados</a></li>
-              <li><a href="#vehiculos" className="hover:text-purple-400 transition-colors">Náutica &amp; Recreación</a></li>
+              <li><a href="/vehiculos" onClick={(e) => handleLinkClick(e, 'vehicles', '/vehiculos')} className="hover:text-purple-400 transition-colors">Autos Usados &amp; 0km</a></li>
+              <li><a href="/vehiculos?categoria=camionetas" onClick={(e) => handleLinkClick(e, 'vehicles', '/vehiculos?categoria=camionetas')} className="hover:text-purple-400 transition-colors">Camionetas / SUVs</a></li>
+              <li><a href="/vehiculos?categoria=motos" onClick={(e) => handleLinkClick(e, 'vehicles', '/vehiculos?categoria=motos')} className="hover:text-purple-400 transition-colors">Motos</a></li>
+              <li><a href="/vehiculos?categoria=camiones" onClick={(e) => handleLinkClick(e, 'vehicles', '/vehiculos?categoria=camiones')} className="hover:text-purple-400 transition-colors">Camiones &amp; Pesados</a></li>
+              <li><a href="/vehiculos?categoria=nautica" onClick={(e) => handleLinkClick(e, 'vehicles', '/vehiculos?categoria=nautica')} className="hover:text-purple-400 transition-colors">Náutica &amp; Recreación</a></li>
             </ul>
           </div>
 
@@ -85,10 +95,10 @@ export default function ProofTrustFooter({ cardTheme = 'dark', onOpenSuperAdmin 
           <div>
             <h5 className="text-xs font-bold uppercase text-white mb-3 tracking-wider">Publicar</h5>
             <ul className="space-y-2 text-xs font-medium text-slate-400">
-              <li><a href="#vender" className="hover:text-purple-400 transition-colors">Particular (1 auto x 30 días)</a></li>
-              <li><a href="#vender" className="hover:text-purple-400 transition-colors">Planes Comerciales (Base / Premium / Súper Premium)</a></li>
-              <li><a href="#vender" className="hover:text-purple-400 transition-colors">Mundo Automotor (Servicios &amp; Repuestos)</a></li>
-              <li><a href="#contacto" className="hover:text-purple-400 transition-colors">Preguntas Frecuentes</a></li>
+              <li><a href="/planes" onClick={(e) => handleLinkClick(e, 'plans', '/planes')} className="hover:text-purple-400 transition-colors">Planes Comerciales (Base / Premium / Súper Premium)</a></li>
+              <li><a href="/agencias" onClick={(e) => handleLinkClick(e, 'agencies', '/agencias')} className="hover:text-purple-400 transition-colors">Directorio de Agencias</a></li>
+              <li><a href="/negocios" onClick={(e) => handleLinkClick(e, 'businesses', '/negocios')} className="hover:text-purple-400 transition-colors">Mundo Automotor (Servicios &amp; Repuestos)</a></li>
+              <li><a href="/planes" onClick={(e) => handleLinkClick(e, 'plans', '/planes')} className="hover:text-purple-400 transition-colors">Preguntas Frecuentes</a></li>
             </ul>
           </div>
 

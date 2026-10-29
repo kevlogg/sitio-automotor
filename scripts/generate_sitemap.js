@@ -48,7 +48,8 @@ async function generateSitemap() {
     { loc: `${SITE_URL}/vehiculos?categoria=nautica`, priority: '0.7', changefreq: 'daily', lastmod: today },
     { loc: `${SITE_URL}/vehiculos?categoria=agro`, priority: '0.7', changefreq: 'daily', lastmod: today },
     { loc: `${SITE_URL}/agencias`, priority: '0.8', changefreq: 'weekly', lastmod: today },
-    { loc: `${SITE_URL}/negocios`, priority: '0.8', changefreq: 'weekly', lastmod: today }
+    { loc: `${SITE_URL}/negocios`, priority: '0.8', changefreq: 'weekly', lastmod: today },
+    { loc: `${SITE_URL}/planes`, priority: '0.8', changefreq: 'weekly', lastmod: today }
   ];
 
   let vehicleUrls = [];
