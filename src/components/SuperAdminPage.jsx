@@ -22,7 +22,7 @@ import {
   Building2, MapPin, Phone, Mail, Ban, Check, Zap,
   BarChart3, Activity, DollarSign, UserCheck, FileText,
   Globe, Bell, Lock, EyeOff, Save, Plus, ArrowUp, ArrowDown,
-  ChevronLeft, ChevronRight, Layers
+  ChevronLeft, ChevronRight, Layers, ArrowRight
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { PLAN_INFO } from '../lib/planUtils';
@@ -1308,197 +1308,716 @@ function SectionHero({ toast }) {
 }
 
 // =============================================================================
-// SECTION 5.5: PUBLICIDAD / BANNERS LATERALES — conectado a Supabase site_settings
+// SECTION 5.5: PUBLICIDAD / BANNERS LATERALES (CARRUSEL ROTATIVO CADA 7 SEGUNDOS)
 // =============================================================================
 function SectionPublicidad({ toast }) {
-  const [leftUrl, setLeftUrl] = useState('');
-  const [leftLink, setLeftLink] = useState('');
-  const [rightUrl, setRightUrl] = useState('');
-  const [rightLink, setRightLink] = useState('');
+  const [activeSide, setActiveSide] = useState('left'); // 'left' | 'right'
+  const [leftBanners, setLeftBanners] = useState([]);
+  const [rightBanners, setRightBanners] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Estados de subida y guardado
   const [savingLeft, setSavingLeft] = useState(false);
   const [savingRight, setSavingRight] = useState(false);
   const [uploadingLeft, setUploadingLeft] = useState(false);
   const [uploadingRight, setUploadingRight] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [uploadProgressLeft, setUploadProgressLeft] = useState('');
+  const [uploadProgressRight, setUploadProgressRight] = useState('');
 
+  // Agregar por URL
+  const [showAddUrlLeft, setShowAddUrlLeft] = useState(false);
+  const [showAddUrlRight, setShowAddUrlRight] = useState(false);
+  const [leftUrlInput, setLeftUrlInput] = useState('');
+  const [rightUrlInput, setRightUrlInput] = useState('');
+
+  // Vista previa interactiva
+  const [previewLeftIdx, setPreviewLeftIdx] = useState(0);
+  const [previewRightIdx, setPreviewRightIdx] = useState(0);
+
+  // Rotación en vista previa cada 7 segundos
+  useEffect(() => {
+    if (leftBanners.length <= 1) return;
+    const timer = setInterval(() => {
+      setPreviewLeftIdx(prev => (prev + 1) % leftBanners.length);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, [leftBanners.length]);
+
+  useEffect(() => {
+    if (rightBanners.length <= 1) return;
+    const timer = setInterval(() => {
+      setPreviewRightIdx(prev => (prev + 1) % rightBanners.length);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, [rightBanners.length]);
+
+  // Carga inicial desde Supabase
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from('site_settings')
-        .select('id, value')
-        .in('id', ['ad_left_image_url', 'ad_left_link_url', 'ad_right_image_url', 'ad_right_link_url']);
-      
-      if (data) {
-        data.forEach(row => {
-          if (row.id === 'ad_left_image_url') setLeftUrl(row.value || '');
-          if (row.id === 'ad_left_link_url') setLeftLink(row.value || '');
-          if (row.id === 'ad_right_image_url') setRightUrl(row.value || '');
-          if (row.id === 'ad_right_link_url') setRightLink(row.value || '');
-        });
+      try {
+        const { data } = await supabase
+          .from('site_settings')
+          .select('id, value')
+          .in('id', [
+            'ad_left_banners', 'ad_left_image_url', 'ad_left_link_url',
+            'ad_right_banners', 'ad_right_image_url', 'ad_right_link_url'
+          ]);
+
+        if (data) {
+          const lBannersRow = data.find(r => r.id === 'ad_left_banners');
+          const lImgRow = data.find(r => r.id === 'ad_left_image_url');
+          const lLinkRow = data.find(r => r.id === 'ad_left_link_url');
+
+          const rBannersRow = data.find(r => r.id === 'ad_right_banners');
+          const rImgRow = data.find(r => r.id === 'ad_right_image_url');
+          const rLinkRow = data.find(r => r.id === 'ad_right_link_url');
+
+          // Left
+          if (lBannersRow?.value) {
+            try {
+              const parsed = JSON.parse(lBannersRow.value);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setLeftBanners(parsed);
+              } else if (lImgRow?.value) {
+                setLeftBanners([{ id: 'legacy-left', imageUrl: lImgRow.value, linkUrl: lLinkRow?.value || '' }]);
+              }
+            } catch (e) {
+              if (lImgRow?.value) setLeftBanners([{ id: 'legacy-left', imageUrl: lImgRow.value, linkUrl: lLinkRow?.value || '' }]);
+            }
+          } else if (lImgRow?.value) {
+            setLeftBanners([{ id: 'legacy-left', imageUrl: lImgRow.value, linkUrl: lLinkRow?.value || '' }]);
+          } else {
+            setLeftBanners([{ id: 'default-left-1', imageUrl: '/ad_left_banner.png', linkUrl: '/negocios', title: 'Repuestos y Accesorios' }]);
+          }
+
+          // Right
+          if (rBannersRow?.value) {
+            try {
+              const parsed = JSON.parse(rBannersRow.value);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setRightBanners(parsed);
+              } else if (rImgRow?.value) {
+                setRightBanners([{ id: 'legacy-right', imageUrl: rImgRow.value, linkUrl: rLinkRow?.value || '' }]);
+              }
+            } catch (e) {
+              if (rImgRow?.value) setRightBanners([{ id: 'legacy-right', imageUrl: rImgRow.value, linkUrl: rLinkRow?.value || '' }]);
+            }
+          } else if (rImgRow?.value) {
+            setRightBanners([{ id: 'legacy-right', imageUrl: rImgRow.value, linkUrl: rLinkRow?.value || '' }]);
+          } else {
+            setRightBanners([{ id: 'default-right-1', imageUrl: '/ad_right_banner.png', linkUrl: '/planes', title: 'Publicá tu Vehículo' }]);
+          }
+        }
+      } catch (err) {
+        console.warn('Error loading ad banners in superadmin:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     })();
   }, []);
 
-  const handleUploadLeft = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingLeft(true);
+  // Subida masiva de imágenes
+  const handleMultipleUpload = async (e, side) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    if (side === 'left') {
+      setUploadingLeft(true);
+      setUploadProgressLeft(`Preparando ${files.length} archivo(s)...`);
+    } else {
+      setUploadingRight(true);
+      setUploadProgressRight(`Preparando ${files.length} archivo(s)...`);
+    }
+
     try {
       const { uploadVehicleImage } = await import('../lib/supabase');
-      const url = await uploadVehicleImage(file);
-      setLeftUrl(url);
-      toast.show('Imagen izquierda subida. Guardá para aplicar.');
+      const newBanners = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (side === 'left') setUploadProgressLeft(`Subiendo imagen ${i + 1} de ${files.length}...`);
+        else setUploadProgressRight(`Subiendo imagen ${i + 1} de ${files.length}...`);
+
+        const url = await uploadVehicleImage(file);
+        if (url) {
+          newBanners.push({
+            id: `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+            imageUrl: url,
+            linkUrl: '',
+            title: ''
+          });
+        }
+      }
+
+      if (newBanners.length > 0) {
+        if (side === 'left') {
+          setLeftBanners(prev => [...prev, ...newBanners]);
+          toast.show(`Se agregaron ${newBanners.length} imagen(es) a la Publicidad Izquierda. Recordá hacer clic en Guardar.`);
+        } else {
+          setRightBanners(prev => [...prev, ...newBanners]);
+          toast.show(`Se agregaron ${newBanners.length} imagen(es) a la Publicidad Derecha. Recordá hacer clic en Guardar.`);
+        }
+      }
     } catch (err) {
-      toast.show('Error al subir: ' + err.message, 'error');
+      toast.show('Error al subir imágenes: ' + err.message, 'error');
     } finally {
-      setUploadingLeft(false);
+      if (side === 'left') {
+        setUploadingLeft(false);
+        setUploadProgressLeft('');
+      } else {
+        setUploadingRight(false);
+        setUploadProgressRight('');
+      }
+      e.target.value = '';
     }
   };
 
-  const handleUploadRight = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingRight(true);
-    try {
-      const { uploadVehicleImage } = await import('../lib/supabase');
-      const url = await uploadVehicleImage(file);
-      setRightUrl(url);
-      toast.show('Imagen derecha subida. Guardá para aplicar.');
-    } catch (err) {
-      toast.show('Error al subir: ' + err.message, 'error');
-    } finally {
-      setUploadingRight(false);
+  // Agregar por URL directa
+  const handleAddUrl = (side) => {
+    const input = side === 'left' ? leftUrlInput : rightUrlInput;
+    const trimmed = input.trim();
+    if (!trimmed) return;
+
+    const newBanner = {
+      id: `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      imageUrl: trimmed,
+      linkUrl: '',
+      title: ''
+    };
+
+    if (side === 'left') {
+      setLeftBanners(prev => [...prev, newBanner]);
+      setLeftUrlInput('');
+      setShowAddUrlLeft(false);
+      toast.show('Banner agregado a Publicidad Izquierda. Recordá guardar.');
+    } else {
+      setRightBanners(prev => [...prev, newBanner]);
+      setRightUrlInput('');
+      setShowAddUrlRight(false);
+      toast.show('Banner agregado a Publicidad Derecha. Recordá guardar.');
     }
   };
 
-  const handleSaveLeft = async () => {
-    setSavingLeft(true);
-    await setSetting('ad_left_image_url', leftUrl.trim());
-    await setSetting('ad_left_link_url', leftLink.trim());
-    localStorage.setItem('sa_ad_left_image_url', leftUrl.trim());
-    localStorage.setItem('sa_ad_left_link_url', leftLink.trim());
-    toast.show('✅ Publicidad izquierda guardada en Supabase');
-    setSavingLeft(false);
+  // Reordenar
+  const handleMoveBanner = (side, index, direction) => {
+    const updater = side === 'left' ? setLeftBanners : setRightBanners;
+    updater(prev => {
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
+      const copy = [...prev];
+      const temp = copy[index];
+      copy[index] = copy[targetIndex];
+      copy[targetIndex] = temp;
+      return copy;
+    });
   };
 
-  const handleSaveRight = async () => {
-    setSavingRight(true);
-    await setSetting('ad_right_image_url', rightUrl.trim());
-    await setSetting('ad_right_link_url', rightLink.trim());
-    localStorage.setItem('sa_ad_right_image_url', rightUrl.trim());
-    localStorage.setItem('sa_ad_right_link_url', rightLink.trim());
-    toast.show('✅ Publicidad derecha guardada en Supabase');
-    setSavingRight(false);
+  // Eliminar banner
+  const handleDeleteBanner = (side, index) => {
+    const updater = side === 'left' ? setLeftBanners : setRightBanners;
+    updater(prev => prev.filter((_, i) => i !== index));
+    toast.show('Banner eliminado. Recordá hacer clic en Guardar.');
   };
 
-  const handleResetLeft = async () => {
-    await setSetting('ad_left_image_url', '');
-    await setSetting('ad_left_link_url', '');
-    localStorage.removeItem('sa_ad_left_image_url');
-    localStorage.removeItem('sa_ad_left_link_url');
-    setLeftUrl('');
-    setLeftLink('');
-    toast.show('Publicidad izquierda restaurada al banner por defecto');
+  // Actualizar enlace de destino
+  const handleUpdateLink = (side, index, link) => {
+    const updater = side === 'left' ? setLeftBanners : setRightBanners;
+    updater(prev => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], linkUrl: link };
+      return copy;
+    });
   };
 
-  const handleResetRight = async () => {
-    await setSetting('ad_right_image_url', '');
-    await setSetting('ad_right_link_url', '');
-    localStorage.removeItem('sa_ad_right_image_url');
-    localStorage.removeItem('sa_ad_right_link_url');
-    setRightUrl('');
-    setRightLink('');
-    toast.show('Publicidad derecha restaurada al banner por defecto');
+  // Guardar en Supabase
+  const handleSave = async (side) => {
+    const banners = side === 'left' ? leftBanners : rightBanners;
+    if (banners.length === 0) {
+      toast.show('Subí al menos una imagen antes de guardar', 'error');
+      return;
+    }
+
+    const bannersJson = JSON.stringify(banners);
+    const primaryImg = banners[0]?.imageUrl || '';
+    const primaryLink = banners[0]?.linkUrl || '';
+
+    if (side === 'left') {
+      setSavingLeft(true);
+      try {
+        await Promise.all([
+          setSetting('ad_left_banners', bannersJson),
+          setSetting('ad_left_image_url', primaryImg),
+          setSetting('ad_left_link_url', primaryLink),
+        ]);
+        localStorage.setItem('sa_ad_left_banners', bannersJson);
+        localStorage.setItem('sa_ad_left_image_url', primaryImg);
+        localStorage.setItem('sa_ad_left_link_url', primaryLink);
+        window.dispatchEvent(new CustomEvent('sa_ads_updated', { detail: { leftBanners: banners } }));
+        toast.show(`✅ Publicidad izquierda guardada con ${banners.length} banner(s) rotativos cada 7s`);
+      } catch (err) {
+        toast.show('Error al guardar: ' + err.message, 'error');
+      } finally {
+        setSavingLeft(false);
+      }
+    } else {
+      setSavingRight(true);
+      try {
+        await Promise.all([
+          setSetting('ad_right_banners', bannersJson),
+          setSetting('ad_right_image_url', primaryImg),
+          setSetting('ad_right_link_url', primaryLink),
+        ]);
+        localStorage.setItem('sa_ad_right_banners', bannersJson);
+        localStorage.setItem('sa_ad_right_image_url', primaryImg);
+        localStorage.setItem('sa_ad_right_link_url', primaryLink);
+        window.dispatchEvent(new CustomEvent('sa_ads_updated', { detail: { rightBanners: banners } }));
+        toast.show(`✅ Publicidad derecha guardada con ${banners.length} banner(s) rotativos cada 7s`);
+      } catch (err) {
+        toast.show('Error al guardar: ' + err.message, 'error');
+      } finally {
+        setSavingRight(false);
+      }
+    }
   };
+
+  // Restablecer por defecto
+  const handleReset = async (side) => {
+    if (!window.confirm('¿Restablecer esta publicidad al banner original por defecto?')) return;
+
+    if (side === 'left') {
+      await Promise.all([
+        setSetting('ad_left_banners', ''),
+        setSetting('ad_left_image_url', ''),
+        setSetting('ad_left_link_url', ''),
+      ]);
+      localStorage.removeItem('sa_ad_left_banners');
+      localStorage.removeItem('sa_ad_left_image_url');
+      localStorage.removeItem('sa_ad_left_link_url');
+      const def = [{ id: 'default-left-1', imageUrl: '/ad_left_banner.png', linkUrl: '/negocios', title: 'Repuestos y Accesorios' }];
+      setLeftBanners(def);
+      window.dispatchEvent(new CustomEvent('sa_ads_updated', { detail: { leftBanners: def } }));
+      toast.show('Publicidad izquierda restaurada');
+    } else {
+      await Promise.all([
+        setSetting('ad_right_banners', ''),
+        setSetting('ad_right_image_url', ''),
+        setSetting('ad_right_link_url', ''),
+      ]);
+      localStorage.removeItem('sa_ad_right_banners');
+      localStorage.removeItem('sa_ad_right_image_url');
+      localStorage.removeItem('sa_ad_right_link_url');
+      const def = [{ id: 'default-right-1', imageUrl: '/ad_right_banner.png', linkUrl: '/planes', title: 'Publicá tu Vehículo' }];
+      setRightBanners(def);
+      window.dispatchEvent(new CustomEvent('sa_ads_updated', { detail: { rightBanners: def } }));
+      toast.show('Publicidad derecha restaurada');
+    }
+  };
+
+  // Helper para clasificar URL
+  const classifyUrl = (url) => {
+    if (!url || !url.trim()) return { label: 'Sin enlace (Acción predeterminada)', color: 'text-slate-400' };
+    const trimmed = url.trim();
+    if (/^https?:\/\/|^\/\/|^wa\.me\//i.test(trimmed)) {
+      return { label: '🌐 Enlace Externo (Se abre en nueva pestaña)', color: 'text-cyan-400' };
+    }
+    return { label: '🏛️ Enlace Interno SPA (Navegación dentro del sitio)', color: 'text-purple-400' };
+  };
+
+  const currentBanners = activeSide === 'left' ? leftBanners : rightBanners;
+  const currentPreviewIdx = activeSide === 'left' ? previewLeftIdx : previewRightIdx;
+  const setPreviewIdx = activeSide === 'left' ? setPreviewLeftIdx : setPreviewRightIdx;
+  const safePreviewIdx = currentPreviewIdx < currentBanners.length ? currentPreviewIdx : 0;
+  const activePreviewBanner = currentBanners[safePreviewIdx] || currentBanners[0];
+  const uploading = activeSide === 'left' ? uploadingLeft : uploadingRight;
+  const uploadProgress = activeSide === 'left' ? uploadProgressLeft : uploadProgressRight;
+  const saving = activeSide === 'left' ? savingLeft : savingRight;
+  const showAddUrl = activeSide === 'left' ? showAddUrlLeft : showAddUrlRight;
+  const setShowAddUrl = activeSide === 'left' ? setShowAddUrlLeft : setShowAddUrlRight;
+  const urlInput = activeSide === 'left' ? leftUrlInput : rightUrlInput;
+  const setUrlInput = activeSide === 'left' ? setLeftUrlInput : setRightUrlInput;
 
   return (
-    <div className="space-y-6">
-      <SectionHeader icon={Image} title="Banners de Publicidad Lateral"
-        sub="Configurá las imágenes de publicidad a los lados del sitio (arrancan debajo del Hero)" />
+    <div className="space-y-6 animate-fadeIn">
+      <SectionHeader 
+        icon={Image} 
+        title="Banners de Publicidad Lateral"
+        sub="Subí varias imágenes para cada banner lateral. Rotan automáticamente cada 7 segundos y admiten enlaces de destino internos (/planes, /agencias) o externos (https://...)." 
+      />
+
+      {/* Selector de Pestaña: Izquierda vs Derecha */}
+      <div className="flex items-center gap-2 p-1.5 bg-slate-900 rounded-2xl border border-slate-800 w-fit flex-wrap">
+        <button
+          type="button"
+          onClick={() => setActiveSide('left')}
+          className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+            activeSide === 'left'
+              ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Zap className="w-3.5 h-3.5 text-violet-300" />
+          <span>Publicidad Lateral Izquierda</span>
+          <span className="px-2 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-black">
+            {leftBanners.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSide('right')}
+          className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+            activeSide === 'right'
+              ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Zap className="w-3.5 h-3.5 text-pink-300" />
+          <span>Publicidad Lateral Derecha</span>
+          <span className="px-2 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-black">
+            {rightBanners.length}
+          </span>
+        </button>
+      </div>
 
       {loading ? (
         <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-violet-400 animate-spin" /></div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Publicidad Izquierda */}
-          <div className="bg-[#0F172A] border border-slate-800 rounded-2xl p-6 space-y-4">
-            <h3 className="text-sm font-black text-white flex items-center gap-2">
-              <Zap className="w-4 h-4 text-violet-400" /> Publicidad Izquierda
-            </h3>
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+          
+          {/* Columna Izquierda: Gestión de Diapositivas y Subida */}
+          <div className="xl:col-span-8 bg-[#0F172A] border border-slate-800 rounded-2xl p-6 space-y-6">
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+              <div>
+                <h3 className="text-base font-black text-white flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-violet-400" />
+                  <span>
+                    Banners de Publicidad {activeSide === 'left' ? 'Izquierda' : 'Derecha'} ({currentBanners.length})
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Cada banner se mostrará en pantalla durante <strong className="text-amber-400 font-extrabold">7 segundos</strong> antes de pasar al siguiente.
+                </p>
+              </div>
 
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-amber-400" />
+                  <span>Rotación: 7s</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowAddUrl(!showAddUrl)}
+                  className="text-xs font-bold text-violet-400 hover:text-violet-300 transition-colors flex items-center gap-1 cursor-pointer bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  {showAddUrl ? 'Cancelar URL' : 'Agregar por URL'}
+                </button>
+              </div>
+            </div>
+
+            {/* Subida masiva desde computadora */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-300">Subir imagen</label>
-              <label className="flex items-center justify-center gap-3 w-full py-4 rounded-xl border-2 border-dashed border-slate-700 hover:border-violet-500/50 bg-slate-900/50 cursor-pointer transition-all group">
-                <input type="file" accept="image/*" onChange={handleUploadLeft} className="hidden" />
-                {uploadingLeft
-                  ? <><Loader2 className="w-4 h-4 text-violet-400 animate-spin" /><span className="text-xs text-violet-300 font-bold">Subiendo...</span></>
-                  : <><Upload className="w-4 h-4 text-slate-500 group-hover:text-violet-400 transition-colors" /><span className="text-xs text-slate-400 group-hover:text-violet-300 font-bold">Subir Banner Izquierdo</span></>
-                }
+              <label className="block text-xs font-bold text-slate-300">
+                Subir una o varias imágenes de publicidad:
+              </label>
+              <label className="flex flex-col items-center justify-center gap-2 w-full py-6 rounded-2xl border-2 border-dashed border-slate-700 hover:border-violet-500/60 bg-slate-900/40 cursor-pointer transition-all group">
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*" 
+                  onChange={(e) => handleMultipleUpload(e, activeSide)} 
+                  disabled={uploading}
+                  className="hidden" 
+                />
+                {uploading ? (
+                  <>
+                    <Loader2 className="w-6 h-6 text-violet-400 animate-spin" />
+                    <span className="text-xs text-violet-300 font-black">{uploadProgress || 'Subiendo imágenes...'}</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-10 h-10 rounded-xl bg-violet-600/20 text-violet-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Upload className="w-5 h-5" />
+                    </div>
+                    <span className="text-xs text-slate-300 font-black group-hover:text-white transition-colors">
+                      Hacé clic para seleccionar una o varias imágenes
+                    </span>
+                    <span className="text-[11px] text-slate-500">
+                      Formato vertical recomendado (160×520 px o similar proporción vertical)
+                    </span>
+                  </>
+                )}
               </label>
             </div>
 
+            {/* Input para agregar por URL directa */}
+            {showAddUrl && (
+              <div className="p-4 rounded-xl bg-slate-900 border border-slate-700/80 space-y-3 animate-fadeIn">
+                <label className="block text-xs font-bold text-slate-300">
+                  Pegar URL de imagen pública:
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    placeholder="https://ejemplo.com/banner-publicidad.jpg"
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleAddUrl(activeSide)}
+                    className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-black cursor-pointer transition-all"
+                  >
+                    Agregar
+                  </button>
+                </div>
+              </div>
+            )}
 
-
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-300">URL de destino (opcional)</label>
-              <input type="url" value={leftLink} onChange={e => setLeftLink(e.target.value)}
-                placeholder="https://pagina-del-anunciante.com"
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none" />
-            </div>
-
-            <div className="flex gap-3 pt-2">
-              <button onClick={handleSaveLeft} disabled={savingLeft}
-                className="flex-1 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-black text-xs flex items-center justify-center gap-2 cursor-pointer transition-all shadow-lg shadow-violet-900/30">
-                {savingLeft ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                Guardar Izquierda
-              </button>
-              <button onClick={handleResetLeft}
-                className="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold text-xs flex items-center gap-2 cursor-pointer transition-all">
-                <RefreshCw className="w-4 h-4" /> Reset
-              </button>
-            </div>
-          </div>
-
-          {/* Publicidad Derecha */}
-          <div className="bg-[#0F172A] border border-slate-800 rounded-2xl p-6 space-y-4">
-            <h3 className="text-sm font-black text-white flex items-center gap-2">
-              <Zap className="w-4 h-4 text-purple-400" /> Publicidad Derecha
-            </h3>
-
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-300">Subir imagen</label>
-              <label className="flex items-center justify-center gap-3 w-full py-4 rounded-xl border-2 border-dashed border-slate-700 hover:border-purple-500/50 bg-slate-900/50 cursor-pointer transition-all group">
-                <input type="file" accept="image/*" onChange={handleUploadRight} className="hidden" />
-                {uploadingRight
-                  ? <><Loader2 className="w-4 h-4 text-purple-400 animate-spin" /><span className="text-xs text-purple-300 font-bold">Subiendo...</span></>
-                  : <><Upload className="w-4 h-4 text-slate-500 group-hover:text-purple-400 transition-colors" /><span className="text-xs text-slate-400 group-hover:text-purple-300 font-bold">Subir Banner Derecho</span></>
-                }
+            {/* Lista de Banners Agregados */}
+            <div className="space-y-3 pt-2">
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider">
+                Secuencia de Banners ({currentBanners.length}):
               </label>
+
+              {currentBanners.length === 0 ? (
+                <div className="text-center py-12 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-2">
+                  <p className="text-sm font-bold text-slate-400">Sin imágenes configuradas.</p>
+                  <p className="text-xs text-slate-500">Subí imágenes arriba para activar la rotación automática.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {currentBanners.map((banner, index) => {
+                    const urlInfo = classifyUrl(banner.linkUrl);
+
+                    return (
+                      <div 
+                        key={banner.id || index}
+                        className={`p-4 rounded-2xl border transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${
+                          index === safePreviewIdx
+                            ? 'bg-slate-900 border-violet-500/60 shadow-lg shadow-violet-950/20 ring-1 ring-violet-500/30'
+                            : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        {/* Miniatura y Posición */}
+                        <div className="flex items-center gap-3.5 shrink-0">
+                          <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black ${
+                            index === 0 ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-300'
+                          }`}>
+                            {index + 1}
+                          </span>
+
+                          <div className="relative w-14 h-20 rounded-xl overflow-hidden bg-slate-950 border border-slate-700 shrink-0">
+                            <img
+                              src={banner.imageUrl}
+                              alt={`Banner ${index + 1}`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => { e.target.src = '/ad_left_banner.png'; }}
+                            />
+                            {index === safePreviewIdx && (
+                              <span className="absolute bottom-0 inset-x-0 bg-violet-600 text-white text-[8px] font-black text-center py-0.5">
+                                EN VIVO
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Configuración de Enlace de Destino */}
+                        <div className="flex-1 min-w-0 space-y-1.5 w-full">
+                          <div className="flex items-center justify-between flex-wrap gap-1">
+                            <label className="text-[11px] font-black uppercase text-slate-300 tracking-wider">
+                              URL de Destino (Interna o Externa):
+                            </label>
+                            <span className={`text-[10px] font-bold ${urlInfo.color}`}>
+                              {urlInfo.label}
+                            </span>
+                          </div>
+
+                          <input
+                            type="text"
+                            value={banner.linkUrl || ''}
+                            onChange={(e) => handleUpdateLink(activeSide, index, e.target.value)}
+                            placeholder="Ej: /planes, /agencias, /negocios o https://anunciante.com"
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 font-mono focus:outline-none focus:border-violet-500 transition-colors"
+                          />
+                          <p className="text-[10px] text-slate-500">
+                            💡 Si colocás <code className="text-violet-300">/planes</code> navegará dentro de la web; si colocás <code className="text-cyan-300">https://...</code> se abrirá en una pestaña nueva.
+                          </p>
+                        </div>
+
+                        {/* Botones de Orden y Borrado */}
+                        <div className="flex items-center gap-1.5 self-end md:self-center shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleMoveBanner(activeSide, index, -1)}
+                            disabled={index === 0}
+                            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="Mover arriba"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMoveBanner(activeSide, index, 1)}
+                            disabled={index === currentBanners.length - 1}
+                            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="Mover abajo"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteBanner(activeSide, index)}
+                            className="p-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 hover:text-rose-200 transition-colors cursor-pointer ml-1"
+                            title="Eliminar este banner"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
+            {/* Botones Principales de Guardado */}
+            <div className="pt-4 flex flex-col sm:flex-row gap-3 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => handleSave(activeSide)}
+                disabled={saving}
+                className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 hover:brightness-110 text-white font-black text-sm flex items-center justify-center gap-2 cursor-pointer transition-all shadow-xl shadow-violet-950/40 disabled:opacity-50"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Guardando en Supabase...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Guardar Publicidad {activeSide === 'left' ? 'Izquierda' : 'Derecha'} ({currentBanners.length} banners)</span>
+                  </>
+                )}
+              </button>
 
-
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-300">URL de destino (opcional)</label>
-              <input type="url" value={rightLink} onChange={e => setRightLink(e.target.value)}
-                placeholder="https://pagina-del-anunciante.com"
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none" />
+              <button
+                type="button"
+                onClick={() => handleReset(activeSide)}
+                className="px-5 py-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors shrink-0"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Restablecer</span>
+              </button>
             </div>
 
-            <div className="flex gap-3 pt-2">
-              <button onClick={handleSaveRight} disabled={savingRight}
-                className="flex-1 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-black text-xs flex items-center justify-center gap-2 cursor-pointer transition-all shadow-lg shadow-violet-900/30">
-                {savingRight ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                Guardar Derecha
-              </button>
-              <button onClick={handleResetRight}
-                className="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold text-xs flex items-center gap-2 cursor-pointer transition-all">
-                <RefreshCw className="w-4 h-4" /> Reset
-              </button>
+          </div>
+
+          {/* Columna Derecha: Vista Previa Fiel en Vivo (Rotación cada 7 segundos) */}
+          <div className="xl:col-span-4 bg-[#0F172A] border border-slate-800 rounded-2xl p-6 space-y-4 flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-cyan-400" />
+                  <span className="text-sm font-black text-white">Vista Previa en Vivo</span>
+                </div>
+                {currentBanners.length > 0 && (
+                  <span className="text-[11px] font-mono font-bold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-500/30">
+                    {safePreviewIdx + 1} de {currentBanners.length}
+                  </span>
+                )}
+              </div>
+
+              <p className="text-xs text-slate-400">
+                Así se visualiza el banner lateral en la pantalla principal. Cambia cada <strong className="text-amber-400">7 segundos</strong> automáticamente:
+              </p>
+
+              {/* Simulación del Card Lateral de 176px x 520px */}
+              <div className="flex justify-center py-2">
+                <div className="w-40 xl:w-44 select-none">
+                  <div className="group relative rounded-2xl overflow-hidden border border-purple-800/80 bg-[#0F111A] text-white shadow-2xl shadow-purple-950/60">
+                    
+                    <div className="relative w-full h-[460px] overflow-hidden bg-slate-950">
+                      {currentBanners.length > 0 ? (
+                        currentBanners.map((b, idx) => (
+                          <div
+                            key={b.id || idx}
+                            className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                              idx === safePreviewIdx ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+                            }`}
+                          >
+                            <img
+                              src={b.imageUrl}
+                              alt="Publicidad"
+                              className="w-full h-full object-cover object-center"
+                              onError={(e) => { e.target.src = activeSide === 'left' ? '/ad_left_banner.png' : '/ad_right_banner.png'; }}
+                            />
+                          </div>
+                        ))
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center p-4 text-center text-xs text-slate-500">
+                          Sin banner configurado
+                        </div>
+                      )}
+
+                      {/* Top Label */}
+                      <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between z-20 pointer-events-none">
+                        <span className="px-2 py-0.5 rounded-full bg-black/80 backdrop-blur-md text-[8px] font-black uppercase tracking-widest text-slate-200 border border-white/20">
+                          PUBLICIDAD
+                        </span>
+                        {activePreviewBanner?.linkUrl && (
+                          <div className="p-1 rounded-full bg-purple-600/90 text-white backdrop-blur-md">
+                            <ExternalLink className="w-2.5 h-2.5" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Dots (solo si hay más de 1 banner, sin sombreado sobre la imagen) */}
+                      {currentBanners.length > 1 && (
+                        <div className="absolute bottom-2.5 left-0 right-0 z-20 flex items-center justify-center pointer-events-none">
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-sm pointer-events-auto border border-white/10 shadow-sm">
+                            {currentBanners.map((_, dotIdx) => (
+                              <button
+                                key={dotIdx}
+                                type="button"
+                                onClick={() => setPreviewIdx(dotIdx)}
+                                className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                                  dotIdx === safePreviewIdx ? 'w-5 bg-purple-400' : 'w-1.5 bg-white/40'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              {/* Información del enlace activo en la vista previa */}
+              <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1 text-xs">
+                <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider block">
+                  Destino del banner visible #{safePreviewIdx + 1}:
+                </span>
+                <span className="font-mono text-violet-300 break-all block font-bold">
+                  {activePreviewBanner?.linkUrl || '(Sin URL asignada - acción por defecto)'}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-violet-950/30 border border-violet-800/40 text-[11px] text-slate-400 space-y-1">
+              <span className="font-black text-violet-300 block">💡 Nota técnica:</span>
+              <span>
+                Los cambios guardados se propagan instantáneamente en la Home sin requerir rebuild ni reiniciar el servidor.
+              </span>
             </div>
           </div>
+
         </div>
       )}
     </div>
@@ -1765,8 +2284,7 @@ function SectionConfiguracion({ toast }) {
   };
 
   const fieldDefs = [
-    { key: 'contact_email',       label: 'Email de contacto',            type: 'email', placeholder: 'contacto@sitioautomotor.com.ar' },
-    { key: 'contact_whatsapp',    label: 'WhatsApp de soporte (sin +)',   type: 'tel',   placeholder: '5491112345678' },
+    { key: 'contact_whatsapp',    label: 'WhatsApp de soporte (sin +)',   type: 'tel',   placeholder: '5493426514889' },
     { key: 'bank_name',           label: 'Banco / Billetera',             type: 'text',  placeholder: 'Mercado Pago / Santander' },
     { key: 'bank_alias',          label: 'Alias CBU',                     type: 'text',  placeholder: 'SITIO.AUTOMOTOR.MP' },
     { key: 'bank_cbu',            label: 'CBU',                           type: 'text',  placeholder: '22 dígitos' },

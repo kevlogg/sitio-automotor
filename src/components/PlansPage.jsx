@@ -78,7 +78,7 @@ export default function PlansPage({
   };
 
   const handleWhatsAppConsult = (planName, price) => {
-    const cleanPhone = '5491152638000';
+    const cleanPhone = '5493426514889';
     const text = encodeURIComponent(
       `Hola Sitio Automotor, me interesa contratar el Plan ${planName} (${price}) para mi agencia/negocio. Quisiera consultar sobre la activación y medios de pago.`
     );

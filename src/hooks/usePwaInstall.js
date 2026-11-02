@@ -5,12 +5,13 @@ function getInitialInstalledState() {
   if (typeof window === 'undefined') return false;
   try {
     const isStandaloneMode =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      window.matchMedia('(display-mode: fullscreen)').matches ||
-      window.matchMedia('(display-mode: minimal-ui)').matches ||
-      window.matchMedia('(display-mode: window-controls-overlay)').matches ||
-      window.navigator.standalone === true ||
-      document.referrer.includes('android-app://') ||
+      window.matchMedia?.('(display-mode: standalone)')?.matches ||
+      window.matchMedia?.('(display-mode: fullscreen)')?.matches ||
+      window.matchMedia?.('(display-mode: minimal-ui)')?.matches ||
+      window.matchMedia?.('(display-mode: window-controls-overlay)')?.matches ||
+      window.navigator?.standalone === true ||
+      (typeof document !== 'undefined' && document.referrer && document.referrer.includes('android-app://')) ||
+      (typeof window !== 'undefined' && window.location?.search?.includes('source=pwa')) ||
       localStorage.getItem('pwa_installed') === 'true';
 
     return Boolean(isStandaloneMode);
@@ -28,21 +29,24 @@ export function usePwaInstall() {
   useEffect(() => {
     // 1. Check standalone modes and persistent storage
     const checkStatus = async () => {
-      const isStandaloneMode =
-        window.matchMedia('(display-mode: standalone)').matches ||
-        window.matchMedia('(display-mode: fullscreen)').matches ||
-        window.matchMedia('(display-mode: minimal-ui)').matches ||
-        window.matchMedia('(display-mode: window-controls-overlay)').matches ||
-        window.navigator.standalone === true ||
-        document.referrer.includes('android-app://') ||
-        localStorage.getItem('pwa_installed') === 'true';
+      try {
+        const isStandaloneMode =
+          window.matchMedia?.('(display-mode: standalone)')?.matches ||
+          window.matchMedia?.('(display-mode: fullscreen)')?.matches ||
+          window.matchMedia?.('(display-mode: minimal-ui)')?.matches ||
+          window.matchMedia?.('(display-mode: window-controls-overlay)')?.matches ||
+          window.navigator?.standalone === true ||
+          (typeof document !== 'undefined' && document.referrer && document.referrer.includes('android-app://')) ||
+          (typeof window !== 'undefined' && window.location?.search?.includes('source=pwa')) ||
+          localStorage.getItem('pwa_installed') === 'true';
 
-      if (isStandaloneMode) {
-        setIsInstalled(true);
-        try {
-          localStorage.setItem('pwa_installed', 'true');
-        } catch (e) {}
-      }
+        if (isStandaloneMode) {
+          setIsInstalled(true);
+          try {
+            localStorage.setItem('pwa_installed', 'true');
+          } catch (e) {}
+        }
+      } catch (err) {}
 
       // Check native getInstalledRelatedApps API (Chromium / Android)
       if (typeof window.navigator !== 'undefined' && 'getInstalledRelatedApps' in window.navigator) {

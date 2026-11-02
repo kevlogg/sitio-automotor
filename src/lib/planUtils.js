@@ -265,8 +265,8 @@ export const BANKING_INFO = {
   cuit: '30-71829384-9',
   cbu: '0720023420000001234567',
   alias: 'SITIO.AUTOMOTOR.ARG',
-  whatsappAdmin: '5491152638000',
-  whatsappAdminDisplay: '+54 (11) 5263-8000',
+  whatsappAdmin: '5493426514889',
+  whatsappAdminDisplay: '+54 9 3426 51-4889',
 };
 
 /**

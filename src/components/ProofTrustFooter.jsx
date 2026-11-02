@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { ShieldCheck, Gauge, Globe, Mail, Phone, MapPin } from 'lucide-react';
+import { ShieldCheck, Gauge, Globe, Phone, MapPin } from 'lucide-react';
 import useScrollReveal from '../hooks/useScrollReveal';
 
 export default function ProofTrustFooter({ cardTheme = 'dark', onOpenSuperAdmin, onNavigate }) {
@@ -107,12 +107,15 @@ export default function ProofTrustFooter({ cardTheme = 'dark', onOpenSuperAdmin,
             <h5 className="text-xs font-bold uppercase text-white mb-3 tracking-wider">Contacto</h5>
             <ul className="space-y-2 text-xs font-medium text-slate-400">
               <li className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-purple-400" />
-                <span>contacto@sitioautomotor.com.ar</span>
-              </li>
-              <li className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-purple-400" />
-                <span>+54 (11) 5263-8000</span>
+                <a
+                  href="https://wa.me/5493426514889"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-purple-300 transition-colors"
+                >
+                  +54 9 3426 51-4889
+                </a>
               </li>
               <li className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 text-purple-400" />

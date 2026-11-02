@@ -231,7 +231,7 @@ export default function ComingSoonPage({ onGoToInicio }) {
             </div>
           </div>
           <a
-            href="https://wa.me/5493434556677?text=Hola,%20quisiera%20registrar%20mi%20agencia%20o%20servicio%20en%20SitioAutomotor.com.ar"
+            href="https://wa.me/5493426514889?text=Hola,%20quisiera%20registrar%20mi%20agencia%20o%20servicio%20en%20SitioAutomotor.com.ar"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer flex-shrink-0"
