@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../../data/locationData';
-import { submitPaymentClaim, PLAN_STATUS } from '../../lib/planUtils';
+import { submitPaymentClaim, PLAN_STATUS, formatPrice, getCachedPlanPrices, fetchPlanPrices } from '../../lib/planUtils';
 import PaymentClaimModal from '../PaymentClaimModal';
 
 // ─── Tarjeta de plan con botón "Ya pagué" ─────────────────────────────────────
@@ -121,6 +121,11 @@ export default function DashboardParticular({
   const currentPlanKey = profile.current_plan || null;
   const [submittingPayment, setSubmittingPayment] = useState(false);
   const [claimModalPlan, setClaimModalPlan] = useState(null);
+  const [planPrices, setPlanPrices] = useState(getCachedPlanPrices);
+
+  useEffect(() => {
+    fetchPlanPrices().then((p) => { if (p) setPlanPrices(p); });
+  }, []);
 
   const [formData, setFormData] = useState({
     fullName: profile.full_name || '',
@@ -650,7 +655,7 @@ export default function DashboardParticular({
               <PlanCard
                 planKey="base"
                 title={<><Building2 className="w-3.5 h-3.5" /> Plan Base</>}
-                priceLabel="$55.000"
+                priceLabel={formatPrice(planPrices.base)}
                 priceNote="/ mes · Abono mensual"
                 features={[
                   'Comercios del automotor y agencias virtuales',
@@ -678,7 +683,7 @@ export default function DashboardParticular({
               <PlanCard
                 planKey="premium"
                 title={<><Building2 className="w-3.5 h-3.5" /> Plan Premium</>}
-                priceLabel="$110.000"
+                priceLabel={formatPrice(planPrices.premium)}
                 priceNote="/ mes · Hasta 20 autos"
                 features={[
                   'Agencias multimarca y grandes comercios',
@@ -706,7 +711,7 @@ export default function DashboardParticular({
               <PlanCard
                 planKey="super_premium"
                 title={<><Zap className="w-3.5 h-3.5 text-amber-300" /> Súper Premium</>}
-                priceLabel="$220.000"
+                priceLabel={formatPrice(planPrices.super_premium)}
                 priceNote="/ mes · Hasta 50 autos + Banners"
                 features={[
                   { text: 'Agencias oficiales y comercios Súper Premium', bold: true },

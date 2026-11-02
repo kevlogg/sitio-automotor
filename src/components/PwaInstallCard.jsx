@@ -35,6 +35,9 @@ export default function PwaInstallCard({
     const res = await promptInstall();
     if (res.success && res.outcome === 'accepted') {
       setInstallSuccess(true);
+      setTimeout(() => {
+        if (onClose) onClose();
+      }, 1800);
     } else if (res.isIOS) {
       setShowIosSteps(true);
     } else {
@@ -43,8 +46,10 @@ export default function PwaInstallCard({
     }
   };
 
-  // If already installed and it's a modal, don't show the modal
-  if (variant === 'modal' && !isOpen) return null;
+  // Si ya está instalada la app y es el cartel dinámico (modal), no mostrarlo
+  if (variant === 'modal' && (!isOpen || (isInstalled && !installSuccess))) {
+    return null;
+  }
 
   const currentUrl = typeof window !== 'undefined' ? window.location.href : 'https://sitio-automotor.com';
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(currentUrl)}&color=6D28D9&bgcolor=FFFFFF`;

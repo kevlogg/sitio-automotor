@@ -19,6 +19,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import PaymentClaimModal from './PaymentClaimModal';
+import { fetchPlanPrices, getCachedPlanPrices, formatPrice } from '../lib/planUtils';
 
 // Logo oficial estilizado idéntico a la identidad de Sitio Automotor
 function PlanLogoHeader({ color, lineColor }) {
@@ -48,13 +49,28 @@ export default function PlansPage({
 }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [paymentClaimPlan, setPaymentClaimPlan] = useState(null);
+  const [prices, setPrices] = useState(getCachedPlanPrices);
+
+  useEffect(() => {
+    fetchPlanPrices().then((loaded) => {
+      if (loaded) setPrices(loaded);
+    });
+
+    const handleUpdate = (e) => {
+      if (e.detail) setPrices(e.detail);
+    };
+    window.addEventListener('sa_plan_prices_updated', handleUpdate);
+    return () => window.removeEventListener('sa_plan_prices_updated', handleUpdate);
+  }, []);
 
   const toggleFaq = (index) => {
     setOpenFaq(openFaq === index ? null : index);
   };
 
   const handlePlanAction = (planKey) => {
-    if (onOpenRegisterBusiness) {
+    if (currentUser) {
+      setPaymentClaimPlan(planKey);
+    } else if (onOpenRegisterBusiness) {
       onOpenRegisterBusiness(planKey);
     } else if (onOpenAuthModal) {
       onOpenAuthModal('signup');
@@ -73,7 +89,7 @@ export default function PlansPage({
     {
       key: 'base',
       name: 'BASE',
-      price: '$55.000',
+      price: formatPrice(prices.base),
       period: 'ABONO MENSUAL',
       logoColor: '#B38054',
       lineColor: '#B38054',
@@ -95,7 +111,7 @@ export default function PlansPage({
     {
       key: 'premium',
       name: 'PREMIUM',
-      price: '$110.000',
+      price: formatPrice(prices.premium),
       period: 'ABONO MENSUAL',
       logoColor: '#71717A',
       lineColor: '#9CA3AF',
@@ -119,7 +135,7 @@ export default function PlansPage({
     {
       key: 'super_premium',
       name: 'SÚPER PREMIUM',
-      price: '$220.000',
+      price: formatPrice(prices.super_premium),
       period: 'ABONO MENSUAL',
       logoColor: '#C59B27',
       lineColor: '#D4AF37',
@@ -296,6 +312,21 @@ export default function PlansPage({
                   className="w-full py-3.5 sm:py-4 rounded-2xl bg-[#5328D7] hover:bg-[#431fb5] text-white font-black text-sm sm:text-base shadow-lg shadow-indigo-950/20 transition-all duration-200 cursor-pointer text-center active:scale-98"
                 >
                   {p.ctaText}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (currentUser) {
+                      setPaymentClaimPlan(p.key);
+                    } else if (onOpenAuthModal) {
+                      onOpenAuthModal('signup');
+                    }
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-violet-50 hover:bg-violet-100 text-[#5328D7] border border-[#5328D7]/30 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <CreditCard className="w-3.5 h-3.5 text-[#5328D7]" />
+                  <span>Pagar con Mercado Pago o Transferencia</span>
                 </button>
 
                 <button

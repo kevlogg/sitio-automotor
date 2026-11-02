@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../../data/locationData';
-import { submitPaymentClaim } from '../../lib/planUtils';
+import { submitPaymentClaim, formatPrice, getCachedPlanPrices, fetchPlanPrices } from '../../lib/planUtils';
 import PaymentClaimModal from '../PaymentClaimModal';
 
 export default function DashboardAgencia({
@@ -17,12 +17,16 @@ export default function DashboardAgencia({
   const [activeTab, setActiveTab] = useState('perfil');
   const [locationType, setLocationType] = useState(profile.location_details ? 'multiple' : 'single');
 
-  // Plan state
   const planStatus = profile.plan_status || null;
   const currentPlanKey = profile.current_plan || null;
   const [submittingPayment, setSubmittingPayment] = useState(false);
   const [paymentClaimResult, setPaymentClaimResult] = useState({});
   const [claimModalPlan, setClaimModalPlan] = useState(null);
+  const [planPrices, setPlanPrices] = useState(getCachedPlanPrices);
+
+  useEffect(() => {
+    fetchPlanPrices().then((p) => { if (p) setPlanPrices(p); });
+  }, []);
 
   const [formData, setFormData] = useState({
     fullName: profile.full_name || '',
@@ -636,7 +640,7 @@ export default function DashboardAgencia({
                 {
                   key: 'base',
                   name: 'BASE',
-                  price: '$55.000',
+                  price: formatPrice(planPrices.base),
                   color: 'border-[#B38054]/60',
                   badgeColor: 'bg-[#B38054]/20 text-[#D4AF37] border-[#B38054]/40',
                   target: 'Comercios relacionados con el automotor y agencias virtuales',
@@ -650,7 +654,7 @@ export default function DashboardAgencia({
                 {
                   key: 'premium',
                   name: 'PREMIUM',
-                  price: '$110.000',
+                  price: formatPrice(planPrices.premium),
                   color: 'border-slate-400/60',
                   badgeColor: 'bg-slate-700/50 text-slate-200 border-slate-500/40',
                   target: 'Agencias multimarca y grandes comercios del mundo automotor',
@@ -664,7 +668,7 @@ export default function DashboardAgencia({
                 {
                   key: 'super_premium',
                   name: 'SÚPER PREMIUM',
-                  price: '$220.000',
+                  price: formatPrice(planPrices.super_premium),
                   color: 'border-[#D4AF37] ring-2 ring-[#D4AF37]/40 shadow-2xl shadow-amber-950/30',
                   badgeColor: 'bg-[#D4AF37]/20 text-[#D4AF37] border-[#D4AF37]/40',
                   highlight: '⭐ Máximo Alcance',

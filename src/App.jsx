@@ -482,16 +482,66 @@ export default function App() {
   // Modal States
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [favoritesModalOpen, setFavoritesModalOpen] = useState(false);
-  const [pwaModalOpen, setPwaModalOpen] = useState(true);
+  const [pwaModalOpen, setPwaModalOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('pwa_modal_dismissed') !== 'true';
+    }
+    return true;
+  });
   const [toastMessage, setToastMessage] = useState(null);
+
+  const handleClosePwaModal = () => {
+    setPwaModalOpen(false);
+    try {
+      sessionStorage.setItem('pwa_modal_dismissed', 'true');
+    } catch (e) {}
+  };
 
   // Trigger Toast Notification
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage(null);
-    }, 3500);
+    }, 4500);
   };
+
+  // Mercado Pago Return Handler (post-checkout)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const mpStatus = params.get('mp_status');
+    const plan = params.get('plan');
+
+    if (mpStatus === 'approved') {
+      showToast('🎉 ¡Pago aprobado en Mercado Pago! Tu membresía ha sido activada de inmediato.');
+      if (currentUser?.user?.id) {
+        supabase
+          .from('profiles')
+          .update({
+            plan_status: 'active',
+            current_plan: plan || 'premium',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', currentUser.user.id)
+          .then(() => {
+            setCurrentUser(prev => prev ? ({
+              ...prev,
+              profile: {
+                ...prev.profile,
+                plan_status: 'active',
+                current_plan: plan || 'premium',
+              }
+            }) : prev);
+          });
+      }
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, '', cleanUrl);
+    } else if (mpStatus === 'failure') {
+      showToast('El pago en Mercado Pago no pudo completarse. Podés intentar nuevamente o transferir por CBU.');
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, '', cleanUrl);
+    }
+  }, [currentUser?.user?.id]);
 
   // Favoriting Handler
   const handleToggleFavorite = (id) => {
@@ -670,7 +720,7 @@ export default function App() {
         <PwaInstallCard
           variant="modal"
           isOpen={pwaModalOpen}
-          onClose={() => setPwaModalOpen(false)}
+          onClose={handleClosePwaModal}
           cardTheme={cardTheme}
         />
       </>
@@ -943,7 +993,7 @@ export default function App() {
       <PwaInstallCard
         variant="modal"
         isOpen={pwaModalOpen}
-        onClose={() => setPwaModalOpen(false)}
+        onClose={handleClosePwaModal}
         cardTheme={cardTheme}
       />
 

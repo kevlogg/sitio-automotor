@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { ARGENTINA_LOCATION_DATA, PROVINCES_LIST } from '../../data/locationData';
-import { submitPaymentClaim } from '../../lib/planUtils';
+import { submitPaymentClaim, formatPrice, getCachedPlanPrices, fetchPlanPrices } from '../../lib/planUtils';
 import PaymentClaimModal from '../PaymentClaimModal';
 
 const RUBROS = [
@@ -41,12 +41,16 @@ export default function DashboardNegocio({
   const [activeTab, setActiveTab] = useState('perfil');
   const [locationType, setLocationType] = useState(profile.location_details ? 'multiple' : 'single');
 
-  // Plan state
   const planStatus = profile.plan_status || null;
   const currentPlanKey = profile.current_plan || null;
   const [submittingPayment, setSubmittingPayment] = useState(false);
   const [paymentClaimResult, setPaymentClaimResult] = useState({});
   const [claimModalPlan, setClaimModalPlan] = useState(null);
+  const [planPrices, setPlanPrices] = useState(getCachedPlanPrices);
+
+  useEffect(() => {
+    fetchPlanPrices().then((p) => { if (p) setPlanPrices(p); });
+  }, []);
 
   const [formData, setFormData] = useState({
     fullName: profile.full_name || '',
@@ -690,7 +694,7 @@ export default function DashboardNegocio({
                 {
                   key: 'base',
                   title: 'BASE',
-                  price: '$55.000',
+                  price: formatPrice(planPrices.base),
                   target: 'Comercios relacionados con el automotor y agencias virtuales',
                   features: ['1 aviso en la plataforma', 'Ficha en directorio de Negocios', 'Rubro categorizado y filtrable', 'Horarios y dirección', 'WhatsApp de contacto directo'],
                   disabled: ['Hasta 20 o 50 avisos', 'Banners de promoción en la página'],
@@ -700,7 +704,7 @@ export default function DashboardNegocio({
                 {
                   key: 'premium',
                   title: 'PREMIUM',
-                  price: '$110.000',
+                  price: formatPrice(planPrices.premium),
                   target: 'Agencias multimarca y grandes comercios del mundo automotor',
                   features: ['Hasta 20 avisos en la plataforma', 'Ficha destacada en directorio', 'Posicionamiento prioritario por zona', 'Estadísticas de visitas', 'WhatsApp directo y catálogo'],
                   disabled: ['Banners de promoción en la página'],
@@ -710,7 +714,7 @@ export default function DashboardNegocio({
                 {
                   key: 'super_premium',
                   title: 'SÚPER PREMIUM',
-                  price: '$220.000',
+                  price: formatPrice(planPrices.super_premium),
                   target: 'Agencias oficiales y comercios Súper Premium',
                   features: ['Hasta 50 avisos en la plataforma', 'Banners de promoción en la página', 'Máxima exposición en portada y búsquedas', 'Soporte prioritario exclusivo', 'Ficha VIP verificada'],
                   disabled: [],
