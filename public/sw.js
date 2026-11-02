@@ -1,7 +1,7 @@
 // Service Worker para Sitio Automotor PWA
 // Garantiza inicio instantáneo en modo standalone y arranque sin cuelgues de splash screen
 
-const CACHE_NAME = 'sa-pwa-v1';
+const CACHE_NAME = 'sa-pwa-v2';
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
@@ -9,6 +9,7 @@ const PRECACHE_ASSETS = [
   '/logo.png',
   '/logofrase.png',
   '/favicon.ico',
+  '/favicon-48x48.png',
   '/favicon-32x32.png',
   '/favicon-16x16.png',
   '/apple-touch-icon.png',
