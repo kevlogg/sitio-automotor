@@ -29,8 +29,10 @@ import PwaInstallCard from './components/PwaInstallCard';
 import { MOCK_VEHICLES } from './data/mockVehicles';
 import { supabase } from './lib/supabase';
 import { updateSeoMetadata, buildVehicleSchema } from './utils/seo';
+import { SITE_CONFIG } from './config/siteStatus';
+import OutOfServiceScreen from './components/OutOfServiceScreen';
 
-export default function App() {
+function MainApp() {
   // Helper para resolver rutas limpias (HTML5 History API) y redirigir hashes antiguos para SEO
   const parseCurrentRoute = () => {
     let path = window.location.pathname.toLowerCase();
@@ -1046,4 +1048,37 @@ export default function App() {
       />
     </div>
   );
+}
+
+export default function App() {
+  const [devUnlocked, setDevUnlocked] = useState(() => {
+    try {
+      if (typeof window === 'undefined') return false;
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('dev_access') === SITE_CONFIG.BYPASS_SECRET_KEY) {
+        sessionStorage.setItem('sa_dev_bypass', SITE_CONFIG.BYPASS_SECRET_KEY);
+        return true;
+      }
+      return sessionStorage.getItem('sa_dev_bypass') === SITE_CONFIG.BYPASS_SECRET_KEY;
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (SITE_CONFIG.SITE_SUSPENDED && !devUnlocked) {
+      document.title = `${SITE_CONFIG.TITLE} | Sitio Automotor`;
+    }
+  }, [devUnlocked]);
+
+  if (SITE_CONFIG.SITE_SUSPENDED && !devUnlocked) {
+    return (
+      <OutOfServiceScreen
+        config={SITE_CONFIG}
+        onUnlock={() => setDevUnlocked(true)}
+      />
+    );
+  }
+
+  return <MainApp />;
 }
