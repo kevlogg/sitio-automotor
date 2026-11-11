@@ -8,7 +8,7 @@
  * Entrar con ?dev_access=kevdev en la URL (o haciendo clic en el texto "Fuera de servicio")
  */
 export const SITE_CONFIG = {
-  SITE_SUSPENDED: true,
+  SITE_SUSPENDED: false,
   BYPASS_SECRET_KEY: 'kevdev',
   TITLE: 'Fuera de servicio'
 };
